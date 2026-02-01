@@ -1,7 +1,35 @@
 # OpenClaw Setup Plan
 
 > **Decisions Finalized**: 2026-01-31
-> **Status**: READY FOR IMPLEMENTATION
+> **Status**: ✅ INSTALLED & OPERATIONAL (2026-02-01)
+
+---
+
+## 🎉 Installation Complete
+
+OpenClaw gateway is **live and operational** on the VPS as of 2026-02-01.
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| OpenClaw Runtime | ✅ | v2026.1.30 @ `/opt/openclaw/runtime` |
+| pnpm | ✅ | v10.28.2 globally installed |
+| systemd Service | ✅ | `openclaw.service` (auto-restart) |
+| Telegram Bot | ✅ | @dutch_claws_bot (ID: 8503309726) |
+| Gateway API | ✅ | `127.0.0.1:18789` (loopback only) |
+| Anthropic API | ✅ | New key deployed |
+
+### Critical IPv6 Fix
+
+The VPS had 100% packet loss on IPv6. Telegram API was failing until we forced IPv4:
+
+```bash
+# Added to /etc/hosts on VPS
+149.154.166.110 api.telegram.org
+```
+
+**Symptom**: `TypeError: fetch failed`, `Network request for 'getUpdates' failed!`
+**Root cause**: VPS resolved to IPv6 (2001:67c:4e8:f004::9) with no connectivity
+**Fix**: Force IPv4 via hosts file entry
 
 ---
 
@@ -574,26 +602,26 @@ model_authorization:
 - [x] SSH security hardened (root login key-only) ✅ DONE 2026-01-31
 - [ ] System packages updated (25 pending - requires reboot)
 - [x] Directory structure created ✅ DONE 2026-02-01
-- [x] Telegram bot created and configured ✅ DONE 2026-02-01
-- [x] Bot token and chat ID stored ✅ DONE 2026-02-01
+- [x] Telegram bot created and configured ✅ DONE 2026-02-01 (@dutch_claws_bot)
+- [x] Bot token and chat ID stored ✅ DONE 2026-02-01 (/opt/openclaw/secrets/)
 - [x] Voiceprint enrollment phrases prepared ✅ DONE 2026-02-01
 - [x] Fallback PIN generated and stored ✅ DONE 2026-02-01
 - [ ] Base wallet created and funded (small amount) - CREATED, FUNDING PENDING
 - [x] Wallet private key secured ✅ DONE 2026-02-01
-- [x] Anthropic API key stored ✅ DONE 2026-02-01
+- [x] Anthropic API key stored ✅ DONE 2026-02-01 (new key)
 - [ ] Privacy.com account created (free tier)
 - [ ] RunPod account created
 - [ ] RunPod API key stored
 - [ ] At least one RunPod endpoint deployed
-- [x] Docker network created ✅ DONE 2026-02-01
-- [x] Docker compose file configured ✅ DONE 2026-02-01
-- [ ] Authorization tiers configured
-- [ ] Integration configs set up
-- [ ] Model router configured
+- [x] Docker network created ✅ DONE 2026-01-31 (openclaw-net)
+- [x] Docker compose file configured ✅ Running via systemd instead
+- [x] Authorization tiers configured ✅ DONE 2026-02-01 (5-tier in config)
+- [x] Integration configs set up ✅ DONE 2026-02-01
+- [ ] Model router configured (pending RunPod)
 
 ### Post-Launch Testing
 
-- [ ] Bot responds to /help command
+- [x] Bot responds to messages ✅ CONFIRMED 2026-02-01 (mobile Telegram chat working)
 - [ ] Tier 0 actions work without approval
 - [ ] Tier 2 actions trigger Telegram approval
 - [ ] Tier 3 actions require voice message
@@ -668,3 +696,57 @@ See `/opt/sysadmin-ai/research/openclaw-rag-knowledge-plan.md` for comprehensive
 *Setup plan finalized: 2026-01-31 | SSH hardened: 2026-01-31 23:38 UTC*
 *Phase 1-4 completed: 2026-02-01 | Wallet funding pending*
 *Phase 5 completed: 2026-02-01 | Docker infrastructure ready*
+
+---
+
+## Appendix: Production Configuration (2026-02-01)
+
+### VPS File Locations
+
+| Purpose | Path |
+|---------|------|
+| OpenClaw Runtime | `/opt/openclaw/runtime/` |
+| Main Config | `/root/.openclaw/openclaw.json` |
+| Environment | `/root/.openclaw/.env` |
+| Secrets | `/opt/openclaw/secrets/` |
+| Logs | `/opt/openclaw/data/logs/gateway.log` |
+| systemd Service | `/etc/systemd/system/openclaw.service` |
+| IPv6 Fix | `/etc/hosts` (api.telegram.org → 149.154.166.110) |
+
+### Key Commands
+
+```bash
+# Check gateway status
+systemctl status openclaw
+
+# View live logs
+journalctl -u openclaw -f
+
+# Restart gateway
+systemctl restart openclaw
+
+# Test Telegram connectivity
+curl -4 "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe"
+```
+
+### Local Development Tools
+
+| Tool | Path |
+|------|------|
+| Telegram CLI | `/snap/bin/telegram-cli` |
+| VPS SSH | `ssh vps` (via ~/.ssh/config) |
+
+### Configuration JSON5 Structure
+
+```json5
+// /root/.openclaw/openclaw.json (simplified)
+{
+  anthropicApiKey: "${ANTHROPIC_API_KEY}",
+  telegram: { botToken: "${TELEGRAM_BOT_TOKEN}", ... },
+  agents: { list: [{ identity: {...}, ... }] },
+  gateway: { bind: "127.0.0.1", port: 18789 },
+  sandbox: { enabled: true, docker: {...} }
+}
+```
+
+*Installation completed: 2026-02-01 | Gateway operational | Telegram bot active*

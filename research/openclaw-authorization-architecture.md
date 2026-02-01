@@ -283,7 +283,9 @@ request_12345.yaml:
 
 ### Phase 1: Basic Authorization (MVP)
 - [x] Design authorization tiers
-- [ ] Set up Telegram bot with /approve /deny commands
+- [x] Set up Telegram bot (@dutch_claws_bot) ✅ 2026-02-01
+- [x] Gateway operational with Telegram channel ✅ 2026-02-01
+- [ ] Implement /approve /deny commands
 - [ ] Create request queue system
 - [ ] Implement Tier 2 Telegram confirmation
 
