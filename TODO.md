@@ -1,7 +1,7 @@
 # OpenClaw Deployment TODO
 
 > **Last Updated**: 2026-02-01
-> **Status**: Phase 4 Complete, Phase 5 In Progress
+> **Status**: Phase 5 Complete, Phases 6-7 Pending
 
 ---
 
@@ -54,9 +54,11 @@
 - [ ] Test transaction (after funding)
 
 ### Phase 5: Docker Sandbox
-- [ ] Docker network created
-- [ ] Docker compose configured
-- [ ] Container security hardening
+- [x] Docker network created (`openclaw-net`)
+- [x] Docker compose configured
+- [x] Container security hardening (seccomp profile)
+- [x] Management script (`openclaw-ctl`)
+- [ ] Pull OpenClaw images (when available)
 - [ ] Test container launch
 
 ### Phase 6: Authorization System

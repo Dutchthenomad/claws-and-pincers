@@ -1,0 +1,139 @@
+# OpenClaw Docker Compose Configuration
+# Created: 2026-02-01
+#
+# Usage:
+#   cd /opt/openclaw/docker
+#   docker compose up -d
+#
+# Note: OpenClaw images will need to be pulled or built separately
+
+services:
+  # Main OpenClaw Gateway
+  openclaw-gateway:
+    image: openclaw/openclaw:latest
+    container_name: openclaw-gateway
+    restart: unless-stopped
+    networks:
+      - openclaw-net
+      - n8n_default  # Access to existing services (rag-api, qdrant, etc.)
+    ports:
+      - "127.0.0.1:18789:18789"  # Loopback only - no external access
+    volumes:
+      # Config (read-only)
+      - /opt/openclaw/config:/app/config:ro
+      # Workspace (read-write)
+      - /opt/openclaw/workspace:/app/workspace
+      # Data persistence
+      - /opt/openclaw/data:/app/data
+      # Skills (read-only)
+      - /opt/openclaw/skills:/app/skills:ro
+      # Secrets (read-only, mounted as individual files)
+      - /opt/openclaw/secrets/telegram-bot.env:/run/secrets/telegram:ro
+      - /opt/openclaw/secrets/anthropic-api.env:/run/secrets/anthropic:ro
+      - /opt/openclaw/secrets/wallet.env:/run/secrets/wallet:ro
+    environment:
+      - NODE_ENV=production
+      - OPENCLAW_SANDBOX_MODE=true
+      - OPENCLAW_GATEWAY_BIND=0.0.0.0
+      - OPENCLAW_GATEWAY_PORT=18789
+      - OPENCLAW_LOG_LEVEL=info
+      # Service discovery for existing infrastructure
+      - RAG_API_URL=http://rag-api:8000
+      - QDRANT_URL=http://qdrant:6333
+      - TIMESCALE_HOST=timescaledb
+      - TIMESCALE_PORT=5432
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    env_file:
+      - /opt/openclaw/secrets/telegram-bot.env
+      - /opt/openclaw/secrets/anthropic-api.env
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE  # Allow binding to ports
+    read_only: false  # Gateway needs write access to data/workspace
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18789/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Sandbox containers for untrusted code execution
+  # These are spawned on-demand by the gateway
+  openclaw-sandbox:
+    image: openclaw/openclaw-sandbox:latest
+    container_name: openclaw-sandbox-template
+    profiles: ["sandbox"]  # Not started by default, used as template
+    networks:
+      - openclaw-net
+    # Highly restricted - no persistent storage
+    read_only: true
+    tmpfs:
+      - /tmp:size=512M,mode=1777
+      - /home/sandbox:size=256M,mode=755
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1'
+          pids: 100  # Limit process count
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    # Maximum security restrictions
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:/opt/openclaw/docker/seccomp-sandbox.json
+    cap_drop:
+      - ALL
+    # No capabilities added - completely unprivileged
+    # No network access by default (can be enabled per-task)
+    # network_mode: none  # Uncomment to fully isolate
+
+  # Voice processing service (optional, for 2FA)
+  openclaw-voice:
+    image: openclaw/openclaw-voice:latest
+    container_name: openclaw-voice
+    profiles: ["voice"]  # Enable with: docker compose --profile voice up -d
+    restart: unless-stopped
+    networks:
+      - openclaw-net
+    volumes:
+      - /opt/openclaw/data/memory:/app/voiceprints:rw
+      - /opt/openclaw/config/profiles/telegram/voiceprint.yaml:/app/config/voiceprint.yaml:ro
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1'
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "-c", "import speechbrain; print('ok')"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+
+networks:
+  openclaw-net:
+    external: true
+  n8n_default:
+    external: true
+
+# Named volumes for persistence (optional, using bind mounts instead)
+# volumes:
+#   openclaw-data:
+#   openclaw-workspace:
