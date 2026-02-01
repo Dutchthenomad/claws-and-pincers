@@ -3,6 +3,7 @@
 > **Created**: 2026-02-01
 > **Status**: ACTIVE - Supersedes original setup-plan for remaining tasks
 > **Principle**: Trust is earned, not assumed. Cost awareness is mandatory.
+> **Timeline**: 30-day rapid capability rollout (VPS sandbox = safety net)
 
 ---
 
@@ -473,204 +474,274 @@ Gradually integrate OpenClaw bot into the full toolchain (RAG, MCP servers, Clau
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Phased Integration Timeline
+### Phased Integration Timeline (30-Day Experiment)
+
+**Safety Model**: VPS sandbox isolation is the primary safety net. The bot operates in a fully
+containerized environment with:
+- Docker network isolation (`openclaw-net`)
+- Read-only filesystem (except `/workspace`)
+- Capability dropping (`--cap-drop=ALL`)
+- Resource limits (memory, CPU, PIDs)
+- No SSH key access, no root outside container
+- All egress filtered through allowed endpoints
+- Full audit logging to TimescaleDB
+
+This sandbox allows aggressive capability rollout - if anything goes wrong, the blast radius
+is contained to the VPS experiment environment.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 0: ISOLATION (Current)                            │
-│              Duration: Until 2FA + basic trust established           │
+│              PHASE 0: FOUNDATION (Days 1-3)                          │
+│              Goal: Core infrastructure + 2FA operational             │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│  OpenClaw Bot capabilities:                                         │
+│  Capabilities:                                                      │
 │  ├── Respond to Telegram messages via Claude API                    │
 │  ├── Send authorization requests                                    │
 │  ├── Report status and costs                                        │
-│  └── NO external tool access                                        │
+│  └── Basic health monitoring                                        │
 │                                                                      │
-│  Security posture:                                                  │
-│  ├── Runs in Docker sandbox                                         │
-│  ├── Read-only filesystem (except /workspace)                       │
-│  ├── No network egress except allowed APIs                          │
-│  └── All actions logged to TimescaleDB                              │
-│                                                                      │
-│  Unlock criteria for Phase 1:                                       │
-│  ├── 2FA (fingerprint) working and tested                           │
+│  Tasks to complete:                                                 │
+│  ├── Samsung fingerprint 2FA working                                │
 │  ├── Cost tracking operational                                      │
-│  ├── 7 days of stable operation                                     │
-│  └── User explicit approval                                         │
+│  ├── Multi-model API keys configured                                │
+│  └── Audit logging verified                                         │
+│                                                                      │
+│  Unlock: 2FA tested successfully + cost tracking live               │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 1: RAG READ ACCESS                                │
-│              Duration: 14+ days after Phase 0                        │
+│              PHASE 1: KNOWLEDGE ACCESS (Days 4-7)                    │
+│              Goal: Full RAG integration + VPS awareness              │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  NEW capabilities:                                                  │
 │  ├── Query rugs-expert RAG (search_rugs_knowledge)                  │
-│  │   └── Read-only access to 3,623+ indexed vectors                 │
+│  │   └── Full access to 3,623+ indexed vectors                      │
+│  ├── Ingest knowledge to RAG (ingest_knowledge)                     │
 │  ├── Query VPS health (get_system_info, get_docker_status)          │
-│  └── Access indexed documentation and project knowledge             │
+│  ├── Read service logs (get_service_logs)                           │
+│  └── Access all indexed documentation                               │
 │                                                                      │
-│  Still restricted:                                                  │
-│  ├── Cannot ingest new knowledge                                    │
-│  ├── Cannot execute bash commands                                   │
-│  ├── Cannot modify files                                            │
-│  └── Cannot access Claude Code sessions                             │
+│  Authorization:                                                     │
+│  ├── RAG read: Tier 0 (autonomous)                                  │
+│  ├── RAG write: Tier 1 (notify only)                                │
+│  └── VPS queries: Tier 0 (autonomous)                               │
 │                                                                      │
-│  Implementation:                                                    │
-│  ├── OpenClaw tool config whitelists: [search_rugs_knowledge,       │
-│  │   get_system_info, get_docker_status]                            │
-│  ├── MCP proxy routes requests to rugs-expert container             │
-│  └── All queries logged with full context                           │
-│                                                                      │
-│  Unlock criteria for Phase 2:                                       │
-│  ├── 14 days of appropriate RAG usage                               │
-│  ├── No attempts to exceed permissions                              │
-│  ├── Demonstrated value from knowledge access                       │
-│  └── User explicit approval                                         │
+│  Unlock: Demonstrated useful RAG queries + no errors                │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 2: EXPANDED READ + LIMITED WRITE                  │
-│              Duration: 30+ days after Phase 1                        │
+│              PHASE 2: EXTERNAL INTEGRATION (Days 8-14)               │
+│              Goal: GitHub, web access, research capabilities         │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  NEW capabilities:                                                  │
-│  ├── Ingest knowledge to RAG (with approval)                        │
-│  │   └── Can add documentation, research findings                   │
-│  ├── Read service logs (get_service_logs)                           │
-│  ├── GitHub read operations (list issues, view PRs)                 │
-│  └── Web fetch for documentation                                    │
+│  ├── GitHub read (list issues, view PRs, browse repos)              │
+│  ├── GitHub write (create issues, comment on PRs)                   │
+│  ├── Web fetch for documentation and research                       │
+│  ├── Context7 documentation lookup                                  │
+│  └── Web search for current information                             │
 │                                                                      │
-│  Still restricted:                                                  │
-│  ├── Cannot execute arbitrary bash                                  │
-│  ├── Cannot write to filesystem outside workspace                   │
-│  ├── Cannot push to GitHub                                          │
-│  └── Cannot control browser automation                              │
+│  Authorization:                                                     │
+│  ├── GitHub read: Tier 0 (autonomous)                               │
+│  ├── GitHub write: Tier 2 (requires approval)                       │
+│  ├── Web fetch: Tier 0 (autonomous)                                 │
+│  └── Web search: Tier 0 (autonomous)                                │
 │                                                                      │
-│  Approval requirements:                                             │
-│  ├── RAG ingestion: Tier 2 (Telegram button)                        │
-│  ├── GitHub operations: Tier 1 (notify only)                        │
-│  └── Web fetch: Tier 0 (autonomous)                                 │
-│                                                                      │
-│  Unlock criteria for Phase 3:                                       │
-│  ├── 30 days of responsible expanded access                         │
-│  ├── Quality contributions to knowledge base                        │
-│  ├── No security incidents                                          │
-│  └── User explicit approval                                         │
+│  Unlock: Quality research outputs + appropriate GitHub usage        │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 3: CLAUDE CODE SESSION BRIDGE                     │
-│              Duration: 60+ days after Phase 2                        │
+│              PHASE 3: EXECUTION CAPABILITIES (Days 15-21)            │
+│              Goal: Limited bash, file operations, automation         │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  NEW capabilities:                                                  │
+│  ├── Allowlisted bash commands within sandbox:                      │
+│  │   ├── git status, git log, git diff                              │
+│  │   ├── docker ps, docker logs                                     │
+│  │   ├── systemctl status (read-only)                               │
+│  │   ├── curl (GET only, allowed domains)                           │
+│  │   └── Standard unix: ls, cat, grep, find, df, free               │
+│  ├── File read within project directories                           │
+│  ├── File write to /workspace only                                  │
+│  ├── Docker container inspection (not control)                      │
+│  └── Scheduled task creation (cron-like)                            │
+│                                                                      │
+│  Authorization:                                                     │
+│  ├── Allowlisted bash: Tier 1 (notify only)                         │
+│  ├── File read: Tier 0 (autonomous)                                 │
+│  ├── File write: Tier 1 (notify only)                               │
+│  └── Scheduled tasks: Tier 2 (requires approval)                    │
+│                                                                      │
+│  Unlock: No unauthorized command attempts + useful automation       │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│              PHASE 4: CLAUDE CODE BRIDGE (Days 22-26)                │
+│              Goal: Bidirectional integration with dev sessions       │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  NEW capabilities:                                                  │
 │  ├── Participate in Claude Code sessions (read context)             │
 │  │   └── Can see conversation history when invoked                  │
-│  ├── Suggest code changes (human applies)                           │
-│  ├── Create GitHub issues and PRs (with approval)                   │
-│  ├── Limited bash (allowlisted commands only)                       │
-│  │   └── git status, docker ps, systemctl status, etc.              │
-│  └── File read within project directories                           │
+│  ├── Suggest code changes (queued for human review)                 │
+│  ├── Create GitHub PRs (with approval)                              │
+│  ├── Browser automation for research (Playwright)                   │
+│  │   └── Read-only scraping, no form submissions                    │
+│  └── Initiate async research tasks                                  │
 │                                                                      │
-│  Still restricted:                                                  │
-│  ├── Cannot write/edit files autonomously                           │
-│  ├── Cannot execute arbitrary commands                              │
-│  ├── Cannot access secrets directly                                 │
-│  └── Cannot control VPS infrastructure                              │
+│  Bridge commands:                                                   │
+│  ├── Telegram: /claude <message> → forwards to session              │
+│  ├── Claude Code: @openclaw <task> → delegates to bot               │
+│  └── Shared workspace: /opt/openclaw/workspace/shared               │
 │                                                                      │
-│  Bridge mechanism:                                                  │
-│  ├── Telegram command: /claude <message>                            │
-│  │   └── Forwards to active Claude Code session                     │
-│  ├── Claude Code can @mention bot for async tasks                   │
-│  └── Shared workspace for file exchange                             │
+│  Authorization:                                                     │
+│  ├── Session read: Tier 0 (autonomous)                              │
+│  ├── Code suggestions: Tier 1 (notify only)                         │
+│  ├── PR creation: Tier 2 (requires approval)                        │
+│  └── Browser automation: Tier 1 (notify only)                       │
 │                                                                      │
-│  Unlock criteria for Phase 4:                                       │
-│  ├── 60 days of collaborative operation                             │
-│  ├── Demonstrated judgment in suggestions                           │
-│  ├── No overreach attempts                                          │
-│  └── User explicit approval                                         │
+│  Unlock: Quality suggestions + no overreach                         │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 4: SUPERVISED AUTONOMY                            │
-│              Duration: 90+ days after Phase 3                        │
+│              PHASE 5: FULL SANDBOX AUTONOMY (Days 27-30)             │
+│              Goal: Maximum capability within sandbox constraints     │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│  NEW capabilities:                                                  │
-│  ├── Write files to designated project areas (with approval)        │
-│  ├── Execute approved bash commands                                 │
-│  ├── Manage Docker containers (restart, logs)                       │
-│  ├── Browser automation for research                                │
-│  └── Initiate Claude Code sessions for complex tasks                │
+│  Full capabilities (within sandbox):                                │
+│  ├── All MCP tools available to Claude Code                         │
+│  ├── Expanded bash (still sandboxed, no sudo)                       │
+│  ├── Docker container management (restart, logs, exec)              │
+│  ├── File write to project directories                              │
+│  ├── Git operations including push (with approval)                  │
+│  ├── Full browser automation (including forms)                      │
+│  ├── Proactive monitoring and maintenance                           │
+│  └── Self-directed research and development                         │
 │                                                                      │
-│  Still restricted:                                                  │
-│  ├── Cannot modify system files                                     │
-│  ├── Cannot change security settings                                │
-│  ├── Cannot access cold wallet / production secrets                 │
-│  └── Cannot disable logging/audit                                   │
+│  Authorization at Phase 5:                                          │
+│  ├── Tier 0: All read operations, RAG, web, monitoring              │
+│  ├── Tier 1: File writes, bash execution, browser automation        │
+│  ├── Tier 2: Git push, PR creation, container management            │
+│  └── Tier 3: Financial transactions only (2FA required)             │
 │                                                                      │
-│  Approval tiers at this phase:                                      │
-│  ├── Tier 0: RAG queries, status checks, file reads                 │
-│  ├── Tier 1: Web research, GitHub reads, log views                  │
-│  ├── Tier 2: File writes, bash execution, GitHub writes             │
-│  └── Tier 3: Container management, infrastructure changes           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│              PHASE 5: FULL INTEGRATION (Far Future)                  │
-│              Requires: Extensive track record + explicit unlock      │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  Capabilities:                                                      │
-│  ├── Full MCP tool access (same as Claude Code)                     │
-│  ├── Autonomous task execution within budgets                       │
-│  ├── Self-directed research and development                         │
-│  └── Proactive system maintenance                                   │
-│                                                                      │
-│  Permanent restrictions (Tier 4 - never unlocked):                  │
+│  PERMANENT RESTRICTIONS (Tier 4 - hardcoded deny):                  │
+│  ├── Cannot escape Docker sandbox                                   │
 │  ├── Cannot disable security services                               │
 │  ├── Cannot expose secrets publicly                                 │
 │  ├── Cannot modify authorization system                             │
 │  ├── Cannot delete critical data                                    │
-│  └── Cannot bypass audit logging                                    │
+│  ├── Cannot bypass audit logging                                    │
+│  ├── Cannot access SSH keys or root credentials                     │
+│  └── Cannot modify firewall or network config                       │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Tool Access Matrix by Phase
+### 30-Day Timeline Summary
 
-| Tool/Capability | Phase 0 | Phase 1 | Phase 2 | Phase 3 | Phase 4 | Phase 5 |
-|-----------------|---------|---------|---------|---------|---------|---------|
+| Phase | Days | Focus | Key Milestone |
+|-------|------|-------|---------------|
+| 0 | 1-3 | Foundation | 2FA + cost tracking operational |
+| 1 | 4-7 | Knowledge | Full RAG access working |
+| 2 | 8-14 | External | GitHub + web research active |
+| 3 | 15-21 | Execution | Bash + file ops in sandbox |
+| 4 | 22-26 | Bridge | Claude Code integration live |
+| 5 | 27-30 | Autonomy | Maximum sandbox capabilities |
+
+### Sandbox Security Model
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    VPS SANDBOX ARCHITECTURE                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌─────────────────── HOST (srv1216617) ───────────────────────┐    │
+│  │                                                              │    │
+│  │  PROTECTED ZONE (Bot cannot access):                        │    │
+│  │  ├── /root/ (SSH keys, host configs)                        │    │
+│  │  ├── /etc/ (system configuration)                           │    │
+│  │  ├── /opt/openclaw/secrets/ (mounted read-only)             │    │
+│  │  ├── Host network stack                                     │    │
+│  │  └── Other containers (qdrant, timescale, etc.)             │    │
+│  │                                                              │    │
+│  │  ┌─────────── SANDBOX (Bot operates here) ──────────────┐   │    │
+│  │  │                                                       │   │    │
+│  │  │  openclaw-gateway container:                         │   │    │
+│  │  │  ├── /workspace (read-write, bot's playground)       │   │    │
+│  │  │  ├── /home/node/.openclaw (config, read-only)        │   │    │
+│  │  │  ├── /tmp (ephemeral)                                │   │    │
+│  │  │  └── Network: openclaw-net only                      │   │    │
+│  │  │                                                       │   │    │
+│  │  │  Constraints:                                        │   │    │
+│  │  │  ├── --cap-drop=ALL                                  │   │    │
+│  │  │  ├── --read-only (except /workspace, /tmp)           │   │    │
+│  │  │  ├── --memory=4g --cpus=2 --pids-limit=100          │   │    │
+│  │  │  ├── --security-opt=no-new-privileges               │   │    │
+│  │  │  └── seccomp profile (syscall filtering)            │   │    │
+│  │  │                                                       │   │    │
+│  │  └───────────────────────────────────────────────────────┘   │    │
+│  │                                                              │    │
+│  │  ALLOWED EGRESS (network allowlist):                        │    │
+│  │  ├── api.anthropic.com (Claude)                             │    │
+│  │  ├── api.openai.com (GPT)                                   │    │
+│  │  ├── generativelanguage.googleapis.com (Gemini)             │    │
+│  │  ├── api.telegram.org (bot messaging)                       │    │
+│  │  ├── api.runpod.io (when configured)                        │    │
+│  │  ├── api.github.com (GitHub operations)                     │    │
+│  │  ├── Internal: rag-api, qdrant, timescaledb, n8n           │    │
+│  │  └── General HTTPS (for web research, documentation)        │    │
+│  │                                                              │    │
+│  └──────────────────────────────────────────────────────────────┘    │
+│                                                                      │
+│  BLAST RADIUS: If bot goes rogue, damage limited to:               │
+│  ├── /workspace contents (can be wiped)                            │
+│  ├── API credits (protected by 2FA for purchases)                  │
+│  ├── GitHub repos (protected by Tier 2 approval)                   │
+│  └── Container resources (auto-limited)                            │
+│                                                                      │
+│  RECOVERY: docker stop openclaw-gateway && docker rm -f ...        │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### Tool Access Matrix by Phase (30-Day Timeline)
+
+| Tool/Capability | P0 (D1-3) | P1 (D4-7) | P2 (D8-14) | P3 (D15-21) | P4 (D22-26) | P5 (D27-30) |
+|-----------------|-----------|-----------|------------|-------------|-------------|-------------|
 | Telegram messaging | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Claude API (chat) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| RAG search (read) | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| VPS health checks | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| RAG ingest (write) | ❌ | ❌ | ✅* | ✅ | ✅ | ✅ |
-| Service logs | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Multi-model LLM | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| RAG search | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| RAG ingest | ❌ | ✅¹ | ✅¹ | ✅ | ✅ | ✅ |
+| VPS health | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Service logs | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | GitHub read | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Web fetch | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
-| Claude Code context | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| GitHub write | ❌ | ❌ | ❌ | ✅* | ✅* | ✅ |
-| Limited bash | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| File read (project) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| File write | ❌ | ❌ | ❌ | ❌ | ✅* | ✅ |
-| Docker management | ❌ | ❌ | ❌ | ❌ | ✅* | ✅ |
-| Browser automation | ❌ | ❌ | ❌ | ❌ | ✅* | ✅ |
+| GitHub write | ❌ | ❌ | ✅² | ✅² | ✅² | ✅² |
+| Web fetch/search | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Context7 docs | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Bash (allowlist) | ❌ | ❌ | ❌ | ✅¹ | ✅¹ | ✅¹ |
+| File read | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| File write | ❌ | ❌ | ❌ | ✅¹ | ✅¹ | ✅¹ |
+| Scheduled tasks | ❌ | ❌ | ❌ | ✅² | ✅² | ✅² |
+| Claude Code bridge | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Browser automation | ❌ | ❌ | ❌ | ❌ | ✅¹ | ✅¹ |
+| Docker management | ❌ | ❌ | ❌ | ❌ | ❌ | ✅² |
+| Git push | ❌ | ❌ | ❌ | ❌ | ❌ | ✅² |
 | Full MCP access | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 
-*\* = Requires approval (Tier 2 or higher)*
+**Legend**: ✅ = Available | ✅¹ = Tier 1 (notify) | ✅² = Tier 2 (approval required)
 
 ### Integration Architecture
 
@@ -743,21 +814,39 @@ claude_code_bridge:
       openclaw: "read-write (Phase 4+) / read-only (Phase 3)"
 ```
 
-### Security Gates Between Phases
+### Phase Transition Gates
 
-Each phase transition requires:
+Each phase unlock requires:
 
-1. **Time requirement** - Minimum days at current phase
-2. **Behavioral criteria** - No permission violations, quality contributions
-3. **Explicit user approval** - Must run `/unlock-phase <N>` command
-4. **Audit review** - Summary of actions taken at current phase
+1. **Milestone completion** - Key tasks for current phase done
+2. **No major incidents** - No unauthorized action attempts
+3. **User approval** - `/unlock-phase <N>` or automatic if criteria met
 
 ```
-/phase status      → Show current phase and progress toward next
-/phase history     → Audit log of phase transitions
-/unlock-phase 1    → Request unlock to Phase 1 (shows criteria)
-/lock-phase 0      → Emergency revert to Phase 0
+/phase status      → Current phase, day, capabilities
+/phase next        → Show what unlocks at next phase
+/unlock-phase N    → Manually advance to phase N
+/lock-phase 0      → Emergency rollback to isolation
+/phase log         → Audit of all phase transitions
 ```
+
+### Experiment Success Criteria (Day 30)
+
+At the end of 30 days, evaluate:
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| Uptime | > 95% | Gateway availability |
+| Useful actions | > 100 | Queries, research, automation |
+| False 2FA triggers | < 5 | Unnecessary approval requests |
+| Security incidents | 0 | Unauthorized access attempts |
+| Cost optimization | Measurable | Model routing savings vs Opus-only |
+| Knowledge growth | +500 vectors | RAG contributions |
+
+If successful, consider:
+- Extending experiment with more capabilities
+- Promoting patterns to production use
+- Documenting learnings for future agents
 
 ---
 
