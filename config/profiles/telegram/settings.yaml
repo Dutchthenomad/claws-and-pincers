@@ -1,0 +1,43 @@
+# OpenClaw Telegram Channel Configuration
+# Created: 2026-01-31
+
+channel: telegram
+enabled: true
+mode: private  # Only owner can interact
+
+bot:
+  id: 8503309726
+  username: "dutch_claws_bot"
+  name: "Clawbot"
+
+access:
+  owner_chat_id: 6490779444
+  owner_name: "Rodney Mullen"
+  allowed_users: []  # Add additional trusted user IDs if needed
+  reject_unknown: true  # Silently ignore messages from non-owners
+
+notifications:
+  tier0_actions: false   # Don't notify for unrestricted actions
+  tier1_actions: true    # Notify for logged actions
+  tier2_requests: true   # Notify for approval requests
+  tier3_requests: true   # Notify for 2FA requests
+  daily_digest: true
+  digest_time: "09:00"   # UTC
+
+authorization:
+  timeout_hours: 4       # Auto-deny pending requests after 4 hours
+  max_pending: 10        # Max queued authorization requests
+  reminder_minutes: 30   # Remind about pending requests
+
+voice_2fa:
+  enabled: true
+  enrollment_status: pending  # Will change to 'enrolled' after setup
+  confidence_threshold: 0.85
+  max_duration_seconds: 10
+  fallback_to_pin: true
+
+message_handling:
+  max_message_length: 4096
+  split_long_messages: true
+  typing_indicator: true
+  read_receipts: false
