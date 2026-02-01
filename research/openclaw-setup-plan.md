@@ -572,15 +572,15 @@ model_authorization:
 ### Pre-Launch
 
 - [x] SSH security hardened (root login key-only) ✅ DONE 2026-01-31
-- [ ] System packages updated
-- [ ] Directory structure created
-- [ ] Telegram bot created and configured
-- [ ] Bot token and chat ID stored
-- [ ] Voiceprint enrollment phrases prepared
-- [ ] Fallback PIN generated and stored
-- [ ] Base wallet created and funded (small amount)
-- [ ] Wallet private key secured
-- [ ] Anthropic API key stored
+- [ ] System packages updated (25 pending - requires reboot)
+- [x] Directory structure created ✅ DONE 2026-02-01
+- [x] Telegram bot created and configured ✅ DONE 2026-02-01
+- [x] Bot token and chat ID stored ✅ DONE 2026-02-01
+- [x] Voiceprint enrollment phrases prepared ✅ DONE 2026-02-01
+- [x] Fallback PIN generated and stored ✅ DONE 2026-02-01
+- [ ] Base wallet created and funded (small amount) - CREATED, FUNDING PENDING
+- [x] Wallet private key secured ✅ DONE 2026-02-01
+- [x] Anthropic API key stored ✅ DONE 2026-02-01
 - [ ] Privacy.com account created (free tier)
 - [ ] RunPod account created
 - [ ] RunPod API key stored
@@ -666,3 +666,4 @@ See `/opt/sysadmin-ai/research/openclaw-rag-knowledge-plan.md` for comprehensive
 ---
 
 *Setup plan finalized: 2026-01-31 | SSH hardened: 2026-01-31 23:38 UTC*
+*Phase 1-4 completed: 2026-02-01 | Wallet funding pending*

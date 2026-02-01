@@ -1,0 +1,50 @@
+# OpenClaw Wallet Configuration Template
+# Network: Base (Ethereum L2)
+#
+# DEPLOYMENT NOTE: Copy to /opt/openclaw/config/tools/wallet.yaml
+# and update the hot_wallet.address with your generated address.
+
+wallet:
+  network: base
+  chain_id: 8453
+  rpc_url: "https://mainnet.base.org"
+  explorer_url: "https://basescan.org"
+
+  hot_wallet:
+    address: "0x_YOUR_WALLET_ADDRESS_HERE"
+    # Private key stored in /opt/openclaw/secrets/wallet.env
+    purpose: "Agent operational spending"
+
+  tokens:
+    usdc:
+      address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+      decimals: 6
+      name: "USD Coin"
+
+    eth:
+      decimals: 18
+      name: "Ethereum"
+      purpose: "Gas fees only"
+
+  limits:
+    per_transaction_usdc: 50      # Max single transaction
+    daily_usdc: 200               # Max per 24 hours
+    weekly_usdc: 500              # Max per 7 days
+    max_balance_usdc: 500         # Alert if balance exceeds
+    min_balance_usdc: 10          # Alert if balance below
+
+  gas:
+    max_gas_price_gwei: 1         # Base is cheap, reject if higher
+    eth_reserve: 0.01             # Keep for gas, don't spend
+    max_gas_per_tx: 200000        # Gas limit per transaction
+
+  security:
+    require_2fa_above_usdc: 50    # Tier 3 auth for large txs
+    whitelist_only: false         # If true, only send to whitelisted addresses
+    whitelisted_addresses: []     # Add trusted recipients here
+
+  notifications:
+    on_receive: true
+    on_send: true
+    low_balance_alert: true
+    high_balance_alert: true
