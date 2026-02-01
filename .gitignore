@@ -1,0 +1,30 @@
+# Secrets - NEVER commit
+secrets/
+*.env
+*.key
+*.pem
+credentials.json
+
+# Private keys
+*.priv
+wallet.json
+
+# Logs
+*.log
+logs/
+
+# Runtime
+runtime/
+.cache/
+__pycache__/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
