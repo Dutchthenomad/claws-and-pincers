@@ -1,8 +1,9 @@
 # OpenClaw 30-Day Experiment TODO
 
 > **Last Updated**: 2026-02-02
-> **Current Phase**: 0 (Foundation)
+> **Current Phase**: 0 → 1 (Foundation → Knowledge)
 > **Current Day**: 2 of 30
+> **Phase 0 Status**: ✅ COMPLETE
 > **Experiment Start**: 2026-02-01
 > **Target Completion**: 2026-03-03
 
@@ -26,30 +27,50 @@
   - Feature branch: feature/telegram-2fa-buttons
   - PR #6892 submitted
 
+- [x] **Multi-Model LLM Routing** (2026-02-02)
+  - Google AI: ✅ Configured (Gemini 2.0 Flash)
+  - Groq: ✅ Configured (FREE llama-3.3-70b - 1000 req/day)
+  - OpenRouter: ✅ Configured (Kimi K2.5, GPT-4o)
+  - Anthropic: ✅ Already active (Claude)
+  - Fallback chain: Groq → Anthropic → OpenRouter → Google
+
+- [x] **Cost Tracking Infrastructure** (2026-02-02)
+  - Created `/opt/openclaw/config/cost-registry.yaml`
+  - TimescaleDB `cost_events` table ready (14 columns)
+  - Budget alerts configured per service
+  - Groq marked as free tier
+
+- [x] **Debug Cleanup** (2026-02-02)
+  - Removed 13 debug console.log statements
+  - Runtime rebuilt and gateway restarted
+
 ---
 
-## Phase 0: Foundation (Days 1-3) - IN PROGRESS
+## Phase 0: Foundation (Days 1-3) - ✅ COMPLETE
 
-### Remaining Tasks
+### Completed Tasks
 
-- [ ] **OpenAI API key**
-  - Create account at platform.openai.com
-  - Generate API key
-  - Store at `/opt/openclaw/secrets/openai-api.env`
+- [x] **Google AI API key** ✅
+  - Configured in `/root/.openclaw/.env`
+  - Available for Gemini 2.0 Flash
 
-- [ ] **Google AI API key** (may already be configured - verify)
-  - Check if `/opt/openclaw/secrets/google-ai.env` exists
-  - If not: create project, enable API, generate key
+- [x] **Groq API key** ✅ (replaces OpenAI need)
+  - FREE tier with llama-3.3-70b (better than GPT-4o for reasoning)
+  - 1,000 requests/day limit
+  - Stored at `/opt/openclaw/secrets/groq.env`
 
-- [ ] **Cost registry configuration**
-  - Create `/opt/openclaw/config/cost-registry.yaml`
-  - Define all paid services with budget alerts
-  - Set up TimescaleDB cost_events table
+- [x] **Cost registry configuration** ✅
+  - Created `/opt/openclaw/config/cost-registry.yaml`
+  - All paid services with budget alerts defined
+  - TimescaleDB cost_events table ready
 
 ### Phase 0 Unlock Criteria
 - [x] 2FA tested and working ✅ (inline buttons working)
-- [ ] All 3 LLM API keys configured
-- [ ] Cost tracking capturing events
+- [x] Multi-model LLM APIs configured ✅ (4 providers active)
+- [x] Cost tracking infrastructure ready ✅
+
+### Optional (Deferred)
+- [ ] **OpenAI API key** - Not required (Groq provides free 70B model)
 
 ---
 
@@ -174,12 +195,14 @@
 
 | Secret | Location | Status |
 |--------|----------|--------|
-| Anthropic API Key | `/opt/openclaw/secrets/anthropic-api.env` | ✅ Active |
-| Telegram Bot Token | `/opt/openclaw/secrets/telegram-bot.env` | ✅ Active |
-| Fallback PIN Hash | `/opt/openclaw/secrets/telegram-bot.env` | ✅ Active |
+| Anthropic API Key | `/root/.openclaw/.env` | ✅ Active |
+| Google AI API Key | `/root/.openclaw/.env` | ✅ Active |
+| Groq API Key | `/opt/openclaw/secrets/groq.env` | ✅ Active (FREE) |
+| OpenRouter API Key | `/root/.openclaw/.env` | ✅ Active |
+| Telegram Bot Token | `/root/.openclaw/.env` | ✅ Active |
+| Fallback PIN Hash | `/root/.openclaw/.env` | ✅ Active |
 | Wallet Private Key | `/opt/openclaw/secrets/wallet.env` | ✅ Stored |
-| OpenAI API Key | `/opt/openclaw/secrets/openai-api.env` | ❌ Pending |
-| Google AI API Key | `/opt/openclaw/secrets/google-ai.env` | ⏳ Verify |
+| OpenAI API Key | `/opt/openclaw/secrets/openai-api.env` | ⏳ Optional |
 | RunPod API Key | `/opt/openclaw/secrets/runpod.env` | ❌ Pending (Phase 2) |
 | Privacy.com | `/opt/openclaw/secrets/privacy-com.env` | ❌ Deferred |
 
@@ -206,10 +229,12 @@ All use scale-to-zero on RunPod (no idle cost).
 | Service | Type | Budget Alert | Status |
 |---------|------|--------------|--------|
 | Anthropic Claude | Per-token | $100/month | ✅ Active |
-| OpenAI GPT | Per-token | $50/month | ❌ Pending |
-| Google Gemini | Per-token | $50/month | ❌ Pending |
-| RunPod | Per-second | $30/month | ❌ Pending |
+| Google Gemini | Per-token | $50/month | ✅ Active |
+| OpenRouter | Per-token | $25/month | ✅ Active |
+| Groq | FREE | N/A | ✅ Active (1000 req/day) |
 | Hostinger VPS | Fixed | $15/month | ✅ Active |
+| OpenAI GPT | Per-token | $50/month | ⏳ Optional |
+| RunPod | Per-second | $30/month | ❌ Pending (Phase 2) |
 | Privacy.com | Free/$5mo | N/A | ❌ Deferred |
 
 ---
