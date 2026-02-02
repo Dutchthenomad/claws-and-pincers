@@ -1,9 +1,27 @@
 # Claws and Pincers
 
-> OpenClaw Personal AI Agent - Central Command Repository
+> **OpenClaw Personal AI Agent - Central Command Repository**
 > *30-Day Autonomous Agent Experiment*
 
-**Status**: OPERATIONAL | **Bot**: @dutch_claws_bot | **Phase**: 0 (Foundation)
+**Status**: OPERATIONAL | **Bot**: @dutch_claws_bot | **Phase**: 0 (Foundation) | **Day**: 2
+
+---
+
+## For Claude Code Sessions: START HERE
+
+If you're a Claude Code session working on this project:
+
+1. **Read this README first** - it's the source of truth
+2. **Check [TODO.md](TODO.md)** - current task priorities
+3. **Check [Refactored Priorities](research/openclaw-refactored-priorities-2026-02-01.md)** - full 30-day plan
+4. **Use the rugs-expert MCP** - it has RAG access to all project knowledge
+5. **Don't reinvent wheels** - query the RAG before building anything new
+
+**Key Infrastructure:**
+- VPS: `ssh vps` (72.62.160.2)
+- Bot: @dutch_claws_bot on Telegram
+- Wallet: `0x491245D10A16552A7f6317b9d437dA8A37d35799` (Base network, FUNDED)
+- MCP: rugs-expert server at http://72.62.160.2:8001/sse
 
 ---
 
@@ -14,6 +32,7 @@ An experiment in building a fully autonomous AI assistant with:
 - **Tiered authorization** (5 levels from autonomous to 2FA-required)
 - **Cost-aware operation** (tracks and optimizes API spend)
 - **Gradual capability expansion** (sandbox safety enables fast rollout)
+- **Higher intelligence layers** (RunPod GPU, local models, TTS, image gen)
 
 The bot operates in a VPS sandbox - if anything goes wrong, blast radius is contained.
 
@@ -31,16 +50,24 @@ The bot operates in a VPS sandbox - if anything goes wrong, blast radius is cont
 | RAG Knowledge Base | **INDEXED** | 3,623 vectors |
 | 5-Tier Authorization | **CONFIGURED** | In gateway config |
 
+### Completed (Ahead of Schedule)
+
+| Component | Status | Date |
+|-----------|--------|------|
+| Telegram 2FA (Inline Buttons) | ✅ WORKING | 2026-02-02 |
+| Base Wallet Funding | ✅ FUNDED | 2026-02-02 |
+| PR to upstream | ✅ [#6892](https://github.com/openclaw/openclaw/pull/6892) | 2026-02-02 |
+
 ### Pending (30-Day Experiment)
 
-| Component | Phase | Target Day |
-|-----------|-------|------------|
-| Samsung Fingerprint 2FA | 0 | Day 1-3 |
-| Multi-model API keys (OpenAI, Google) | 0 | Day 1-3 |
-| RAG Integration for Bot | 1 | Day 4-7 |
-| RunPod Ablated Models | 2 | Day 8-14 |
-| Claude Code Bridge | 4 | Day 22-26 |
-| Full Sandbox Autonomy | 5 | Day 27-30 |
+| Component | Phase | Target Day | Status |
+|-----------|-------|------------|--------|
+| Cost tracking infrastructure | 0 | Day 1-3 | ❌ Not started |
+| Multi-model API keys (OpenAI, Google) | 0 | Day 1-3 | ❌ Pending |
+| RAG Integration for Bot | 1 | Day 4-7 | ❌ Pending |
+| RunPod + Intelligence Layers | 2 | Day 8-14 | ❌ Pending |
+| Claude Code Bridge | 4 | Day 22-26 | ❌ Pending |
+| Full Sandbox Autonomy | 5 | Day 27-30 | ❌ Pending |
 
 ---
 
@@ -107,12 +134,23 @@ Telegram: @dutch_claws_bot
 Owner Chat ID: 6490779444
 ```
 
-### VPS Access
+### VPS Access (Prefer MCP over SSH)
+
+**Use rugs-expert MCP tools when possible:**
+```
+mcp__rugs-expert__get_system_info()        # System resources
+mcp__rugs-expert__get_docker_status()      # Container health
+mcp__rugs-expert__get_service_logs()       # Read container logs
+mcp__rugs-expert__run_health_checks()      # Full health check
+mcp__rugs-expert__search_rugs_knowledge()  # Query RAG
+mcp__rugs-expert__ingest_knowledge()       # Add to RAG
+```
+
+**SSH only when MCP insufficient:**
 ```bash
-ssh vps                              # Connect to VPS
-systemctl status openclaw            # Check gateway
+ssh vps                              # Direct VPS access
+systemctl status openclaw            # Gateway status
 journalctl -u openclaw -f            # Live logs
-docker ps                            # Container status
 ```
 
 ### Wallet (Base Network)
@@ -138,13 +176,29 @@ Status: UNFUNDED (pending)
 
 | Component | Choice | Status |
 |-----------|--------|--------|
-| **Primary Channel** | Telegram | Active |
-| **2FA Method** | Samsung fingerprint (simplified from voice) | Pending |
-| **LLM Strategy** | Multi-model routing (cost-optimized) | Pending |
-| **Crypto Wallet** | USDC on Base | Created, unfunded |
-| **Spending Card** | Privacy.com | Not created |
-| **Ablated Models** | RunPod serverless (scale-to-zero) | Not deployed |
-| **Sandbox** | Docker with full isolation | Active |
+| **Primary Channel** | Telegram | ✅ Active |
+| **2FA Method** | Inline buttons (Telegram native) | ✅ Working |
+| **LLM Strategy** | Multi-model routing (cost-optimized) | ⏳ Pending APIs |
+| **Crypto Wallet** | USDC on Base | ✅ Funded |
+| **Spending Card** | Privacy.com | ❌ Deferred |
+| **Ablated Models** | RunPod serverless (scale-to-zero) | ❌ Not deployed |
+| **Sandbox** | Docker with full isolation | ✅ Active |
+
+---
+
+## Intelligence Layers (Phase 2+)
+
+OpenClaw will have admin access to RunPod for higher-level capabilities:
+
+| Layer | Purpose | Technology | Status |
+|-------|---------|------------|--------|
+| **Ablated LLM** | Uncensored reasoning | dolphin-llama3.1-70b on RunPod | ❌ Pending |
+| **Code Specialist** | Deep code analysis | deepseek-coder-v2 on RunPod | ❌ Pending |
+| **Local Models** | Fast inference, privacy | Ollama / LM Studio | ❌ Pending |
+| **Image Generation** | Visual content | ComfyUI on RunPod | ❌ Pending |
+| **Voice/TTS** | Verbal capabilities | Chatterbox TTS | ❌ Pending |
+
+**Scaling model:** All RunPod workloads use scale-to-zero (no idle cost)
 
 ---
 
@@ -194,4 +248,11 @@ If you're the OpenClaw bot reading this:
 
 ---
 
-*Project initiated: 2026-01-31 | Gateway live: 2026-02-01 | 30-day experiment: In progress*
+*Project initiated: 2026-01-31 | Gateway live: 2026-02-01 | 30-day experiment: Day 2 of 30*
+
+---
+
+## Changelog
+
+- **2026-02-02**: Telegram 2FA inline buttons working, wallet funded, PR #6892 submitted
+- **2026-02-01**: Gateway deployed, Docker infrastructure healthy, RAG indexed

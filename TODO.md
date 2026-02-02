@@ -1,30 +1,45 @@
 # OpenClaw 30-Day Experiment TODO
 
-> **Last Updated**: 2026-02-01
+> **Last Updated**: 2026-02-02
 > **Current Phase**: 0 (Foundation)
+> **Current Day**: 2 of 30
 > **Experiment Start**: 2026-02-01
 > **Target Completion**: 2026-03-03
 
 ---
 
-## Phase 0: Foundation (Days 1-3)
+## Completed (Ahead of Schedule)
 
-### Critical Path
-- [ ] **Samsung fingerprint 2FA** via Telegram WebApp
-  - Create WebAuthn page on VPS (Tailscale-only)
-  - Configure Telegram deep link to auth page
-  - Test fingerprint → webhook → approval flow
+- [x] **Telegram 2FA with Inline Buttons** (2026-02-02)
+  - Implemented `sendPayload` in Telegram channel adapter
+  - Added callback query handler for approve/reject buttons
+  - Working end-to-end: approval → button tap → resolution
+  - PR: https://github.com/openclaw/openclaw/pull/6892
+
+- [x] **Base Wallet Funded** (2026-02-02)
+  - Address: `0x491245D10A16552A7f6317b9d437dA8A37d35799`
+  - Network: Base (ETH L2)
+  - Funded with ETH (gas) and USDC from Kraken
+
+- [x] **Fork & PR to Upstream** (2026-02-02)
+  - Fork: Dutchthenomad/openclaw
+  - Feature branch: feature/telegram-2fa-buttons
+  - PR #6892 submitted
+
+---
+
+## Phase 0: Foundation (Days 1-3) - IN PROGRESS
+
+### Remaining Tasks
 
 - [ ] **OpenAI API key**
   - Create account at platform.openai.com
   - Generate API key
   - Store at `/opt/openclaw/secrets/openai-api.env`
 
-- [ ] **Google AI API key**
-  - Create project at console.cloud.google.com
-  - Enable Generative Language API
-  - Generate API key
-  - Store at `/opt/openclaw/secrets/google-ai.env`
+- [ ] **Google AI API key** (may already be configured - verify)
+  - Check if `/opt/openclaw/secrets/google-ai.env` exists
+  - If not: create project, enable API, generate key
 
 - [ ] **Cost registry configuration**
   - Create `/opt/openclaw/config/cost-registry.yaml`
@@ -32,7 +47,7 @@
   - Set up TimescaleDB cost_events table
 
 ### Phase 0 Unlock Criteria
-- [ ] 2FA tested and working (3+ successful authentications)
+- [x] 2FA tested and working ✅ (inline buttons working)
 - [ ] All 3 LLM API keys configured
 - [ ] Cost tracking capturing events
 
@@ -164,9 +179,25 @@
 | Fallback PIN Hash | `/opt/openclaw/secrets/telegram-bot.env` | ✅ Active |
 | Wallet Private Key | `/opt/openclaw/secrets/wallet.env` | ✅ Stored |
 | OpenAI API Key | `/opt/openclaw/secrets/openai-api.env` | ❌ Pending |
-| Google AI API Key | `/opt/openclaw/secrets/google-ai.env` | ❌ Pending |
-| RunPod API Key | `/opt/openclaw/secrets/runpod.env` | ❌ Pending |
+| Google AI API Key | `/opt/openclaw/secrets/google-ai.env` | ⏳ Verify |
+| RunPod API Key | `/opt/openclaw/secrets/runpod.env` | ❌ Pending (Phase 2) |
 | Privacy.com | `/opt/openclaw/secrets/privacy-com.env` | ❌ Deferred |
+
+---
+
+## Intelligence Layers (Phase 2+)
+
+These require RunPod admin access:
+
+| Layer | Technology | Purpose | Status |
+|-------|------------|---------|--------|
+| Ablated LLM | dolphin-llama3.1-70b | Uncensored reasoning | ❌ Pending |
+| Code Specialist | deepseek-coder-v2 | Deep code analysis | ❌ Pending |
+| Local Models | Ollama / LM Studio | Fast inference | ❌ Pending |
+| Image Gen | ComfyUI | Visual content | ❌ Pending |
+| Voice/TTS | Chatterbox TTS | Verbal capabilities | ❌ Pending |
+
+All use scale-to-zero on RunPod (no idle cost).
 
 ---
 
@@ -187,11 +218,23 @@
 
 ```
 Bot: @dutch_claws_bot
-Wallet: 0x491245D10A16552A7f6317b9d437dA8A37d35799
+Wallet: 0x491245D10A16552A7f6317b9d437dA8A37d35799 (FUNDED)
+Network: Base (ETH L2)
 Fallback PIN: 410416
-VPS: ssh vps
+VPS: ssh vps (72.62.160.2)
+MCP: http://72.62.160.2:8001/sse (rugs-expert)
 Gateway: systemctl status openclaw
 Logs: journalctl -u openclaw -f
+```
+
+## MCP Tools (Prefer over SSH)
+
+```
+mcp__rugs-expert__get_system_info()        # System resources
+mcp__rugs-expert__get_docker_status()      # Container health
+mcp__rugs-expert__get_service_logs()       # Read logs
+mcp__rugs-expert__search_rugs_knowledge()  # Query RAG
+mcp__rugs-expert__ingest_knowledge()       # Add to RAG
 ```
 
 ---
@@ -206,4 +249,4 @@ Logs: journalctl -u openclaw -f
 
 ---
 
-*TODO updated: 2026-02-01 | 30-day experiment in progress*
+*TODO updated: 2026-02-02 | Day 2 of 30-day experiment*
