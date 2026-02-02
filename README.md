@@ -3,7 +3,7 @@
 > **OpenClaw Personal AI Agent - Central Command Repository**
 > *30-Day Autonomous Agent Experiment*
 
-**Status**: OPERATIONAL | **Bot**: @dutch_claws_bot | **Phase**: 0 ✅ → 1 | **Day**: 2
+**Status**: OPERATIONAL | **Bot**: @dutch_claws_bot | **Phase**: 0 ✅ → 1 | **Day**: 2 | **Mode**: UNSANDBOXED
 
 ---
 
@@ -104,13 +104,22 @@ See [Refactored Priorities](research/openclaw-refactored-priorities-2026-02-01.m
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────────────────────────────────────────────────┐    │
-│  │              SANDBOX (openclaw-gateway)                  │    │
+│  │              OPENCLAW GATEWAY (systemd)                  │    │
 │  │  ├── Telegram Bot (@dutch_claws_bot)                    │    │
 │  │  ├── Multi-model LLM Router                             │    │
-│  │  ├── Authorization Engine (5-tier)                      │    │
+│  │  ├── Authorization Engine (Telegram approvals)          │    │
 │  │  ├── Cost Tracker                                       │    │
-│  │  └── MCP Tool Access (phased)                           │    │
+│  │  └── MCP Tool Access                                    │    │
 │  └─────────────────────────────────────────────────────────┘    │
+│                              │                                   │
+│  ┌───────────────────────────┴───────────────────────────────┐  │
+│  │              AGENT-MAIN (Native Host User)                │  │
+│  │  ├── Home: /home/agent-main                              │  │
+│  │  ├── Full host filesystem access (as agent-main user)    │  │
+│  │  ├── Docker group membership                             │  │
+│  │  ├── Skills: 52+ tools in ~/skills                       │  │
+│  │  └── Symlinks to /opt/openclaw/workspace                 │  │
+│  └───────────────────────────────────────────────────────────┘  │
 │                              │                                   │
 │  ┌───────────────────────────┴───────────────────────────────┐  │
 │  │                    SHARED SERVICES                         │  │
@@ -192,7 +201,7 @@ Status: UNFUNDED (pending)
 | **Crypto Wallet** | USDC on Base | ✅ Funded |
 | **Spending Card** | Privacy.com | ❌ Deferred |
 | **Ablated Models** | RunPod serverless (scale-to-zero) | ❌ Not deployed |
-| **Sandbox** | Docker with full isolation | ✅ Active |
+| **Execution Mode** | Native host user (agent-main) | ✅ Active |
 
 ---
 
@@ -214,17 +223,26 @@ OpenClaw will have admin access to RunPod for higher-level capabilities:
 
 ## Safety Model
 
-The bot operates in a **sandboxed Docker container** with:
-- `--cap-drop=ALL` (minimal capabilities)
-- `--read-only` filesystem (except /workspace)
-- Memory/CPU/PID limits
-- Network egress allowlist
-- Full audit logging
+> **UPDATE 2026-02-02**: Migrated from Docker sandbox to native host user execution
+
+The bot now operates as a **dedicated Linux user** (`agent-main`) with:
+- Non-root user isolation (uid 1002)
+- Home directory: `/home/agent-main`
+- Docker group membership (can manage containers)
+- Full audit logging via OpenClaw gateway
+- Telegram exec approvals still required for sensitive operations
 
 **Blast radius if compromised**:
-- /workspace contents (wipeable)
-- API credits (protected by 2FA)
-- Nothing else - host is isolated
+- Everything accessible by `agent-main` user
+- Docker containers (via group membership)
+- API credits (still protected by Telegram approvals)
+- Host system files remain protected (not root)
+
+**Why unsandboxed?**
+- Enables true autonomous operation
+- Removes friction for legitimate tasks
+- Owner explicitly authorized this elevation
+- Still maintains Telegram approval workflow for exec operations
 
 ---
 
@@ -264,6 +282,7 @@ If you're the OpenClaw bot reading this:
 
 ## Changelog
 
+- **2026-02-02 (EVE)**: SANDBOX REMOVED - Migrated to native host user `agent-main` at `/home/agent-main`. Full host access granted.
 - **2026-02-02 (PM)**: Phase 0 COMPLETE - Multi-model routing (4 providers), cost tracking, Groq free tier configured
 - **2026-02-02 (AM)**: Telegram 2FA inline buttons working, wallet funded, PR #6892 submitted
 - **2026-02-01**: Gateway deployed, Docker infrastructure healthy, RAG indexed

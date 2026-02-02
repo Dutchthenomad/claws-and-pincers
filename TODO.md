@@ -4,12 +4,23 @@
 > **Current Phase**: 0 → 1 (Foundation → Knowledge)
 > **Current Day**: 2 of 30
 > **Phase 0 Status**: ✅ COMPLETE
+> **Execution Mode**: UNSANDBOXED (native host user)
 > **Experiment Start**: 2026-02-01
 > **Target Completion**: 2026-03-03
 
 ---
 
 ## Completed (Ahead of Schedule)
+
+- [x] **PRIVILEGE ELEVATION: Unsandboxed Execution** (2026-02-02)
+  - Migrated from Docker sandbox to native host user
+  - Created user `agent-main` (uid 1002)
+  - Home directory: `/home/agent-main`
+  - Docker group membership granted
+  - 52+ skills migrated to `~/skills`
+  - Symlinks to OpenClaw workspace configured
+  - Gateway config updated: `sandbox.mode: "off"`
+  - Telegram exec approvals still active
 
 - [x] **Telegram 2FA with Inline Buttons** (2026-02-02)
   - Implemented `sendPayload` in Telegram channel adapter
