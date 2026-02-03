@@ -1,0 +1,71 @@
+# OpenClaw Cost Registry
+# Updated: 2026-02-02
+
+paid_services:
+  llm_apis:
+    anthropic:
+      type: per-token
+      models: [claude-opus-4-5, claude-sonnet-4-5, claude-haiku-3-5]
+      billing: monthly
+      dashboard: https://console.anthropic.com
+      budget_alert_usd: 100
+      status: active
+
+    openai:
+      type: per-token
+      models: [gpt-4o, gpt-4o-mini]
+      billing: monthly
+      dashboard: https://platform.openai.com
+      budget_alert_usd: 50
+      status: pending
+
+    google:
+      type: per-token
+      models: [gemini-1.5-pro, gemini-1.5-flash]
+      billing: monthly
+      dashboard: https://console.cloud.google.com
+      budget_alert_usd: 50
+      status: pending
+
+    groq:
+      type: free-tier
+      models: [llama-3.1-70b-versatile, llama-3.1-8b-instant]
+      billing: free
+      dashboard: https://console.groq.com
+      budget_alert_usd: 0
+      status: pending
+
+  compute:
+    runpod:
+      type: per-second
+      purpose: Ablated models (dolphin, deepseek)
+      billing: prepaid_credits
+      dashboard: https://runpod.io/console
+      budget_alert_usd: 30
+      scaling: zero-when-idle
+      status: pending
+
+  infrastructure:
+    hostinger_vps:
+      type: fixed_monthly
+      cost_usd: 15
+      purpose: OpenClaw host
+      status: active
+
+budget_totals:
+  monthly_estimate_usd: 250
+  alert_threshold_percent: 80
+
+tracking:
+  database: timescaledb
+  table: openclaw.cost_events
+  retention_days: 90
+
+  groq:
+    display_name: Groq (Free Tier)
+    type: per_token
+    billing_cycle: monthly
+    monthly_budget: 0.00
+    budget_alert_threshold: 0
+    is_free: true
+    notes: Free tier - 1,000 requests/day limit for llama-3.3-70b

@@ -1,0 +1,32 @@
+# Secrets - never commit actual values
+config/secrets/*.env
+!config/secrets/*.env.template
+*.env
+!*.env.template
+
+# Private keys
+*.key
+*.pem
+*.priv
+wallet.json
+credentials.json
+
+# Logs
+*.log
+logs/
+
+# Runtime
+runtime/
+.cache/
+__pycache__/
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

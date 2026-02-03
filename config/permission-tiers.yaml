@@ -1,0 +1,629 @@
+# OpenClaw Permission Tiers Configuration
+# 4-tier permission system for autonomous agent operations
+# Version: 1.0.0
+
+metadata:
+  version: "1.0.0"
+  description: "Permission tier definitions for OpenClaw autonomous operations"
+  last_updated: "2026-02-01"
+
+# =============================================================================
+# TIER DEFINITIONS
+# =============================================================================
+
+tiers:
+  # ---------------------------------------------------------------------------
+  # TIER 0: Unrestricted - No approval needed
+  # ---------------------------------------------------------------------------
+  tier_0:
+    name: "Unrestricted"
+    description: "Read-only and informational operations requiring no approval"
+    approval_required: false
+    logging: minimal
+    timeout_seconds: 30
+
+    action_patterns:
+      # Read-only file operations
+      - pattern: "^ls\\s"
+        category: "filesystem_read"
+        description: "List directory contents"
+      - pattern: "^cat\\s"
+        category: "filesystem_read"
+        description: "Display file contents"
+      - pattern: "^head\\s"
+        category: "filesystem_read"
+        description: "Display beginning of file"
+      - pattern: "^tail\\s"
+        category: "filesystem_read"
+        description: "Display end of file"
+      - pattern: "^grep\\s"
+        category: "filesystem_read"
+        description: "Search file contents"
+      - pattern: "^find\\s.*-type"
+        category: "filesystem_read"
+        description: "Find files (read-only)"
+      - pattern: "^wc\\s"
+        category: "filesystem_read"
+        description: "Word/line count"
+      - pattern: "^diff\\s"
+        category: "filesystem_read"
+        description: "Compare files"
+      - pattern: "^file\\s"
+        category: "filesystem_read"
+        description: "Determine file type"
+
+      # Status checks
+      - pattern: "^systemctl\\s+status\\s"
+        category: "service_status"
+        description: "Check service status"
+      - pattern: "^docker\\s+ps"
+        category: "container_status"
+        description: "List Docker containers"
+      - pattern: "^docker\\s+images"
+        category: "container_status"
+        description: "List Docker images"
+      - pattern: "^docker\\s+logs\\s"
+        category: "container_status"
+        description: "View container logs"
+      - pattern: "^docker\\s+inspect\\s"
+        category: "container_status"
+        description: "Inspect container details"
+      - pattern: "^journalctl\\s"
+        category: "service_status"
+        description: "View system logs"
+
+      # Information queries
+      - pattern: "^date"
+        category: "system_info"
+        description: "Display date/time"
+      - pattern: "^pwd"
+        category: "system_info"
+        description: "Print working directory"
+      - pattern: "^echo\\s"
+        category: "system_info"
+        description: "Echo text"
+      - pattern: "^whoami"
+        category: "system_info"
+        description: "Display current user"
+      - pattern: "^hostname"
+        category: "system_info"
+        description: "Display hostname"
+      - pattern: "^uname"
+        category: "system_info"
+        description: "System information"
+      - pattern: "^df\\s"
+        category: "system_info"
+        description: "Disk usage"
+      - pattern: "^free\\s"
+        category: "system_info"
+        description: "Memory usage"
+      - pattern: "^uptime"
+        category: "system_info"
+        description: "System uptime"
+      - pattern: "^env$"
+        category: "system_info"
+        description: "Environment variables"
+      - pattern: "^which\\s"
+        category: "system_info"
+        description: "Locate command"
+      - pattern: "^type\\s"
+        category: "system_info"
+        description: "Command type"
+
+  # ---------------------------------------------------------------------------
+  # TIER 1: Logged - Auto-approved with full logging
+  # ---------------------------------------------------------------------------
+  tier_1:
+    name: "Logged"
+    description: "Auto-approved operations with comprehensive audit logging"
+    approval_required: false
+    logging: full
+    timeout_seconds: 60
+    retention_days: 90
+
+    action_patterns:
+      # Extended file reads (beyond sandbox)
+      - pattern: "^cat\\s+/(?!opt/openclaw/workspace)"
+        category: "extended_read"
+        description: "Read files outside workspace"
+      - pattern: "^less\\s"
+        category: "extended_read"
+        description: "Page through files"
+      - pattern: "^more\\s"
+        category: "extended_read"
+        description: "Page through files"
+      - pattern: "^zcat\\s"
+        category: "extended_read"
+        description: "Read compressed files"
+      - pattern: "^tar\\s+-t"
+        category: "extended_read"
+        description: "List archive contents"
+
+      # Network reads (GET only)
+      - pattern: "^curl\\s+(-s\\s+)?(-L\\s+)?https?://"
+        category: "network_read"
+        description: "HTTP GET request"
+        constraints:
+          - "no_post_data"
+          - "no_upload"
+      - pattern: "^wget\\s+(-q\\s+)?https?://"
+        category: "network_read"
+        description: "Download file (GET)"
+        constraints:
+          - "no_post_data"
+      - pattern: "^ping\\s"
+        category: "network_read"
+        description: "Network ping"
+      - pattern: "^dig\\s"
+        category: "network_read"
+        description: "DNS lookup"
+      - pattern: "^nslookup\\s"
+        category: "network_read"
+        description: "DNS lookup"
+      - pattern: "^traceroute\\s"
+        category: "network_read"
+        description: "Network route trace"
+      - pattern: "^netstat"
+        category: "network_read"
+        description: "Network statistics"
+      - pattern: "^ss\\s"
+        category: "network_read"
+        description: "Socket statistics"
+
+      # Git read operations
+      - pattern: "^git\\s+status"
+        category: "git_read"
+        description: "Git status"
+      - pattern: "^git\\s+log"
+        category: "git_read"
+        description: "Git history"
+      - pattern: "^git\\s+diff"
+        category: "git_read"
+        description: "Git differences"
+      - pattern: "^git\\s+show"
+        category: "git_read"
+        description: "Git show commit"
+      - pattern: "^git\\s+branch"
+        category: "git_read"
+        description: "Git branches"
+      - pattern: "^git\\s+remote\\s+-v"
+        category: "git_read"
+        description: "Git remotes"
+      - pattern: "^git\\s+fetch"
+        category: "git_read"
+        description: "Git fetch (read-only)"
+      - pattern: "^git\\s+stash\\s+list"
+        category: "git_read"
+        description: "List git stashes"
+
+      # Database reads
+      - pattern: "^psql.*SELECT"
+        category: "database_read"
+        description: "PostgreSQL SELECT query"
+        constraints:
+          - "select_only"
+      - pattern: "^redis-cli\\s+(GET|HGET|KEYS|INFO)"
+        category: "database_read"
+        description: "Redis read operations"
+
+  # ---------------------------------------------------------------------------
+  # TIER 2: Telegram Approval - Quick inline button approval
+  # ---------------------------------------------------------------------------
+  tier_2:
+    name: "Telegram Approval"
+    description: "Requires quick approval via Telegram inline buttons"
+    approval_required: true
+    approval_method: "telegram_inline"
+    logging: full
+    timeout_seconds: 300
+    auto_deny_on_timeout: true
+    max_pending_requests: 5
+
+    telegram_config:
+      button_layout: "inline"
+      buttons:
+        - text: "Approve"
+          callback: "approve"
+        - text: "Deny"
+          callback: "deny"
+        - text: "Details"
+          callback: "details"
+      notification_priority: "normal"
+      include_preview: true
+      preview_max_lines: 10
+
+    action_patterns:
+      # File writes within workspace
+      - pattern: "^(cat|echo).*>\\s*/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Write file in workspace"
+      - pattern: "^tee\\s+/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Write file in workspace"
+      - pattern: "^cp\\s+.*\\s+/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Copy to workspace"
+      - pattern: "^mv\\s+/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Move within workspace"
+      - pattern: "^mkdir\\s+(-p\\s+)?/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Create directory in workspace"
+      - pattern: "^rm\\s+(-r\\s+)?/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Remove from workspace"
+        constraints:
+          - "workspace_only"
+          - "no_recursive_root"
+      - pattern: "^chmod\\s+.*\\s+/opt/openclaw/workspace/"
+        category: "workspace_write"
+        description: "Change permissions in workspace"
+
+      # Docker container operations
+      - pattern: "^docker\\s+(start|stop|restart)\\s"
+        category: "container_ops"
+        description: "Container lifecycle operation"
+      - pattern: "^docker\\s+exec\\s"
+        category: "container_ops"
+        description: "Execute in container"
+      - pattern: "^docker\\s+run\\s"
+        category: "container_ops"
+        description: "Run new container"
+        constraints:
+          - "no_privileged"
+          - "no_host_network"
+      - pattern: "^docker-compose\\s+(up|down|restart)"
+        category: "container_ops"
+        description: "Docker Compose operation"
+
+      # Service restarts
+      - pattern: "^systemctl\\s+restart\\s"
+        category: "service_ops"
+        description: "Restart service"
+      - pattern: "^systemctl\\s+reload\\s"
+        category: "service_ops"
+        description: "Reload service"
+      - pattern: "^systemctl\\s+(start|stop)\\s"
+        category: "service_ops"
+        description: "Start/stop service"
+
+      # Git write operations
+      - pattern: "^git\\s+add\\s"
+        category: "git_write"
+        description: "Git add files"
+      - pattern: "^git\\s+commit"
+        category: "git_write"
+        description: "Git commit"
+      - pattern: "^git\\s+push"
+        category: "git_write"
+        description: "Git push"
+      - pattern: "^git\\s+merge"
+        category: "git_write"
+        description: "Git merge"
+      - pattern: "^git\\s+rebase"
+        category: "git_write"
+        description: "Git rebase"
+      - pattern: "^git\\s+checkout"
+        category: "git_write"
+        description: "Git checkout"
+      - pattern: "^git\\s+stash\\s+(push|pop|apply)"
+        category: "git_write"
+        description: "Git stash operations"
+
+      # Package operations (non-system)
+      - pattern: "^npm\\s+(install|update|uninstall)"
+        category: "package_ops"
+        description: "NPM package operation"
+      - pattern: "^pip\\s+(install|uninstall)"
+        category: "package_ops"
+        description: "Python package operation"
+      - pattern: "^cargo\\s+(install|update)"
+        category: "package_ops"
+        description: "Rust package operation"
+
+  # ---------------------------------------------------------------------------
+  # TIER 3: 2FA Required - Fingerprint/PIN confirmation
+  # ---------------------------------------------------------------------------
+  tier_3:
+    name: "2FA Required"
+    description: "Requires two-factor authentication (fingerprint or PIN)"
+    approval_required: true
+    approval_method: "2fa"
+    logging: full
+    audit_trail: true
+    timeout_seconds: 600
+    auto_deny_on_timeout: true
+    max_retries: 3
+    cooldown_after_deny_seconds: 300
+
+    two_factor_config:
+      methods:
+        - type: "fingerprint"
+          priority: 1
+          timeout_seconds: 30
+        - type: "pin"
+          priority: 2
+          min_length: 6
+          max_attempts: 3
+        - type: "totp"
+          priority: 3
+          issuer: "OpenClaw"
+      fallback_to_telegram: true
+      telegram_fallback_delay_seconds: 60
+      require_reason: true
+      notify_on_attempt: true
+
+    action_patterns:
+      # Financial operations
+      - pattern: "(transfer|send|pay|withdraw|deposit)"
+        category: "financial"
+        description: "Financial transaction"
+        always_tier_3: true
+      - pattern: "(invoice|payment|billing|charge)"
+        category: "financial"
+        description: "Billing operation"
+        always_tier_3: true
+      - pattern: "(stripe|paypal|crypto|wallet|eth|btc|sol)"
+        category: "financial"
+        description: "Payment platform operation"
+        always_tier_3: true
+
+      # Costly API calls
+      - pattern: "(openai|anthropic|gpt-4|claude)"
+        category: "costly_api"
+        description: "AI API call"
+        cost_check: true
+      - pattern: "^aws\\s+.*--"
+        category: "costly_api"
+        description: "AWS operation"
+        cost_check: true
+      - pattern: "^gcloud\\s"
+        category: "costly_api"
+        description: "GCP operation"
+        cost_check: true
+      - pattern: "^az\\s+(?!login)"
+        category: "costly_api"
+        description: "Azure operation"
+        cost_check: true
+
+      # System-wide changes
+      - pattern: "^apt(-get)?\\s+(install|remove|purge|upgrade)"
+        category: "system_change"
+        description: "System package operation"
+      - pattern: "^systemctl\\s+(enable|disable|mask)"
+        category: "system_change"
+        description: "Service configuration change"
+      - pattern: "^(useradd|userdel|usermod)"
+        category: "system_change"
+        description: "User management"
+      - pattern: "^(groupadd|groupdel|groupmod)"
+        category: "system_change"
+        description: "Group management"
+      - pattern: "(visudo|sudoers)"
+        category: "system_change"
+        description: "Sudo configuration"
+      - pattern: "^(iptables|ufw|firewalld)"
+        category: "system_change"
+        description: "Firewall configuration"
+      - pattern: "^sysctl\\s+-w"
+        category: "system_change"
+        description: "Kernel parameter change"
+      - pattern: "^crontab\\s+-e"
+        category: "system_change"
+        description: "Cron job modification"
+
+      # Credential access
+      - pattern: "/etc/shadow"
+        category: "credential_access"
+        description: "System credential access"
+      - pattern: "/etc/passwd.*-w"
+        category: "credential_access"
+        description: "Password file write access"
+      - pattern: "\\.ssh/(id_|authorized)"
+        category: "credential_access"
+        description: "SSH key access"
+      - pattern: "(API_KEY|SECRET|TOKEN|PASSWORD|CREDENTIAL)"
+        category: "credential_access"
+        description: "Credential environment variable"
+      - pattern: "(vault|keychain|keyring|secrets)"
+        category: "credential_access"
+        description: "Secret store access"
+      - pattern: "(\\.env|\\.credentials|\\.netrc)"
+        category: "credential_access"
+        description: "Credential file access"
+
+      # Sending messages as user
+      - pattern: "(sendmail|mail\\s+-s)"
+        category: "user_impersonation"
+        description: "Send email as user"
+      - pattern: "(slack|discord|telegram).*send"
+        category: "user_impersonation"
+        description: "Send message as user"
+      - pattern: "(twitter|tweet|post.*social)"
+        category: "user_impersonation"
+        description: "Social media post"
+      - pattern: "(sms|twilio.*message)"
+        category: "user_impersonation"
+        description: "Send SMS as user"
+
+      # Irreversible destructive operations
+      - pattern: "^rm\\s+-rf\\s+/"
+        category: "destructive"
+        description: "Recursive root deletion"
+        block_unless_explicit: true
+      - pattern: "^dd\\s+.*of=/"
+        category: "destructive"
+        description: "Direct disk write"
+      - pattern: "^mkfs\\."
+        category: "destructive"
+        description: "Filesystem format"
+      - pattern: "^shred\\s"
+        category: "destructive"
+        description: "Secure file deletion"
+      - pattern: "(DROP\\s+(DATABASE|TABLE)|TRUNCATE)"
+        category: "destructive"
+        description: "Database destructive operation"
+      - pattern: "docker\\s+system\\s+prune"
+        category: "destructive"
+        description: "Docker system cleanup"
+      - pattern: "git\\s+push.*--force"
+        category: "destructive"
+        description: "Force push to git"
+      - pattern: "git\\s+reset\\s+--hard"
+        category: "destructive"
+        description: "Hard git reset"
+
+# =============================================================================
+# ESCALATION RULES
+# =============================================================================
+
+escalation:
+  # Cost-based escalation
+  cost_thresholds:
+    tier_1_to_2:
+      usd: 0.10
+      description: "Operations costing more than $0.10 escalate to Tier 2"
+    tier_2_to_3:
+      usd: 1.00
+      description: "Operations costing more than $1.00 escalate to Tier 3"
+    absolute_block:
+      usd: 100.00
+      description: "Operations costing more than $100 are blocked pending manual review"
+
+  # Time-based escalation
+  time_of_day:
+    quiet_hours:
+      start: "23:00"
+      end: "07:00"
+      timezone: "UTC"
+      escalation_boost: 1
+      description: "During quiet hours, all tiers escalate by 1 level"
+
+  # Frequency-based escalation
+  rate_limits:
+    tier_0:
+      max_per_minute: 60
+      max_per_hour: 500
+      escalate_on_exceed: true
+    tier_1:
+      max_per_minute: 30
+      max_per_hour: 200
+      escalate_on_exceed: true
+    tier_2:
+      max_per_minute: 10
+      max_per_hour: 50
+      auto_deny_on_exceed: true
+    tier_3:
+      max_per_minute: 3
+      max_per_hour: 20
+      auto_deny_on_exceed: true
+      cooldown_minutes: 15
+
+  # Suspicious pattern detection
+  anomaly_detection:
+    enabled: true
+    escalate_on_anomaly: true
+    patterns:
+      - name: "rapid_privilege_escalation"
+        description: "Multiple tier escalations in short time"
+        threshold: 3
+        window_minutes: 5
+      - name: "unusual_access_pattern"
+        description: "Accessing unusual file paths"
+        baseline_learning_days: 7
+      - name: "credential_scanning"
+        description: "Multiple credential-related operations"
+        threshold: 5
+        window_minutes: 10
+        action: "block_and_alert"
+
+# =============================================================================
+# TIMEOUT SETTINGS
+# =============================================================================
+
+timeouts:
+  default_operation: 30
+  network_operation: 60
+  approval_request: 300
+  two_factor_prompt: 60
+  session_idle: 900
+  max_operation: 3600
+
+  retry_policy:
+    max_retries: 3
+    backoff_multiplier: 2
+    initial_delay_seconds: 1
+    max_delay_seconds: 30
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+
+logging:
+  levels:
+    minimal:
+      fields: ["timestamp", "action", "result"]
+      retention_days: 7
+    full:
+      fields: ["timestamp", "action", "user", "args", "result", "duration", "tier"]
+      retention_days: 90
+    audit:
+      fields: ["timestamp", "action", "user", "args", "result", "duration", "tier", "approval_chain", "ip", "session_id"]
+      retention_days: 365
+      immutable: true
+
+  destinations:
+    - type: "file"
+      path: "/opt/openclaw/logs/permissions.log"
+      format: "json"
+    - type: "syslog"
+      facility: "local0"
+      level: "info"
+    - type: "database"
+      table: "permission_audit"
+      connection: "postgres://localhost/openclaw"
+
+  alerts:
+    tier_3_access:
+      notify: ["telegram", "email"]
+      priority: "high"
+    denied_operations:
+      notify: ["telegram"]
+      priority: "normal"
+    anomaly_detected:
+      notify: ["telegram", "email", "slack"]
+      priority: "critical"
+
+# =============================================================================
+# WORKSPACE BOUNDARIES
+# =============================================================================
+
+workspace:
+  primary: "/opt/openclaw/workspace"
+  allowed_read:
+    - "/opt/openclaw/"
+    - "/var/log/"
+    - "/tmp/"
+    - "/home/devops/"
+  allowed_write:
+    - "/opt/openclaw/workspace/"
+    - "/tmp/openclaw/"
+  forbidden:
+    - "/etc/shadow"
+    - "/etc/sudoers"
+    - "/root/"
+    - "/.ssh/"
+    - "/boot/"
+    - "/proc/"
+    - "/sys/"
+
+# =============================================================================
+# DEFAULT DENY POLICY
+# =============================================================================
+
+default_policy:
+  unmatched_operations: "deny"
+  log_unmatched: true
+  notify_on_deny: true
+  allow_override_with_reason: false
+  require_explicit_tier: true

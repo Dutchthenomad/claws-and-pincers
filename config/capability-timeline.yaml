@@ -1,0 +1,906 @@
+# OpenClaw Capability Timeline Configuration
+# 30-Day Systematic Capability Introduction Experiment
+# 
+# This configuration defines the phased rollout of autonomous capabilities
+# with safety guardrails, monitoring, and rollback mechanisms.
+
+experiment:
+  name: "capability-expansion-v1"
+  description: "Systematic 30-day introduction of autonomous capabilities"
+  start_date: "2026-02-01"
+  end_date: "2026-03-02"
+  timezone: "UTC"
+
+# =============================================================================
+# WEEK 1: FOUNDATION (Days 1-7)
+# Focus: Read-only operations, logging infrastructure, baseline metrics
+# =============================================================================
+week_1:
+  name: "Foundation"
+  date_range:
+    start: "2026-02-01"
+    end: "2026-02-07"
+  
+  objectives:
+    - "Establish baseline performance metrics"
+    - "Validate logging and monitoring infrastructure"
+    - "Test approval workflow reliability"
+    - "Calibrate cost estimation accuracy"
+  
+  daily_unlocks:
+    day_1:
+      date: "2026-02-01"
+      capabilities:
+        - tier: 0
+          name: "read_only"
+          description: "Read file contents, list directories"
+          auto_approve: true
+        - tier: 1
+          name: "logging"
+          description: "Write to designated log directories"
+          auto_approve: true
+      restrictions:
+        - "All write operations require explicit Telegram approval"
+        - "No external API calls without approval"
+        - "No file modifications outside /var/log/openclaw"
+      
+    day_2:
+      date: "2026-02-02"
+      capabilities:
+        - name: "system_info"
+          description: "Read system metrics (CPU, memory, disk)"
+          auto_approve: true
+        - name: "process_list"
+          description: "View running processes (read-only)"
+          auto_approve: true
+    
+    day_3:
+      date: "2026-02-03"
+      capabilities:
+        - name: "network_info"
+          description: "View network interfaces and connections"
+          auto_approve: true
+        - name: "docker_ps"
+          description: "List Docker containers (read-only)"
+          auto_approve: true
+    
+    day_4:
+      date: "2026-02-04"
+      capabilities:
+        - name: "git_status"
+          description: "Read git repository status"
+          auto_approve: true
+        - name: "git_log"
+          description: "Read git commit history"
+          auto_approve: true
+    
+    day_5:
+      date: "2026-02-05"
+      capabilities:
+        - name: "env_read"
+          description: "Read non-sensitive environment variables"
+          auto_approve: true
+          excluded_patterns:
+            - "*KEY*"
+            - "*SECRET*"
+            - "*TOKEN*"
+            - "*PASSWORD*"
+    
+    day_6:
+      date: "2026-02-06"
+      capabilities:
+        - name: "config_read"
+          description: "Read configuration files"
+          auto_approve: true
+          allowed_paths:
+            - "/opt/openclaw/config/**"
+            - "/etc/openclaw/**"
+    
+    day_7:
+      date: "2026-02-07"
+      capabilities:
+        - name: "metrics_query"
+          description: "Query Prometheus/metrics endpoints"
+          auto_approve: true
+      review:
+        type: "week_1_baseline"
+        actions:
+          - "Calculate baseline operation counts"
+          - "Measure approval response times"
+          - "Validate logging completeness"
+          - "Review any anomalies"
+
+  tier_config:
+    tier_0:
+      enabled: true
+      auto_approve: true
+      operations:
+        - "read_file"
+        - "list_directory"
+        - "stat_file"
+        - "search_content"
+    tier_1:
+      enabled: true
+      auto_approve: true
+      operations:
+        - "write_log"
+        - "append_log"
+        - "create_log_entry"
+    tier_2:
+      enabled: false
+      auto_approve: false
+    tier_3:
+      enabled: false
+      auto_approve: false
+
+# =============================================================================
+# WEEK 2: MONITORED WRITES (Days 8-14)
+# Focus: Enable controlled write operations with Telegram approval flow
+# =============================================================================
+week_2:
+  name: "Monitored Writes"
+  date_range:
+    start: "2026-02-08"
+    end: "2026-02-14"
+  
+  objectives:
+    - "Enable Tier 2 write operations"
+    - "Validate Telegram approval workflow under load"
+    - "Measure approval response time distribution"
+    - "Test rollback mechanisms"
+  
+  daily_unlocks:
+    day_8:
+      date: "2026-02-08"
+      capabilities:
+        - tier: 2
+          name: "workspace_write"
+          description: "Write files to workspace directory"
+          auto_approve: false
+          requires_approval: "telegram"
+          allowed_paths:
+            - "/opt/openclaw/workspace/**"
+            - "/tmp/openclaw/**"
+    
+    day_9:
+      date: "2026-02-09"
+      capabilities:
+        - name: "workspace_mkdir"
+          description: "Create directories in workspace"
+          auto_approve: false
+          requires_approval: "telegram"
+    
+    day_10:
+      date: "2026-02-10"
+      capabilities:
+        - name: "workspace_delete"
+          description: "Delete files in workspace (with backup)"
+          auto_approve: false
+          requires_approval: "telegram"
+          safety:
+            backup_before_delete: true
+            backup_retention_hours: 168  # 7 days
+    
+    day_11:
+      date: "2026-02-11"
+      capabilities:
+        - name: "config_write"
+          description: "Modify openclaw configuration files"
+          auto_approve: false
+          requires_approval: "telegram"
+          allowed_paths:
+            - "/opt/openclaw/config/runtime/**"
+          excluded_paths:
+            - "/opt/openclaw/config/capability-timeline.yaml"
+            - "/opt/openclaw/config/security/**"
+    
+    day_12:
+      date: "2026-02-12"
+      capabilities:
+        - name: "script_execute"
+          description: "Execute approved scripts"
+          auto_approve: false
+          requires_approval: "telegram"
+          allowed_scripts:
+            - "/opt/openclaw/scripts/approved/**"
+    
+    day_13:
+      date: "2026-02-13"
+      capabilities:
+        - name: "cron_view"
+          description: "View cron jobs and scheduled tasks"
+          auto_approve: true
+        - name: "systemd_status"
+          description: "Check systemd service status"
+          auto_approve: true
+    
+    day_14:
+      date: "2026-02-14"
+      capabilities:
+        - name: "batch_operations"
+          description: "Queue multiple operations for batch approval"
+          auto_approve: false
+          requires_approval: "telegram"
+          max_batch_size: 10
+      review:
+        type: "week_2_writes"
+        actions:
+          - "Analyze approval response time percentiles"
+          - "Review write operation success rates"
+          - "Check for any unauthorized write attempts"
+          - "Evaluate user engagement with approvals"
+
+  tier_config:
+    tier_0:
+      enabled: true
+      auto_approve: true
+    tier_1:
+      enabled: true
+      auto_approve: true
+    tier_2:
+      enabled: true
+      auto_approve: false
+      approval_method: "telegram"
+      approval_timeout_seconds: 300
+      operations:
+        - "write_file"
+        - "create_directory"
+        - "delete_file"
+        - "modify_config"
+    tier_3:
+      enabled: false
+      auto_approve: false
+
+# =============================================================================
+# WEEK 3: EXPANDED OPERATIONS (Days 15-21)
+# Focus: Auto-approval for low-cost operations, git and Docker management
+# =============================================================================
+week_3:
+  name: "Expanded Operations"
+  date_range:
+    start: "2026-02-15"
+    end: "2026-02-21"
+  
+  objectives:
+    - "Enable auto-approval for low-cost operations"
+    - "Introduce git write operations"
+    - "Enable Docker container management"
+    - "Test cost estimation accuracy"
+  
+  auto_approval_rules:
+    low_cost_threshold:
+      enabled: true
+      max_cost_usd: 0.01
+      operations:
+        - "write_small_file"      # < 1KB
+        - "append_log"
+        - "create_empty_dir"
+        - "git_add"
+        - "git_commit"
+      excluded_operations:
+        - "delete_file"
+        - "external_api_call"
+        - "docker_run"
+  
+  daily_unlocks:
+    day_15:
+      date: "2026-02-15"
+      capabilities:
+        - name: "auto_approve_low_cost"
+          description: "Auto-approve operations costing < $0.01"
+          auto_approve: true
+          cost_threshold_usd: 0.01
+    
+    day_16:
+      date: "2026-02-16"
+      capabilities:
+        - name: "git_add"
+          description: "Stage files for commit"
+          auto_approve: true
+          logging: "detailed"
+        - name: "git_commit"
+          description: "Create commits with messages"
+          auto_approve: true
+          logging: "detailed"
+          restrictions:
+            - "Commit message required"
+            - "No force commits"
+    
+    day_17:
+      date: "2026-02-17"
+      capabilities:
+        - name: "git_branch"
+          description: "Create and switch branches"
+          auto_approve: true
+          restrictions:
+            - "Cannot delete branches"
+            - "Cannot modify main/master"
+    
+    day_18:
+      date: "2026-02-18"
+      capabilities:
+        - name: "git_push"
+          description: "Push to remote repositories"
+          auto_approve: false
+          requires_approval: "telegram"
+          restrictions:
+            - "No force push"
+            - "Protected branches require 2FA"
+    
+    day_19:
+      date: "2026-02-19"
+      capabilities:
+        - name: "docker_logs"
+          description: "View container logs"
+          auto_approve: true
+        - name: "docker_inspect"
+          description: "Inspect container details"
+          auto_approve: true
+    
+    day_20:
+      date: "2026-02-20"
+      capabilities:
+        - name: "docker_restart"
+          description: "Restart containers"
+          auto_approve: false
+          requires_approval: "telegram"
+          allowed_containers:
+            - "openclaw-*"
+            - "rag-api"
+            - "rugs-mcp"
+    
+    day_21:
+      date: "2026-02-21"
+      capabilities:
+        - name: "docker_compose"
+          description: "Docker compose operations"
+          auto_approve: false
+          requires_approval: "telegram"
+          allowed_operations:
+            - "up"
+            - "down"
+            - "restart"
+          excluded_operations:
+            - "rm"
+            - "kill"
+      review:
+        type: "week_3_expansion"
+        actions:
+          - "Validate auto-approval cost accuracy"
+          - "Review git operation logs"
+          - "Analyze Docker operation patterns"
+          - "Check for any security anomalies"
+
+  tier_config:
+    tier_0:
+      enabled: true
+      auto_approve: true
+    tier_1:
+      enabled: true
+      auto_approve: true
+    tier_2:
+      enabled: true
+      auto_approve: "conditional"
+      auto_approve_conditions:
+        - type: "cost"
+          max_usd: 0.01
+        - type: "operation"
+          allowed:
+            - "git_add"
+            - "git_commit"
+            - "git_branch"
+    tier_3:
+      enabled: false
+      auto_approve: false
+
+# =============================================================================
+# WEEK 4: FULL CAPABILITY (Days 22-30)
+# Focus: All tiers operational, Tier 3 with 2FA, performance optimization
+# =============================================================================
+week_4:
+  name: "Full Capability"
+  date_range:
+    start: "2026-02-22"
+    end: "2026-03-02"
+  
+  objectives:
+    - "Enable all capability tiers"
+    - "Validate 2FA for Tier 3 operations"
+    - "Performance optimization and tuning"
+    - "Final review and adjustment"
+  
+  daily_unlocks:
+    day_22:
+      date: "2026-02-22"
+      capabilities:
+        - tier: 3
+          name: "external_api"
+          description: "Call external APIs"
+          auto_approve: false
+          requires_approval: "2fa"
+          rate_limits:
+            requests_per_minute: 10
+            requests_per_hour: 100
+    
+    day_23:
+      date: "2026-02-23"
+      capabilities:
+        - name: "docker_build"
+          description: "Build Docker images"
+          auto_approve: false
+          requires_approval: "2fa"
+          resource_limits:
+            max_build_time_seconds: 600
+            max_image_size_mb: 500
+    
+    day_24:
+      date: "2026-02-24"
+      capabilities:
+        - name: "docker_run"
+          description: "Run new containers"
+          auto_approve: false
+          requires_approval: "2fa"
+          restrictions:
+            - "No privileged mode"
+            - "No host network"
+            - "Resource limits required"
+    
+    day_25:
+      date: "2026-02-25"
+      capabilities:
+        - name: "system_service"
+          description: "Manage systemd services"
+          auto_approve: false
+          requires_approval: "2fa"
+          allowed_services:
+            - "openclaw-*"
+    
+    day_26:
+      date: "2026-02-26"
+      capabilities:
+        - name: "network_config"
+          description: "View and modify network settings"
+          auto_approve: false
+          requires_approval: "2fa"
+          allowed_operations:
+            - "view"
+            - "dns_update"
+          excluded_operations:
+            - "firewall"
+            - "routing"
+    
+    day_27:
+      date: "2026-02-27"
+      capabilities:
+        - name: "backup_create"
+          description: "Create system backups"
+          auto_approve: false
+          requires_approval: "2fa"
+    
+    day_28:
+      date: "2026-02-28"
+      capabilities:
+        - name: "resource_scaling"
+          description: "Scale container resources"
+          auto_approve: false
+          requires_approval: "2fa"
+          limits:
+            max_cpu_cores: 4
+            max_memory_gb: 8
+    
+    day_29:
+      date: "2026-03-01"
+      capabilities:
+        - name: "advanced_git"
+          description: "Advanced git operations"
+          auto_approve: false
+          requires_approval: "2fa"
+          operations:
+            - "merge"
+            - "rebase"
+            - "cherry-pick"
+          excluded_operations:
+            - "force-push"
+            - "reset --hard"
+    
+    day_30:
+      date: "2026-03-02"
+      capabilities:
+        - name: "full_operational"
+          description: "All capabilities enabled"
+      review:
+        type: "experiment_complete"
+        actions:
+          - "Generate comprehensive metrics report"
+          - "Compare against baseline"
+          - "Document lessons learned"
+          - "Recommend production configuration"
+
+  tier_config:
+    tier_0:
+      enabled: true
+      auto_approve: true
+    tier_1:
+      enabled: true
+      auto_approve: true
+    tier_2:
+      enabled: true
+      auto_approve: "conditional"
+      auto_approve_conditions:
+        - type: "cost"
+          max_usd: 0.01
+        - type: "operation"
+          allowed:
+            - "git_add"
+            - "git_commit"
+            - "git_branch"
+            - "write_small_file"
+    tier_3:
+      enabled: true
+      auto_approve: false
+      requires_2fa: true
+      operations:
+        - "external_api_call"
+        - "docker_build"
+        - "docker_run"
+        - "system_service"
+        - "network_config"
+
+# =============================================================================
+# ROLLBACK TRIGGERS
+# Conditions that will automatically rollback capabilities
+# =============================================================================
+rollback_triggers:
+  cost_exceeded:
+    enabled: true
+    description: "Rollback if daily cost exceeds threshold"
+    thresholds:
+      daily_cost_usd: 5.00
+      hourly_cost_usd: 1.00
+      single_operation_usd: 0.50
+    action: "rollback_to_previous_week"
+    notification: "telegram_urgent"
+  
+  error_rate:
+    enabled: true
+    description: "Rollback if error rate exceeds threshold"
+    thresholds:
+      error_percentage: 10
+      window_minutes: 60
+      min_operations: 20
+    action: "disable_tier_2_and_3"
+    notification: "telegram_urgent"
+  
+  unauthorized_access:
+    enabled: true
+    description: "Immediate lockdown on unauthorized access attempts"
+    thresholds:
+      attempts: 3
+      window_minutes: 10
+    action: "emergency_lockdown"
+    notification: "telegram_urgent"
+  
+  approval_timeout_rate:
+    enabled: true
+    description: "Rollback if too many approvals are timing out"
+    thresholds:
+      timeout_percentage: 50
+      window_minutes: 60
+      min_requests: 10
+    action: "increase_timeout_or_pause"
+    notification: "telegram"
+  
+  resource_exhaustion:
+    enabled: true
+    description: "Rollback if system resources are critically low"
+    thresholds:
+      cpu_percentage: 90
+      memory_percentage: 90
+      disk_percentage: 95
+      duration_minutes: 5
+    action: "pause_tier_3_operations"
+    notification: "telegram_urgent"
+  
+  security_anomaly:
+    enabled: true
+    description: "Rollback on detected security anomalies"
+    triggers:
+      - "unexpected_network_connection"
+      - "privilege_escalation_attempt"
+      - "sensitive_file_access"
+      - "unusual_process_spawn"
+    action: "emergency_lockdown"
+    notification: "telegram_urgent"
+
+rollback_actions:
+  rollback_to_previous_week:
+    description: "Revert to previous week's capability configuration"
+    steps:
+      - "Disable current week's new capabilities"
+      - "Log all in-flight operations"
+      - "Send notification with reason"
+      - "Require manual review before re-enabling"
+  
+  disable_tier_2_and_3:
+    description: "Disable all write and external operations"
+    steps:
+      - "Set tier_2.enabled = false"
+      - "Set tier_3.enabled = false"
+      - "Maintain read-only operations"
+      - "Queue pending operations for manual review"
+  
+  emergency_lockdown:
+    description: "Complete operational lockdown"
+    steps:
+      - "Disable all tiers except tier_0"
+      - "Terminate all in-flight operations"
+      - "Generate security audit log"
+      - "Require admin intervention to resume"
+  
+  increase_timeout_or_pause:
+    description: "Adjust approval timeouts or pause operations"
+    steps:
+      - "Double approval timeout duration"
+      - "If still failing, pause tier_2 operations"
+      - "Notify user of approval backlog"
+  
+  pause_tier_3_operations:
+    description: "Pause resource-intensive operations"
+    steps:
+      - "Complete in-flight tier_3 operations"
+      - "Queue new tier_3 requests"
+      - "Wait for resource recovery"
+      - "Auto-resume when resources normalize"
+
+# =============================================================================
+# METRICS TRACKING
+# Metrics to collect throughout the experiment
+# =============================================================================
+metrics:
+  operational:
+    - name: "operations_total"
+      type: "counter"
+      description: "Total operations attempted"
+      labels:
+        - "tier"
+        - "operation_type"
+        - "status"
+    
+    - name: "operations_duration_seconds"
+      type: "histogram"
+      description: "Operation execution duration"
+      buckets: [0.1, 0.5, 1, 2, 5, 10, 30, 60]
+      labels:
+        - "tier"
+        - "operation_type"
+    
+    - name: "approval_response_time_seconds"
+      type: "histogram"
+      description: "Time from approval request to response"
+      buckets: [5, 10, 30, 60, 120, 300]
+      labels:
+        - "approval_method"
+        - "result"
+    
+    - name: "approval_requests_total"
+      type: "counter"
+      description: "Total approval requests"
+      labels:
+        - "approval_method"
+        - "result"  # approved, denied, timeout, error
+    
+    - name: "cost_usd_total"
+      type: "counter"
+      description: "Total estimated cost in USD"
+      labels:
+        - "tier"
+        - "operation_type"
+    
+    - name: "errors_total"
+      type: "counter"
+      description: "Total errors encountered"
+      labels:
+        - "tier"
+        - "operation_type"
+        - "error_type"
+  
+  safety:
+    - name: "rollback_events_total"
+      type: "counter"
+      description: "Number of rollback events triggered"
+      labels:
+        - "trigger_type"
+        - "action_taken"
+    
+    - name: "unauthorized_attempts_total"
+      type: "counter"
+      description: "Unauthorized operation attempts"
+      labels:
+        - "operation_type"
+        - "blocked_reason"
+    
+    - name: "security_anomalies_total"
+      type: "counter"
+      description: "Detected security anomalies"
+      labels:
+        - "anomaly_type"
+        - "severity"
+  
+  resource:
+    - name: "cpu_usage_percent"
+      type: "gauge"
+      description: "Current CPU usage percentage"
+    
+    - name: "memory_usage_percent"
+      type: "gauge"
+      description: "Current memory usage percentage"
+    
+    - name: "disk_usage_percent"
+      type: "gauge"
+      description: "Current disk usage percentage"
+    
+    - name: "container_count"
+      type: "gauge"
+      description: "Number of running containers"
+      labels:
+        - "status"
+  
+  experiment:
+    - name: "current_experiment_day"
+      type: "gauge"
+      description: "Current day of the experiment (1-30)"
+    
+    - name: "capabilities_enabled"
+      type: "gauge"
+      description: "Number of capabilities currently enabled"
+      labels:
+        - "tier"
+    
+    - name: "experiment_phase"
+      type: "info"
+      description: "Current experiment phase"
+      labels:
+        - "week"
+        - "phase_name"
+
+  collection:
+    interval_seconds: 60
+    retention_days: 90
+    export_formats:
+      - "prometheus"
+      - "json"
+    dashboards:
+      - "grafana"
+
+# =============================================================================
+# NOTIFICATION CONFIGURATION
+# =============================================================================
+notifications:
+  telegram:
+    enabled: true
+    chat_id: "${TELEGRAM_CHAT_ID}"
+    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    
+    templates:
+      approval_request:
+        title: "Approval Required"
+        format: |
+          Operation: {operation_type}
+          Tier: {tier}
+          Estimated Cost: ${cost_usd}
+          Description: {description}
+          
+          Reply /approve or /deny
+      
+      daily_summary:
+        title: "Daily Capability Report"
+        schedule: "09:00 UTC"
+        format: |
+          Day {day} of 30
+          Phase: {phase_name}
+          
+          Operations: {total_ops}
+          Approvals: {approved}/{requested}
+          Errors: {error_count}
+          Cost: ${total_cost}
+          
+          New capabilities today: {new_capabilities}
+      
+      rollback_alert:
+        title: "ROLLBACK TRIGGERED"
+        priority: "urgent"
+        format: |
+          Trigger: {trigger_type}
+          Reason: {reason}
+          Action: {action_taken}
+          
+          Manual review required.
+      
+      weekly_review:
+        title: "Weekly Review Summary"
+        schedule: "Sunday 18:00 UTC"
+        format: |
+          Week {week} Complete
+          
+          Total Operations: {weekly_ops}
+          Success Rate: {success_rate}%
+          Avg Approval Time: {avg_approval_time}s
+          Total Cost: ${weekly_cost}
+          
+          Next week: {next_phase}
+
+# =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+logging:
+  level: "info"
+  format: "json"
+  
+  outputs:
+    - type: "file"
+      path: "/var/log/openclaw/capability-timeline.log"
+      rotation:
+        max_size_mb: 100
+        max_files: 10
+        compress: true
+    
+    - type: "stdout"
+      format: "text"
+  
+  audit:
+    enabled: true
+    path: "/var/log/openclaw/audit/capability-changes.log"
+    events:
+      - "capability_enabled"
+      - "capability_disabled"
+      - "approval_requested"
+      - "approval_granted"
+      - "approval_denied"
+      - "operation_executed"
+      - "operation_failed"
+      - "rollback_triggered"
+      - "config_changed"
+
+# =============================================================================
+# EXPERIMENT COMPLETION
+# =============================================================================
+completion:
+  generate_report: true
+  report_path: "/opt/openclaw/reports/experiment-v1-final.json"
+  
+  report_sections:
+    - "executive_summary"
+    - "capability_progression"
+    - "approval_metrics"
+    - "cost_analysis"
+    - "error_analysis"
+    - "security_events"
+    - "resource_utilization"
+    - "recommendations"
+  
+  success_criteria:
+    - metric: "overall_success_rate"
+      threshold: 95
+      unit: "percent"
+    
+    - metric: "avg_approval_response_time"
+      threshold: 120
+      unit: "seconds"
+    
+    - metric: "total_cost"
+      threshold: 50
+      unit: "usd"
+    
+    - metric: "security_incidents"
+      threshold: 0
+      unit: "count"
+    
+    - metric: "rollback_events"
+      threshold: 3
+      unit: "count"
+  
+  post_experiment:
+    archive_logs: true
+    archive_path: "/opt/openclaw/archives/experiment-v1/"
+    cleanup_temp_files: true
+    generate_production_config: true
