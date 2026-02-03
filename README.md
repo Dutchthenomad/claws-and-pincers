@@ -142,6 +142,8 @@ See [Refactored Priorities](research/openclaw-refactored-priorities-2026-02-01.m
 | [RAG Knowledge Plan](research/openclaw-rag-knowledge-plan.md) | Knowledge ingestion strategy |
 | [Due Diligence](research/openclaw-due-diligence.md) | Initial project evaluation |
 | [Burner Card Comparison](research/openclaw-burner-card-comparison.md) | Virtual card analysis |
+| [Exec Fix Analysis](docs/diagnostics/EXEC-FIX-PLAN.md) | Exec output troubleshooting |
+| [Phase 0 Foundation](docs/plans/2026-02-01-phase0-foundation.md) | Phase 0 implementation plan |
 
 ---
 
@@ -175,7 +177,7 @@ journalctl -u openclaw -f            # Live logs
 ### Wallet (Base Network)
 ```
 Address: 0x491245D10A16552A7f6317b9d437dA8A37d35799
-Status: UNFUNDED (pending)
+Status: FUNDED (via Coinbase)
 ```
 
 ### Secrets Location
