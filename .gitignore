@@ -1,4 +1,5 @@
-# Secrets - never commit actual values
+# Secrets - NEVER commit actual values
+secrets/
 config/secrets/*.env
 !config/secrets/*.env.template
 *.env
