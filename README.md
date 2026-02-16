@@ -144,6 +144,7 @@ See [Refactored Priorities](research/openclaw-refactored-priorities-2026-02-01.m
 | [Burner Card Comparison](research/openclaw-burner-card-comparison.md) | Virtual card analysis |
 | [Exec Fix Analysis](docs/diagnostics/EXEC-FIX-PLAN.md) | Exec output troubleshooting |
 | [Phase 0 Foundation](docs/plans/2026-02-01-phase0-foundation.md) | Phase 0 implementation plan |
+| [Change Repo Visibility on Mobile](docs/CHANGE-REPO-VISIBILITY-MOBILE.md) | How to make repository public using mobile devices |
 
 ---
 
