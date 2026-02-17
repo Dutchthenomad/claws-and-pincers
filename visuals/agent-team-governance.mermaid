@@ -1,0 +1,108 @@
+---
+title: "OpenClaw Agent Team — Project Governance Workflow"
+---
+
+flowchart TD
+    START(["🧑 Devin submits idea/task
+    via #direct-command"]) --> ORCH_RECV
+
+    ORCH_RECV["🎯 Orchestrator receives directive"] --> CHARTER
+
+    CHARTER["📋 Draft PROJECT CHARTER
+    ━━━━━━━━━━━━━━━━━━━
+    Objectives | Scope in/out
+    Guard rails | Success criteria
+    Deliverables | Specialists needed"] --> CHARTER_REVIEW
+
+    CHARTER_REVIEW{"🧑 Devin approves
+    charter?"}
+    CHARTER_REVIEW -->|"❌ Revise"| CHARTER
+    CHARTER_REVIEW -->|"✅ Approved"| ASSIGN_ID
+
+    ASSIGN_ID["🔢 Assign PROJECT ID
+    Register in PROJECT-REGISTRY.md
+    Create project folder
+    Save charter to charters/"] --> SCOPE_CHECK
+
+    SCOPE_CHECK{"🔍 Conflict detection
+    ━━━━━━━━━━━━━━━━━
+    Scope overlap?
+    Resource conflict?
+    Dependency conflict?"}
+    SCOPE_CHECK -->|"✅ Clear"| DISPATCH
+    SCOPE_CHECK -->|"⚠️ Conflict"| CONFLICT_LOG
+
+    CONFLICT_LOG["📋 Log to #conflict-log
+    + conflict-registry.json
+    ━━━━━━━━━━━━━━━━━━━
+    CONFLICT = NO PASS"] --> CONFLICT_RESOLVE
+
+    CONFLICT_RESOLVE{"Resolution?"}
+    CONFLICT_RESOLVE -->|"Resolved"| SCOPE_CHECK
+    CONFLICT_RESOLVE -->|"Cancel/Descope"| ARCHIVE
+
+    DISPATCH["🎯 Orchestrator decomposes tasks
+    ━━━━━━━━━━━━━━━━━━━
+    Each task tagged PROJ-ID
+    Assigned to specialist
+    Written to task-board.json
+    Lock files created"] --> TASK_POST
+
+    TASK_POST["📡 Posted to #task-dispatch"] --> SPEC_WORK
+
+    SPEC_WORK["🔬💻🖥️ Specialists execute
+    ━━━━━━━━━━━━━━━━━━━
+    Work in own channels
+    File locks prevent collision
+    Progress → #status-updates
+    Output → project folder"] --> QA_GATE
+
+    QA_GATE["🔍 Reviewer evaluates
+    ━━━━━━━━━━━━━━━━━━━
+    Charter compliance?
+    Quality / anti-patterns?
+    Tests passing?
+    Scope creep?"] --> QA_DECISION
+
+    QA_DECISION{"Verdict?"}
+    QA_DECISION -->|"✅ PASS"| DELIVER
+    QA_DECISION -->|"🚫 FAIL"| SEVERITY
+
+    SEVERITY{"Severity?"}
+    SEVERITY -->|"ℹ️ INFO"| SPEC_WORK
+    SEVERITY -->|"⚠️ WARN"| SPEC_WORK
+    SEVERITY -->|"🛑 BLOCKED"| ORCH_REVIEW
+    SEVERITY -->|"🔴 CRITICAL"| ESCALATE
+
+    ORCH_REVIEW["🎯 Orchestrator reviews
+    blocker and reassigns"] --> SPEC_WORK
+
+    ESCALATE["🧑 Escalated to Devin
+    via #human-oversight
+    Work HALTED until resolved"] --> ORCH_RECV
+
+    DELIVER["📦 Deliverable to #completed
+    ━━━━━━━━━━━━━━━━━━━
+    Archived in project folder
+    Task board updated
+    Lock released"] --> DONE
+
+    ARCHIVE["📁 Project archived
+    Charter preserved
+    Lessons logged"] --> DONE
+
+    DONE(["✅ Complete"])
+
+    classDef human fill:#4a9eff,stroke:#2d7cd4,color:#fff
+    classDef orch fill:#ff6b35,stroke:#cc5529,color:#fff
+    classDef spec fill:#2ecc71,stroke:#27ae60,color:#fff
+    classDef qa fill:#9b59b6,stroke:#8e44ad,color:#fff
+    classDef fail fill:#e74c3c,stroke:#c0392b,color:#fff
+    classDef done fill:#1abc9c,stroke:#16a085,color:#fff
+
+    class START,CHARTER_REVIEW,ESCALATE human
+    class ORCH_RECV,CHARTER,ASSIGN_ID,DISPATCH,TASK_POST,ORCH_REVIEW orch
+    class SPEC_WORK spec
+    class QA_GATE,QA_DECISION,SEVERITY qa
+    class CONFLICT_LOG,CONFLICT_RESOLVE fail
+    class DELIVER,DONE,ARCHIVE done

@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0e17;
+    color: #e2e8f0;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+  }
+  .header { text-align: center; margin-bottom: 14px; }
+  .header h1 { font-size: 12px; font-weight: 800; color: #f97316; letter-spacing: 0.15em; text-transform: uppercase; }
+  .header p { font-size: 8px; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+  
+  .tabs {
+    display: flex; gap: 2px; background: #111827; border-radius: 8px; padding: 2px; margin-bottom: 14px;
+  }
+  .tab {
+    flex: 1; padding: 8px 4px; font-size: 9px; font-weight: 500; color: #64748b;
+    background: transparent; border: 1px solid transparent; border-radius: 6px;
+    cursor: pointer; font-family: inherit; letter-spacing: 0.02em; transition: all 0.15s;
+    text-align: center;
+  }
+  .tab.active { font-weight: 700; color: #e2e8f0; background: #1a2237; border-color: #1e293b; }
+  
+  .panel { display: none; }
+  .panel.active { display: block; }
+  
+  /* ORG STRUCTURE */
+  .node {
+    border-radius: 10px; padding: 12px 14px; text-align: center; position: relative;
+  }
+  .node-sm { padding: 8px 10px; }
+  .node .emoji { font-size: 20px; margin-bottom: 2px; }
+  .node-sm .emoji { font-size: 16px; }
+  .node .name { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .node-sm .name { font-size: 10px; }
+  .node .sub { font-size: 9px; color: #64748b; margin-top: 3px; line-height: 1.4; }
+  .node-sm .sub { font-size: 8px; }
+  
+  .connector { display: flex; flex-direction: column; align-items: center; position: relative; }
+  .conn-line { width: 1.5px; height: 24px; }
+  .conn-line.solid { border-left: 1.5px solid #64748b; }
+  .conn-line.dashed { border-left: 1.5px dashed #475569; }
+  .conn-arrow { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid #64748b; }
+  .conn-label { font-size: 8px; color: #64748b; margin: 2px 0; }
+  
+  .specialists-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  
+  .center-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .w70 { width: 70%; }
+  .w80 { width: 80%; }
+  
+  .dashed-note { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+  .dashed-note span { font-size: 8px; color: #64748b; }
+  .dashed-note .dash { width: 20px; border-top: 1.5px dashed #3b82f6; }
+  
+  /* DISCORD LAYOUT */
+  .category { border-radius: 8px; padding: 10px; margin-bottom: 8px; }
+  .category .cat-title { font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 6px; }
+  .channel { background: #111827; border: 1px solid #1e293b; border-radius: 4px; padding: 5px 8px; font-size: 11px; margin-bottom: 3px; }
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  
+  /* FILE SYSTEM */
+  .section-hdr { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 8px; margin-top: 16px; padding-bottom: 4px; }
+  .file-box { border-radius: 6px; padding: 10px; margin-bottom: 4px; }
+  .file-row { font-size: 11px; font-family: monospace; line-height: 1.9; display: flex; align-items: center; gap: 4px; }
+  .file-row .fi { font-size: 10px; opacity: 0.7; }
+  .file-indent-1 { padding-left: 16px; }
+  .file-indent-2 { padding-left: 32px; }
+  .file-dim { color: #64748b; }
+  
+  /* GOVERNANCE FLOW */
+  .flow-step {
+    border-radius: 6px; padding: 8px 12px; display: flex; align-items: flex-start; gap: 8px; margin-bottom: 4px;
+  }
+  .flow-step.decision { border-radius: 12px; }
+  .flow-num {
+    border-radius: 20px; min-width: 22px; height: 22px; display: flex; align-items: center;
+    justify-content: center; font-size: 10px; font-weight: 800; color: #fff; flex-shrink: 0;
+  }
+  .flow-text { font-size: 11px; line-height: 1.5; }
+  .flow-text strong { font-weight: 700; }
+  .flow-text .rule { font-weight: 700; color: #ef4444; }
+  
+  .severity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 4px; }
+  
+  .learning-box { margin-top: 8px; padding: 10px; border-radius: 6px; }
+  .learning-box .lb-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .learning-box .lb-text { font-size: 10px; color: #94a3b8; line-height: 1.6; }
+  
+  .mini-conn { display: flex; flex-direction: column; align-items: center; }
+  .mini-conn .ml { width: 1.5px; height: 10px; border-left: 1.5px solid #334155; }
+  .mini-conn .ma { width: 0; height: 0; border-left: 3px solid transparent; border-right: 3px solid transparent; border-top: 4px solid #334155; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>OpenClaw Agent Team</h1>
+  <p>Architecture · Phase 1 Core Crew</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('org',this)">Org Structure</button>
+  <button class="tab" onclick="showTab('discord',this)">Discord</button>
+  <button class="tab" onclick="showTab('files',this)">File System</button>
+  <button class="tab" onclick="showTab('governance',this)">Governance</button>
+</div>
+
+<!-- ORG STRUCTURE -->
+<div id="org" class="panel active">
+  <div class="center-col">
+    <div class="node w70" style="background:#1e3a5f;border:1.5px solid #3b82f6;">
+      <div class="emoji">🧑</div>
+      <div class="name" style="color:#3b82f6;">Devin</div>
+      <div class="sub">Human Operator · Direct command · Charter approval</div>
+    </div>
+    <div class="connector"><div class="conn-line solid"></div><div class="conn-label">#direct-command</div><div class="conn-arrow"></div></div>
+    <div class="node w80" style="background:#4a2510;border:2px solid #f97316;">
+      <div class="emoji">🎯</div>
+      <div class="name" style="color:#f97316;">Orchestrator</div>
+      <div class="sub">Opus 4.6 · Coordinator only · No code<br>Charters · Dispatch · Governance · Conflict detection</div>
+    </div>
+    <div class="connector"><div class="conn-line solid"></div><div class="conn-label">task dispatch</div><div class="conn-arrow"></div></div>
+    <div class="specialists-grid">
+      <div class="node node-sm" style="background:#2e1f5e;border:1.5px solid #a78bfa;">
+        <div class="emoji">🔬</div>
+        <div class="name" style="color:#a78bfa;">Researcher</div>
+        <div class="sub">Sonnet 4.5<br>Research · Analysis · Feasibility</div>
+      </div>
+      <div class="node node-sm" style="background:#0f3d2e;border:1.5px solid #34d399;">
+        <div class="emoji">💻</div>
+        <div class="name" style="color:#34d399;">Developer</div>
+        <div class="sub">Sonnet 4.5<br>Code · Test · Build · Automate</div>
+      </div>
+      <div class="node node-sm" style="background:#1a2d4d;border:1.5px solid #60a5fa;">
+        <div class="emoji">🖥️</div>
+        <div class="name" style="color:#60a5fa;">Sysadmin</div>
+        <div class="sub">Sonnet 4.5<br>Deploy · Monitor · Harden</div>
+      </div>
+      <div class="node node-sm" style="background:#3d1a2e;border:1.5px solid #f472b6;">
+        <div class="emoji">🔍</div>
+        <div class="name" style="color:#f472b6;">Reviewer / QA</div>
+        <div class="sub">Sonnet 4.5<br>Review · Quality gates · Anti-patterns</div>
+      </div>
+    </div>
+    <div class="dashed-note"><div class="dash"></div><span>Devin can direct-chat any specialist</span><div class="dash"></div></div>
+    <div class="connector" style="margin-top:8px"><div class="conn-line dashed"></div><div class="conn-label" style="color:#475569;">future expansion</div><div class="conn-arrow" style="border-top-color:#475569;"></div></div>
+    <div class="node node-sm w70" style="background:#1e293b;border:1.5px dashed #475569;">
+      <div class="emoji">⏳</div>
+      <div class="name" style="color:#475569;">Phase 2+</div>
+      <div class="sub">Creative · Data Analyst · Security · Writer · ML Engineer</div>
+    </div>
+  </div>
+</div>
+
+<!-- DISCORD LAYOUT -->
+<div id="discord" class="panel">
+  <div class="category" style="background:#3b82f608;border:1px solid #3b82f633;">
+    <div class="cat-title" style="color:#3b82f6;">👤 Human Control</div>
+    <div class="channel" style="border-left:3px solid #3b82f6;">#direct-command</div>
+    <div class="channel" style="border-left:3px solid #3b82f6;">#human-oversight</div>
+    <div class="channel" style="border-left:3px solid #3b82f6;">#cost-tracking</div>
+  </div>
+  <div class="category" style="background:#f59e0b08;border:1px solid #f59e0b33;">
+    <div class="cat-title" style="color:#f59e0b;">🤝 Shared Workspace</div>
+    <div class="channel" style="border-left:3px solid #f59e0b;">#task-dispatch</div>
+    <div class="channel" style="border-left:3px solid #f59e0b;">#status-updates</div>
+    <div class="channel" style="border-left:3px solid #f59e0b;">#completed</div>
+  </div>
+  <div class="cat-grid">
+    <div class="category" style="background:#f9731608;border:1px solid #f9731633;">
+      <div class="cat-title" style="color:#f97316;">🎯 Orchestrator</div>
+      <div class="channel" style="border-left:3px solid #f97316;">#orch-workspace</div>
+      <div class="channel" style="border-left:3px solid #f97316;">#orch-logs</div>
+    </div>
+    <div class="category" style="background:#a78bfa08;border:1px solid #a78bfa33;">
+      <div class="cat-title" style="color:#a78bfa;">🔬 Researcher</div>
+      <div class="channel" style="border-left:3px solid #a78bfa;">#research-workspace</div>
+      <div class="channel" style="border-left:3px solid #a78bfa;">#research-sources</div>
+      <div class="channel" style="border-left:3px solid #a78bfa;">#research-logs</div>
+    </div>
+    <div class="category" style="background:#34d39908;border:1px solid #34d39933;">
+      <div class="cat-title" style="color:#34d399;">💻 Developer</div>
+      <div class="channel" style="border-left:3px solid #34d399;">#dev-workspace</div>
+      <div class="channel" style="border-left:3px solid #34d399;">#dev-testing</div>
+      <div class="channel" style="border-left:3px solid #34d399;">#dev-logs</div>
+    </div>
+    <div class="category" style="background:#60a5fa08;border:1px solid #60a5fa33;">
+      <div class="cat-title" style="color:#60a5fa;">🖥️ Sysadmin</div>
+      <div class="channel" style="border-left:3px solid #60a5fa;">#sys-workspace</div>
+      <div class="channel" style="border-left:3px solid #60a5fa;">#sys-monitoring</div>
+      <div class="channel" style="border-left:3px solid #60a5fa;">#sys-logs</div>
+    </div>
+    <div class="category" style="background:#f472b608;border:1px solid #f472b633;">
+      <div class="cat-title" style="color:#f472b6;">🔍 Reviewer / QA</div>
+      <div class="channel" style="border-left:3px solid #f472b6;">#review-workspace</div>
+      <div class="channel" style="border-left:3px solid #f472b6;">#review-verdicts</div>
+      <div class="channel" style="border-left:3px solid #f472b6;">#review-logs</div>
+    </div>
+    <div class="category" style="background:#ef444408;border:1px solid #ef444433;">
+      <div class="cat-title" style="color:#ef4444;">📋 Logging</div>
+      <div class="channel" style="border-left:3px solid #ef4444;">#conflict-log</div>
+      <div class="channel" style="border-left:3px solid #ef4444;">#error-log</div>
+      <div class="channel" style="border-left:3px solid #ef4444;">#severity-alerts</div>
+      <div class="channel" style="border-left:3px solid #ef4444;">#anti-patterns</div>
+    </div>
+  </div>
+</div>
+
+<!-- FILE SYSTEM -->
+<div id="files" class="panel">
+  <div class="section-hdr" style="color:#dc2626;border-bottom:1px solid #dc262633;">🔒 Master Docs (Orchestrator + Devin only)</div>
+  <div class="file-box" style="background:#dc26260a;border:1px solid #dc262633;">
+    <div class="file-row" style="color:#f59e0b;"><span class="fi">📁</span> operations/</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> CORE-CHARTER.md</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> GOVERNANCE-RULES.md</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> PROJECT-REGISTRY.md</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> EXPANSION-ROADMAP.md</div>
+    <div class="file-row" style="color:#f59e0b;"><span class="fi">📁</span> charters/</div>
+    <div class="file-row file-indent-1 file-dim"><span class="fi">📄</span> PROJ-001-charter.md</div>
+    <div class="file-row file-indent-1 file-dim"><span class="fi">📄</span> PROJ-002-charter.md</div>
+    <div class="file-row" style="color:#f59e0b;"><span class="fi">📁</span> templates/</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> charter-template.md</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> severity-definitions.md</div>
+  </div>
+
+  <div class="section-hdr" style="color:#34d399;border-bottom:1px solid #34d39933;">📂 Projects (Isolated by ID)</div>
+  <div class="file-box" style="background:#34d3990a;border:1px solid #34d39933;">
+    <div class="file-row" style="color:#34d399;"><span class="fi">📁</span> projects/</div>
+    <div class="file-row file-indent-1" style="color:#34d399;"><span class="fi">📁</span> PROJ-001/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> README.md · scope.md</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📁</span> tasks/ · deliverables/ · conflicts/</div>
+    <div class="file-row file-indent-1" style="color:#34d399;"><span class="fi">📁</span> PROJ-002/</div>
+    <div class="file-row file-indent-1" style="color:#ef4444;"><span class="fi">⛔</span> _NO_PROJECT_ID/ → BLOCKED</div>
+  </div>
+
+  <div class="section-hdr" style="color:#60a5fa;border-bottom:1px solid #60a5fa33;">🤖 Agent Workspaces</div>
+  <div class="file-box" style="background:#60a5fa0a;border:1px solid #60a5fa33;">
+    <div class="file-row" style="color:#60a5fa;"><span class="fi">📁</span> agents/</div>
+    <div class="file-row file-indent-1" style="color:#60a5fa;"><span class="fi">📁</span> orchestrator/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> SOUL.md · AGENTS.md · HEARTBEAT.md</div>
+    <div class="file-row file-indent-1" style="color:#60a5fa;"><span class="fi">📁</span> researcher/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> SOUL.md · AGENTS.md · HEARTBEAT.md</div>
+    <div class="file-row file-indent-1" style="color:#60a5fa;"><span class="fi">📁</span> developer/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> SOUL.md · AGENTS.md · HEARTBEAT.md</div>
+    <div class="file-row file-indent-1" style="color:#60a5fa;"><span class="fi">📁</span> sysadmin/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> SOUL.md · AGENTS.md · HEARTBEAT.md</div>
+    <div class="file-row file-indent-1" style="color:#60a5fa;"><span class="fi">📁</span> reviewer/</div>
+    <div class="file-row file-indent-2 file-dim"><span class="fi">📄</span> SOUL.md · AGENTS.md · HEARTBEAT.md</div>
+  </div>
+
+  <div class="section-hdr" style="color:#f59e0b;border-bottom:1px solid #f59e0b33;">📋 Shared Knowledge</div>
+  <div class="file-box" style="background:#f59e0b0a;border:1px solid #f59e0b33;">
+    <div class="file-row" style="color:#f59e0b;"><span class="fi">📁</span> shared/</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> task-board.json</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> active-locks.json</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> anti-patterns.md</div>
+    <div class="file-row file-indent-1"><span class="fi">📄</span> conflict-registry.json</div>
+    <div class="file-row file-indent-1" style="color:#f59e0b;"><span class="fi">📁</span> knowledge-base/</div>
+  </div>
+</div>
+
+<!-- GOVERNANCE FLOW -->
+<div id="governance" class="panel">
+  <div class="flow-step" style="background:#111827;border:1px solid #1e293b;">
+    <div class="flow-num" style="background:#3b82f6;">1</div>
+    <div class="flow-text">🧑 Devin submits idea via <strong style="color:#3b82f6;">#direct-command</strong></div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step" style="background:#111827;border:1px solid #1e293b;">
+    <div class="flow-num" style="background:#f97316;">2</div>
+    <div class="flow-text"><strong style="color:#f97316;">Orchestrator drafts PROJECT CHARTER</strong><br>Objectives · Scope in/out · Guard rails · Success criteria · Deliverables · Required specialists</div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step decision" style="background:#f59e0b15;border:1px solid #f59e0b66;">
+    <div class="flow-num" style="background:#f59e0b;">?</div>
+    <div class="flow-text">🧑 <strong style="color:#f59e0b;">Devin reviews & approves charter.</strong> Revise loop until approved.</div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step" style="background:#22c55e15;border:1px solid #22c55e66;">
+    <div class="flow-num" style="background:#22c55e;">3</div>
+    <div class="flow-text"><strong style="color:#22c55e;">Assign PROJECT ID</strong> (e.g. PROJ-017)<br>Register in PROJECT-REGISTRY.md · Charter archived · Project folder created</div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step decision" style="background:#f59e0b15;border:1px solid #f59e0b66;">
+    <div class="flow-num" style="background:#f59e0b;">?</div>
+    <div class="flow-text"><strong style="color:#f59e0b;">Conflict detection</strong><br>Scope overlap? Resource conflict? Dependency conflict?<br><span class="rule">CONFLICT = NO PASS → Log & resolve before proceeding</span></div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step" style="background:#111827;border:1px solid #1e293b;">
+    <div class="flow-num" style="background:#f97316;">4</div>
+    <div class="flow-text"><strong style="color:#f97316;">Orchestrator decomposes & dispatches</strong><br>Every task tagged with PROJ-ID · Assigned to specialist · Written to task-board.json · Lock files set<br><span class="rule">NO PROJECT ID = NO WORK ALLOWED</span></div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step" style="background:#111827;border:1px solid #1e293b;">
+    <div class="flow-num" style="background:#34d399;">5</div>
+    <div class="flow-text">🔬💻🖥️ <strong style="color:#34d399;">Specialists execute</strong><br>Work in own channels · File locks prevent collision · Progress → #status-updates</div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+  <div class="flow-step" style="background:#111827;border:1px solid #1e293b;">
+    <div class="flow-num" style="background:#f472b6;">6</div>
+    <div class="flow-text"><strong style="color:#f472b6;">Reviewer / QA evaluates</strong><br>Charter compliance · Code quality · Tests · Anti-patterns · Scope creep</div>
+  </div>
+  <div class="mini-conn"><div class="ml"></div><div class="ma"></div></div>
+
+  <div class="severity-grid">
+    <div class="flow-step" style="background:#22c55e15;border:1px solid #22c55e66;">
+      <div class="flow-num" style="background:#22c55e;font-size:12px;">✓</div>
+      <div class="flow-text"><strong style="color:#22c55e;">PASS</strong><br>→ #completed</div>
+    </div>
+    <div class="flow-step" style="background:#3b82f615;border:1px solid #3b82f666;">
+      <div class="flow-num" style="background:#3b82f6;">i</div>
+      <div class="flow-text"><strong style="color:#3b82f6;">INFO</strong><br>Minor notes → continue</div>
+    </div>
+    <div class="flow-step decision" style="background:#f59e0b15;border:1px solid #f59e0b66;">
+      <div class="flow-num" style="background:#f59e0b;">!</div>
+      <div class="flow-text"><strong style="color:#f59e0b;">WARN</strong><br>Should fix → rework</div>
+    </div>
+    <div class="flow-step" style="background:#f9731615;border:1px solid #f9731666;">
+      <div class="flow-num" style="background:#f97316;">✕</div>
+      <div class="flow-text"><strong style="color:#f97316;">BLOCKED</strong><br>Orchestrator reassigns</div>
+    </div>
+  </div>
+
+  <div class="flow-step" style="background:#dc262615;border:1px solid #dc262666;margin-top:4px;">
+    <div class="flow-num" style="background:#dc2626;">!!</div>
+    <div class="flow-text"><strong style="color:#dc2626;">CRITICAL → Escalated to Devin</strong><br>Posted to #human-oversight · All work on project HALTED until resolved</div>
+  </div>
+
+  <div class="learning-box" style="background:#f973160a;border:1px solid #f9731633;">
+    <div class="lb-title" style="color:#f97316;">Self-Learning Loop</div>
+    <div class="lb-text">Every failed review feeds anti-patterns.md → All agents reference before work → "Fast but wrong" patterns killed permanently → Quality over speed, always</div>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:16px;font-size:8px;color:#475569;">v0.1 · Phase 1 Core Crew · 2026-02-16</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
