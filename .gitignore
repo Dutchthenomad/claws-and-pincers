@@ -31,3 +31,12 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Agent session data
+agents/*/sessions/
+
+# Credentials
+credentials/
+
+# Temp
+*.tmp

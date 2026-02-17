@@ -1,0 +1,122 @@
+---
+title: "OpenClaw Agent Team — Organizational Structure"
+---
+
+graph TB
+    %% ============================================
+    %% HUMAN LAYER
+    %% ============================================
+    YOU["🧑 DEVIN (Human Operator)
+    ━━━━━━━━━━━━━━━━━━━━
+    Direct command authority
+    Charter approval
+    Budget control"]
+
+    %% ============================================
+    %% ORCHESTRATOR LAYER
+    %% ============================================
+    ORCH["🎯 ORCHESTRATOR (Lead Agent)
+    ━━━━━━━━━━━━━━━━━━━━
+    Model: Opus 4.6
+    Role: Coordinator only (no code)
+    ━━━━━━━━━━━━━━━━━━━━
+    • Receives directives from Devin
+    • Writes project charters
+    • Assigns Project IDs
+    • Dispatches tasks to specialists
+    • Enforces governance rules
+    • Synthesizes status reports
+    • Conflict detection & escalation"]
+
+    YOU -->|"#direct-command"| ORCH
+    ORCH -->|"#human-oversight (reports/approvals)"| YOU
+
+    %% ============================================
+    %% SPECIALIST LAYER — CORE CREW (Phase 1)
+    %% ============================================
+    RES["🔬 RESEARCHER
+    ━━━━━━━━━━━━━━━━━━━━
+    Model: Sonnet 4.5
+    ━━━━━━━━━━━━━━━━━━━━
+    • Web research & analysis
+    • Technical documentation
+    • Competitive analysis
+    • Feasibility studies
+    • Architecture proposals
+    • Literature review"]
+
+    DEV["💻 DEVELOPER
+    ━━━━━━━━━━━━━━━━━━━━
+    Model: Sonnet 4.5
+    ━━━━━━━━━━━━━━━━━━━━
+    • Code implementation
+    • Bug fixes & refactoring
+    • Testing & CI/CD
+    • API integration
+    • Database work
+    • Script automation"]
+
+    SYS["🖥️ SYSADMIN
+    ━━━━━━━━━━━━━━━━━━━━
+    Model: Sonnet 4.5
+    ━━━━━━━━━━━━━━━━━━━━
+    • VPS management
+    • Docker/containers
+    • Service deployment
+    • Monitoring & alerts
+    • Security hardening
+    • Backup & recovery"]
+
+    QA["🔍 REVIEWER / QA
+    ━━━━━━━━━━━━━━━━━━━━
+    Model: Sonnet 4.5
+    ━━━━━━━━━━━━━━━━━━━━
+    • Code review (read-only)
+    • Charter review
+    • Conflict detection
+    • Quality gates
+    • Anti-pattern logging
+    • Definition of Done checks"]
+
+    ORCH -->|"task dispatch"| RES
+    ORCH -->|"task dispatch"| DEV
+    ORCH -->|"task dispatch"| SYS
+    ORCH -->|"task dispatch"| QA
+
+    RES -->|"deliverables"| ORCH
+    DEV -->|"deliverables"| ORCH
+    SYS -->|"deliverables"| ORCH
+    QA -->|"review verdicts"| ORCH
+
+    %% Direct access from human
+    YOU -.->|"direct chat (optional)"| RES
+    YOU -.->|"direct chat (optional)"| DEV
+    YOU -.->|"direct chat (optional)"| SYS
+    YOU -.->|"direct chat (optional)"| QA
+
+    %% ============================================
+    %% PHASE 2+ EXPANSION SLOTS
+    %% ============================================
+    P2["⏳ PHASE 2+ SPECIALISTS
+    ━━━━━━━━━━━━━━━━━━━━
+    • 🎨 Creative (image/video gen)
+    • 📊 Data Analyst
+    • 🔐 Security Specialist
+    • 📝 Technical Writer
+    • 🤖 ML/AI Engineer
+    • (custom as needed)"]
+
+    ORCH -.->|"future expansion"| P2
+
+    %% ============================================
+    %% STYLING
+    %% ============================================
+    classDef human fill:#4a9eff,stroke:#2d7cd4,color:#fff,stroke-width:2px
+    classDef orchestrator fill:#ff6b35,stroke:#cc5529,color:#fff,stroke-width:3px
+    classDef specialist fill:#2ecc71,stroke:#27ae60,color:#fff,stroke-width:2px
+    classDef future fill:#95a5a6,stroke:#7f8c8d,color:#fff,stroke-width:1px,stroke-dasharray: 5 5
+
+    class YOU human
+    class ORCH orchestrator
+    class RES,DEV,SYS,QA specialist
+    class P2 future

@@ -1,0 +1,169 @@
+---
+title: "OpenClaw Agent Team — Discord Server & File Structure"
+---
+
+graph TB
+    %% ============================================
+    %% DISCORD SERVER STRUCTURE
+    %% ============================================
+    subgraph DISCORD["📡 DISCORD SERVER"]
+        direction TB
+
+        subgraph CTRL["👤 HUMAN CONTROL"]
+            HC1["#direct-command
+            (You → Orchestrator)"]
+            HC2["#human-oversight
+            (Status reports, approvals, escalations)"]
+            HC3["#cost-tracking
+            (Token usage, API spend)"]
+        end
+
+        subgraph SHARED["🤝 SHARED WORKSPACE"]
+            SW1["#task-dispatch
+            (Orchestrator → Specialists)
+            Project ID required"]
+            SW2["#status-updates
+            (Lightweight progress reports)
+            For human observation"]
+            SW3["#completed
+            (Approved deliverables)"]
+        end
+
+        subgraph ORCH_CAT["🎯 ORCHESTRATOR"]
+            OC1["#orch-workspace
+            (Planning, charter drafting)"]
+            OC2["#orch-logs
+            (Activity log)"]
+        end
+
+        subgraph RES_CAT["🔬 RESEARCHER"]
+            RC1["#research-workspace
+            (Active research)"]
+            RC2["#research-sources
+            (Source tracking, citations)"]
+            RC3["#research-logs
+            (Activity log)"]
+        end
+
+        subgraph DEV_CAT["💻 DEVELOPER"]
+            DC1["#dev-workspace
+            (Active development)"]
+            DC2["#dev-testing
+            (Test results, CI output)"]
+            DC3["#dev-logs
+            (Activity log)"]
+        end
+
+        subgraph SYS_CAT["🖥️ SYSADMIN"]
+            SC1["#sys-workspace
+            (Infrastructure work)"]
+            SC2["#sys-monitoring
+            (Service health, alerts)"]
+            SC3["#sys-logs
+            (Activity log)"]
+        end
+
+        subgraph QA_CAT["🔍 REVIEWER / QA"]
+            QC1["#review-workspace
+            (Active reviews)"]
+            QC2["#review-verdicts
+            (Pass/fail decisions)"]
+            QC3["#review-logs
+            (Activity log)"]
+        end
+
+        subgraph LOG_CAT["📋 LOGGING & REPORTING"]
+            LC1["#conflict-log
+            (All detected conflicts)"]
+            LC2["#error-log
+            (System errors, crashes)"]
+            LC3["#severity-alerts
+            (INFO/WARN/BLOCKED/CRITICAL)"]
+            LC4["#anti-patterns
+            (Learned bad behaviors to avoid)"]
+        end
+    end
+
+    %% ============================================
+    %% FILE STRUCTURE (Shared Workspace on Disk)
+    %% ============================================
+    subgraph FILES["📁 SHARED FILE STRUCTURE (~/.openclaw/)"]
+        direction TB
+
+        subgraph MASTER["🔒 MASTER DOCS (Orchestrator + Devin only)"]
+            MD1["operations/
+            ├── CORE-CHARTER.md
+            ├── GOVERNANCE-RULES.md
+            ├── PROJECT-REGISTRY.md
+            └── EXPANSION-ROADMAP.md"]
+            MD2["charters/
+            ├── PROJ-001-charter.md
+            ├── PROJ-002-charter.md
+            └── ..."]
+            MD3["templates/
+            ├── charter-template.md
+            ├── conflict-report-template.md
+            └── severity-definitions.md"]
+        end
+
+        subgraph PROJECTS["📂 PROJECTS (Isolated by ID)"]
+            PJ1["projects/
+            ├── PROJ-001/
+            │   ├── README.md
+            │   ├── scope.md
+            │   ├── tasks/
+            │   ├── deliverables/
+            │   └── conflicts/
+            ├── PROJ-002/
+            │   └── ...
+            └── _NO_PROJECT_ID/
+                └── ⛔ BLOCKED"]
+        end
+
+        subgraph AGENTS_DIR["🤖 AGENT WORKSPACES"]
+            AW1["agents/
+            ├── orchestrator/
+            │   ├── agent/
+            │   ├── sessions/
+            │   └── workspace/
+            │       ├── SOUL.md
+            │       ├── AGENTS.md
+            │       └── HEARTBEAT.md
+            ├── researcher/
+            ├── developer/
+            ├── sysadmin/
+            └── reviewer/"]
+        end
+
+        subgraph SHARED_FILES["📋 SHARED KNOWLEDGE"]
+            SK1["shared/
+            ├── task-board.json
+            ├── active-locks.json
+            ├── knowledge-base/
+            ├── anti-patterns.md
+            └── conflict-registry.json"]
+        end
+    end
+
+    %% ============================================
+    %% STYLING
+    %% ============================================
+    classDef ctrl fill:#4a9eff,stroke:#2d7cd4,color:#fff
+    classDef shared fill:#f39c12,stroke:#d68910,color:#fff
+    classDef orch fill:#ff6b35,stroke:#cc5529,color:#fff
+    classDef spec fill:#2ecc71,stroke:#27ae60,color:#fff
+    classDef logs fill:#e74c3c,stroke:#c0392b,color:#fff
+    classDef master fill:#9b59b6,stroke:#8e44ad,color:#fff
+    classDef projects fill:#1abc9c,stroke:#16a085,color:#fff
+    classDef agents fill:#34495e,stroke:#2c3e50,color:#fff
+    classDef sharedfiles fill:#f39c12,stroke:#d68910,color:#fff
+
+    class HC1,HC2,HC3 ctrl
+    class SW1,SW2,SW3 shared
+    class OC1,OC2 orch
+    class RC1,RC2,RC3,DC1,DC2,DC3,SC1,SC2,SC3,QC1,QC2,QC3 spec
+    class LC1,LC2,LC3,LC4 logs
+    class MD1,MD2,MD3 master
+    class PJ1 projects
+    class AW1 agents
+    class SK1 sharedfiles
