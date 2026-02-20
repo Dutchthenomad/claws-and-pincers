@@ -1,0 +1,174 @@
+// ~/.openclaw/openclaw.json5
+// Claws & Pincers — Production Multi-Agent Configuration
+// ENVIRONMENT VARIABLES REQUIRED:
+//   DISCORD_ORCHESTRATOR_TOKEN
+//   DISCORD_RESEARCHER_TOKEN  
+//   DISCORD_DEVELOPER_TOKEN
+//   DISCORD_SYSADMIN_TOKEN
+//   DISCORD_REVIEWER_TOKEN
+//
+// Set via: export DISCORD_ORCHESTRATOR_TOKEN="your_token_here"
+// Or in ~/.openclaw/.env file
+
+{
+  agents: {
+    defaults: {
+      model: { primary: "anthropic/claude-sonnet-4-5", fallbacks: ["openai/gpt-5.2"] },
+      sandbox: { mode: "non-main" },
+    },
+    list: [
+      {
+        id: "orchestrator",
+        default: true,
+        name: "Orchestrator",
+        workspace: "~/.openclaw/workspace-orchestrator",
+        agentDir: "~/.openclaw/agents/orchestrator/agent",
+        model: "anthropic/claude-opus-4-6",
+        identity: { name: "Orchestrator", emoji: "🎯" },
+        groupChat: { mentionPatterns: ["@orchestrator", "@orch", "@Orchestrator"] },
+        allowAgents: ["*"],
+        tools: {
+          profile: "full",
+          allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "discord", "web_search", "browser", "cron"],
+        },
+        sandbox: { mode: "off" },
+      },
+      {
+        id: "researcher",
+        name: "Researcher",
+        workspace: "~/.openclaw/workspace-researcher",
+        agentDir: "~/.openclaw/agents/researcher/agent",
+        model: "anthropic/claude-sonnet-4-5",
+        identity: { name: "Researcher", emoji: "🔬" },
+        groupChat: { mentionPatterns: ["@researcher", "@research", "@Researcher"] },
+        tools: {
+          allow: ["exec", "read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "browser", "discord"],
+          deny: ["cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+        },
+        sandbox: { mode: "all", scope: "agent" },
+      },
+      {
+        id: "developer",
+        name: "Developer",
+        workspace: "~/.openclaw/workspace-developer",
+        agentDir: "~/.openclaw/agents/developer/agent",
+        model: "anthropic/claude-sonnet-4-5",
+        identity: { name: "Developer", emoji: "💻" },
+        groupChat: { mentionPatterns: ["@developer", "@dev", "@Developer"] },
+        tools: {
+          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "discord"],
+          deny: ["browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+        },
+        sandbox: { mode: "all", scope: "agent" },
+      },
+      {
+        id: "sysadmin",
+        name: "Sysadmin",
+        workspace: "~/.openclaw/workspace-sysadmin",
+        agentDir: "~/.openclaw/agents/sysadmin/agent",
+        model: "anthropic/claude-sonnet-4-5",
+        identity: { name: "Sysadmin", emoji: "🖥️" },
+        groupChat: { mentionPatterns: ["@sysadmin", "@sys", "@Sysadmin"] },
+        tools: {
+          allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "discord"],
+          deny: ["browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+        },
+        sandbox: { mode: "all", scope: "agent" },
+      },
+      {
+        id: "reviewer",
+        name: "Reviewer",
+        workspace: "~/.openclaw/workspace-reviewer",
+        agentDir: "~/.openclaw/agents/reviewer/agent",
+        model: "anthropic/claude-sonnet-4-5",
+        identity: { name: "Reviewer", emoji: "🔍" },
+        groupChat: { mentionPatterns: ["@reviewer", "@review", "@Reviewer"] },
+        tools: {
+          allow: ["read", "sessions_list", "sessions_history", "sessions_send", "discord"],
+          deny: ["exec", "write", "edit", "apply_patch", "browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+        },
+        sandbox: { mode: "all", scope: "agent" },
+      },
+    ],
+  },
+
+  tools: {
+    agentToAgent: {
+      enabled: true,
+      allow: ["orchestrator", "researcher", "developer", "sysadmin", "reviewer"],
+    },
+  },
+
+  bindings: [
+    {
+      agentId: "orchestrator",
+      match: { channel: "discord", peer: { kind: "direct" } },
+    },
+    {
+      agentId: "orchestrator",
+      match: { channel: "discord", guildId: "1472374974340665477" },
+    },
+  ],
+
+  channels: {
+    discord: {
+      enabled: true,
+      allowBots: true,
+      groupPolicy: "allowlist",
+      accounts: [
+        { id: "orchestrator", token: "${DISCORD_ORCHESTRATOR_TOKEN}", agentId: "orchestrator" },
+        { id: "researcher", token: "${DISCORD_RESEARCHER_TOKEN}", agentId: "researcher" },
+        { id: "developer", token: "${DISCORD_DEVELOPER_TOKEN}", agentId: "developer" },
+        { id: "sysadmin", token: "${DISCORD_SYSADMIN_TOKEN}", agentId: "sysadmin" },
+        { id: "reviewer", token: "${DISCORD_REVIEWER_TOKEN}", agentId: "reviewer" },
+      ],
+      dm: {
+        enabled: true,
+        policy: "pairing",
+        allowFrom: ["13362138764"],
+        groupEnabled: false,
+      },
+      actions: {
+        reactions: true,
+        messages: true,
+        threads: true,
+        pins: true,
+        search: true,
+        memberInfo: true,
+        roleInfo: true,
+        channelInfo: true,
+        channels: true,
+        voiceStatus: true,
+      },
+    },
+  },
+
+  settings: {
+    multiAgent: {
+      enabled: true,
+      mode: "swarm",
+      swarmSize: { min: 2, max: 5 },
+      collaborationChannels: ["discord"],
+      taskRouting: { enabled: true, strategy: "capability-match" },
+      crossAgentMemory: { enabled: true, scope: "project" },
+    },
+    heartbeats: {
+      enabled: true,
+      interval: "30m",
+      agents: ["orchestrator", "researcher", "developer", "sysadmin", "reviewer"],
+    },
+    cron: {
+      enabled: true,
+      jobsPath: "~/.openclaw/cron/jobs.json",
+      agents: ["orchestrator", "sysadmin"],
+    },
+  },
+
+  gateway: {
+    telegram: {
+      enabled: true,
+      botToken: "${TELEGRAM_BOT_TOKEN}",
+      ownerId: "${TELEGRAM_OWNER_ID}",
+    },
+  },
+}
