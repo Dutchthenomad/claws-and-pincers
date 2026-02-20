@@ -1,5 +1,7 @@
 # OpenClaw Agent Team — Project Refresher
 
+**Last Updated:** 2026-02-20
+
 ## What This Is
 
 You're building an autonomous multi-agent team using OpenClaw on Discord. Think of it like a small company: you're the CEO, an Orchestrator bot is your VP, and specialist bots (Researcher, Developer, Sysadmin, Reviewer/QA) are your department heads. They each have their own Discord workspace, share a coordination channel, and operate under strict governance rules you defined.
@@ -8,35 +10,56 @@ The model is inspired by Anthropic's Agent Teams framework (Carlini's C compiler
 
 ---
 
-## What's Been Built (Two Doc Packages)
+## ✅ What's Been Built
 
-### Package 1: OpenClaw Reference Docs (13 files, 102KB)
-Technical reference for how OpenClaw works — Discord integration, multi-agent routing, bindings, session tools, skills, security, deployment. This is the "how does the platform work" knowledge base.
+### 1. Agent Definitions (Complete)
+All 5 agents have their identity and operational docs:
 
-**Download:** `openclaw-discord-agents.zip`
+| Agent | SOUL.md | AGENTS.md | HEARTBEAT.md |
+|-------|---------|-----------|--------------|
+| 🎯 Orchestrator | ✅ | ✅ | ✅ |
+| 🔬 Researcher | ✅ | ✅ | ✅ |
+| 💻 Developer | ✅ | ✅ | ✅ |
+| 🖥️ Sysadmin | ✅ | ✅ | ✅ |
+| 🔍 Reviewer | ✅ | ✅ | ✅ |
 
-### Package 2: Governance & Operations Docs (11 files, ~35KB)
-The actual operating system for your agent team. This is what matters for building.
+**Location:** `agents/{agent-name}/`
 
-**operations/**
-- `CORE-CHARTER.md` — The master document. Org hierarchy, 4 absolute laws, full project lifecycle, severity levels, conflict detection, self-learning anti-pattern system, Discord channel map, file system structure, access control matrix.
-- `PROJECT-REGISTRY.md` — Where all projects are tracked. PROJ-XXX format.
-- `EXPANSION-ROADMAP.md` — Phase 1-4 plans.
+### 2. Governance Framework (Complete)
+The operating system for your agent team:
 
-**templates/**
-- `charter-template.md` — Every project needs one before code starts.
-- `task-template.md` — Per-task template with governance pre-checks.
-- `conflict-report-template.md` — Structured conflict logging.
-- `severity-definitions.md` — INFO/WARN/BLOCKED/CRITICAL + auto-escalation rules.
+- **CORE-CHARTER.md** — Master document with 4 laws, project lifecycle, severity levels
+- **PROJECT-REGISTRY.md** — Project tracking (PROJ-XXX format)
+- **EXPANSION-ROADMAP.md** — Phase 1-4 plans
+- **Templates** — Charter, task, conflict report, severity definitions
+- **Shared State** — Task board, locks, conflict registry, anti-patterns
 
-**shared/**
-- `anti-patterns.md` — Pre-loaded with 7 patterns (AP-001 through AP-007).
-- `task-board.json`, `active-locks.json`, `conflict-registry.json` — Initialized, empty.
+**Location:** `governance/`
 
-**Download:** `agent-team-governance-docs.zip`
+### 3. Configuration (Complete)
+- **openclaw.json5** — Multi-agent config with Discord bindings, tool restrictions, models
+- **Environment variables** — Secure token management (.env, not committed)
+- **Reference docs** — 13 technical files covering Discord integration, architecture, deployment
 
-### Interactive Dashboard
-`agent-team-dashboard.html` — Tabbed visual showing org structure, Discord layout, file system, and governance flow. Opens in browser.
+**Location:** `openclaw.json5`, `reference/`
+
+### 4. Deployment Infrastructure (Complete)
+Production-ready Docker deployment:
+
+- **docker-compose.agents.yml** — 5 agent containers + Redis + Watchtower
+- **deploy-agents.sh** — Management script (start/stop/health/logs)
+- **Makefile** — Quick commands (`make start`, `make logs`)
+- **Health checks** — Automatic restart, monitoring endpoints
+
+**Location:** `deployment/discord-agents/`
+
+### 5. Documentation (Complete)
+- **README.md** — Multi-agent framework overview
+- **TODO.md** — Phased priorities with status
+- **Interactive dashboard** — HTML visualization of org structure
+- **Mermaid diagrams** — Filesystem, governance, structure
+
+**Location:** `README.md`, `TODO.md`, `visuals/`
 
 ---
 
@@ -48,65 +71,84 @@ The actual operating system for your agent team. This is what matters for buildi
 
 ---
 
-## What's NOT Built Yet
+## 🟡 What's In Progress / Next
 
-### Must-Have (Before Agents Can Run)
-- [ ] **SOUL.md files** for each agent (personality, rules, boundaries)
-- [ ] **AGENTS.md files** for each agent (operational instructions)
-- [ ] **HEARTBEAT.md files** for each agent (proactive check-in checklists)
-- [ ] **openclaw.json5** — The actual OpenClaw configuration tying everything together
-- [ ] **GOVERNANCE-RULES.md** — Detailed enforcement procedures (companion to CORE-CHARTER)
+### Phase 1C — n8n Enforcement Layer (In Progress)
+Programmatic compliance enforcement between Discord and OpenClaw:
 
-### Should-Have (Discussed, Not Specced)
-- [ ] **n8n enforcement layer** — Programmatic compliance enforcement sitting between Discord and OpenClaw. Catches violations in real-time without relying on agent self-policing. Key workflows:
-  - Project ID validation on every dispatch
-  - Charter approval gate check
-  - Conflict registry watchdog
-  - Severity routing automation
-  - Token cost monitoring with kill switch
-  - Anti-pattern repeat detection
-  - Dead man's switch / heartbeat monitor
-- [ ] **Setup script** — Automated creation of the full file structure and Discord server
+- [ ] Project ID validator webhook
+- [ ] Charter approval gate check
+- [ ] Conflict registry watchdog
+- [ ] Severity routing automation
+- [ ] Token cost monitor with kill switch
+- [ ] Anti-pattern repeat detection
+- [ ] Heartbeat dead man's switch
 
-### Nice-to-Have (Mentioned)
-- [ ] Updated HTML dashboard with full file structure detail
-- [ ] Mermaid diagram files (created but rendering was problematic on mobile)
+### Phase 2 — Deployment & Testing (Ready to Start)
+- [ ] Start the agent swarm on VPS
+- [ ] Invite bots to Discord server
+- [ ] Test Discord channel bindings
+- [ ] Run first project through full lifecycle
 
 ---
 
-## Your Existing Setup
-- Discord server: built
-- Bot applications: multiple (one per agent)
-- Some bots already working in server
-- Missing: the comprehensive framework connecting everything
+## Quick Links
+
+| Resource | Location | Status |
+|----------|----------|--------|
+| **Core Charter** | `governance/operations/CORE-CHARTER.md` | ✅ Complete |
+| **Agent Configs** | `agents/{agent-name}/` | ✅ Complete |
+| **OpenClaw Config** | `openclaw.json5` | ✅ Complete |
+| **Deployment** | `deployment/discord-agents/` | ✅ Ready |
+| **Task Board** | `governance/shared/task-board.json` | ✅ Initialized |
+| **TODO** | `TODO.md` | ✅ Updated |
 
 ---
 
-## Where to Start at Lunch
+## Where to Start Now
 
-**If you have Claude Code available:**
-1. Download both zip packages to your project directory
-2. The governance docs (Package 2) are the ones Claude Code needs first
-3. CORE-CHARTER.md is the single most important file — it defines everything
-4. Next priority: get the SOUL.md and openclaw.json5 written (we haven't done these yet)
+### Immediate Actions:
+1. **Start the swarm:** `cd /opt/openclaw/discord-agents && ./deploy-agents.sh start`
+2. **Invite bots to Discord:** Use Discord Developer Portal → OAuth2 → URL Generator
+3. **Test connectivity:** `make health`
+4. **Create first project:** Use `governance/templates/charter-template.md`
 
-**If you're continuing here with me:**
-1. SOUL.md files for all 5 agents — these define who each agent IS
-2. openclaw.json5 config — this wires everything together in OpenClaw
-3. n8n workflow specs — the enforcement layer
-
-**If you just want to read and think:**
-1. Open CORE-CHARTER.md and read Sections 3 (Absolute Laws) and 4 (Project Lifecycle)
-2. Look at the charter-template.md to see what every project requires
-3. Think about whether the 4 specialist roles feel right or need adjusting
+### For New Claude Code Sessions:
+1. Read **CORE-CHARTER.md** — source of truth for the entire framework
+2. Read **agents/{agent}/SOUL.md** — understand who each agent is
+3. Check **TODO.md** — current priorities
+4. Use the **rugs-expert MCP** — it has RAG access to all project knowledge
 
 ---
 
-## Key Design Decisions Already Made
-- Orchestrator is coordination-only (no code, no research)
-- File-based coordination (task-board.json, locks, conflict registry) keeps agent context clean
-- Discord #status-updates is lightweight observation channel for you, not the coordination mechanism
-- Specialists don't message each other directly — everything flows through Orchestrator
-- You can direct-chat any specialist for simple stuff
-- Phase 2+ specialists added through the standard project process (charter, PROJ-ID, approval)
-- n8n sits outside agent context as the enforcement cop they can't override
+## Repository Structure
+
+```
+claws-and-pincers/
+├── agents/                  # Per-agent SOUL, AGENTS, HEARTBEAT
+├── governance/              # Operating system
+│   ├── operations/          # CORE-CHARTER, PROJECT-REGISTRY
+│   ├── templates/           # Charter, task, conflict templates
+│   └── shared/              # Task board, locks, registry (JSON)
+├── reference/               # 13 OpenClaw reference docs
+├── deployment/              # Docker deployment
+│   └── discord-agents/      # docker-compose, scripts
+├── visuals/                 # Dashboard HTML + diagrams
+├── openclaw.json5           # Main OpenClaw config
+├── TODO.md                  # Current priorities
+└── README.md                # Project overview
+```
+
+---
+
+## Status Summary
+
+**Phase 1A (Agent Definitions):** ✅ Complete  
+**Phase 1B (Configuration):** ✅ Complete  
+**Phase 1C (n8n Enforcement):** 🟡 In Progress  
+**Phase 1D (Housekeeping):** ✅ Complete  
+**Phase 2 (Deployment):** 🟡 Ready to Start  
+
+**Blockers:** None
+
+**Next Milestone:** Start agent swarm and complete first project lifecycle
