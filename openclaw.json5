@@ -34,7 +34,7 @@
         fallbacks: ["openrouter/google/gemini-3-flash-preview"],
       },
       models: {
-        "openrouter/anthropic/claude-opus-4-6": { alias: "opus" },
+        "openrouter/anthropic/claude-opus-4.6": { alias: "opus" },
         "openrouter/minimax/minimax-m2.5": { alias: "minimax" },
         "openrouter/x-ai/grok-4.1-fast": { alias: "grok" },
         "openrouter/moonshotai/kimi-k2.5": { alias: "kimi" },
@@ -95,7 +95,7 @@
         default: true,
         workspace: "~/.openclaw/workspace-orchestrator",
         agentDir: "~/.openclaw/agents/orchestrator/agent",
-        model: { primary: "openrouter/anthropic/claude-opus-4-6", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
+        model: { primary: "openrouter/anthropic/claude-opus-4.6", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
         identity: { name: "Orchestrator", emoji: "🎯" },
         groupChat: { mentionPatterns: ["@orchestrator", "@orch", "@Orchestrator"] },
         subagents: { allowAgents: ["*"] },

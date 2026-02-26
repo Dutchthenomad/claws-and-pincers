@@ -1,6 +1,6 @@
 # PROJECT REGISTRY
 
-**Authority:** Orchestrator (maintained) · Devin (oversight)  
+**Authority:** Orchestrator (maintained) · Devin (oversight)
 **Rule:** NO PROJECT ID = NO WORK ALLOWED
 
 ---
@@ -15,7 +15,16 @@
 
 | PROJ-ID | Title | Completed | Charter |
 |---------|-------|-----------|---------|
-| — | — | — | — |
+| PROJ-AUDIT-001 | Full Ecosystem Audit & Remediation | 2026-02-26 | Devin-directed (no formal charter) |
+
+### PROJ-AUDIT-001 — Full Ecosystem Audit & Remediation
+
+- **Scope:** Docker infrastructure, configs, security, runtime health, dead code, governance
+- **Method:** 6 parallel audit agents + 4-phase remediation
+- **Findings:** 6 CRITICAL, 14 HIGH, 18 MEDIUM, 16 LOW
+- **Result:** 23 containers (down from 27), 52% disk (down from 57%), all agents healthy and governance-aware
+- **Remaining:** C-3 key revocation (user action), n8n credential re-entry, H-13 network segmentation
+- **Report:** `/tmp/claws-and-pincers/operations/AUDIT-2026-02-26.md`
 
 ## Cancelled / Archived Projects
 
