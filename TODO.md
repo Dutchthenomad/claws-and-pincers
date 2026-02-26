@@ -1,85 +1,122 @@
 # TODO — OpenClaw Agent Team Framework
 
-**Updated:** 2026-02-20  
-**Priority Key:** 🔴 Blocker | 🟡 High | 🟢 Normal | ⚪ Nice-to-have | ✅ Complete
+**Updated:** 2026-02-26
+**Priority Key:** BLOCKER | HIGH | NORMAL | NICE | DONE
 
 ---
 
-## Phase 1A — Agent Definitions ✅ COMPLETE
+## Phase 1 — Foundation (DONE)
 
-- [x] ✅ Write SOUL.md for Orchestrator (personality, rules, governance enforcement)
-- [x] ✅ Write SOUL.md for Researcher
-- [x] ✅ Write SOUL.md for Developer
-- [x] ✅ Write SOUL.md for Sysadmin
-- [x] ✅ Write SOUL.md for Reviewer/QA
-- [x] ✅ Write AGENTS.md for each agent (operational instructions)
-- [x] ✅ Write HEARTBEAT.md for each agent (proactive check-in checklists)
+All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 
-**Location:** `agents/{orchestrator,researcher,developer,sysadmin,reviewer}/`
+### Phase 1A — Agent Definitions (DONE)
+- [x] SOUL.md, AGENTS.md, HEARTBEAT.md for all 5 agents
+- **Location:** `agents/{orchestrator,researcher,developer,sysadmin,reviewer}/`
 
----
+### Phase 1B — Configuration (DONE)
+- [x] openclaw.json5 multi-agent config (5 Discord agents + Telegram debug bot)
+- [x] Discord bot tokens mapped to agent IDs
+- [x] OpenRouter model routing with frontier models
+- [x] Environment variable secret management (.env)
+- [x] OpenClaw runtime updated to 2026.2.25
 
-## Phase 1B — Configuration ✅ COMPLETE
+### Phase 1C — Deployment (DONE)
+- [x] All 5 Discord agents deployed and online on VPS
+- [x] Telegram debug bot preserved alongside Discord agents
+- [x] Merged config: single openclaw.json serving both channels
 
-- [x] ✅ Write openclaw.json5 multi-agent config (5 agents, Discord bindings, tool restrictions, model assignments)
-- [x] ✅ Map Discord bot tokens to agent IDs in config
-- [x] ✅ Set up deployment infrastructure with Docker Compose (container isolation, health checks, auto-restart)
-- [ ] 🟡 Set up Discord channel permissions matching access control matrix in CORE-CHARTER
-- [x] ✅ Write GOVERNANCE-RULES.md reference (detailed procedures in CORE-CHARTER)
-
-**Location:**
-- Config: `openclaw.json5`
-- Deployment: `deployment/discord-agents/`
-- Reference: `reference/08-CONFIGURATION-REFERENCE.md`
-
----
-
-## Phase 1C — n8n Enforcement Layer 🟡 IN PROGRESS
-
-- [ ] 🟡 Build n8n workflow: Project ID validator (webhook on #task-dispatch)
-- [ ] 🟡 Build n8n workflow: Charter approval gate
-- [ ] 🟡 Build n8n workflow: Conflict registry watchdog
-- [ ] 🟡 Build n8n workflow: Severity routing automation
-- [ ] 🟡 Build n8n workflow: Token cost monitor with kill switch
-- [ ] 🟡 Build n8n workflow: Anti-pattern repeat detection
-- [ ] 🟡 Build n8n workflow: Heartbeat dead man's switch
-
-**Location:** `n8n/` (pending creation)
+### Phase 1D — Repo Housekeeping (DONE)
+- [x] README.md rewritten for multi-agent framework
+- [x] Outdated single-agent docs archived
+- [x] .gitignore updated
+- [x] Config files aligned with live deployment
 
 ---
 
-## Phase 1D — Repo Housekeeping ✅ COMPLETE
+## Phase 2 — n8n Core Systems Architecture (HIGH)
 
-- [x] ✅ Rewrite README.md for multi-agent framework focus
-- [x] ✅ Archive outdated single-agent docs to docs/archive/
-- [x] ✅ Review discord-design-docs/ and merge or archive (moved to docs/archive/)
-- [x] ✅ Update .gitignore for new paths
-- [ ] ⚪ Update HTML dashboard with full file structure detail
+n8n becomes the universal control plane. Static YAML/JSON configs are state snapshots; n8n workflows are the living, enforceable, debuggable truth.
 
-**Location:** `README.md`, `docs/archive/`, `visuals/`
+### Phase 2A — Laws Enforcement via n8n
+- [ ] HIGH: Project ID validator (webhook on #task-dispatch)
+- [ ] HIGH: Charter approval gate check
+- [ ] HIGH: Conflict registry watchdog
+- [ ] HIGH: Severity routing automation
+- [ ] HIGH: Token cost monitor with kill switch
+- [ ] NORMAL: Anti-pattern repeat detection
+- [ ] NORMAL: Heartbeat dead man's switch
+
+### Phase 2B — Memory Orchestration via n8n
+- [ ] HIGH: Integrate existing OpenClaw Memory API (localhost:8002) into n8n workflows
+- [ ] HIGH: Design per-agent namespaced memory contexts
+- [ ] NORMAL: n8n workflow for memory lifecycle (create, prune, archive)
+- [ ] NORMAL: Cross-agent knowledge sharing rules (what's shared vs private)
+
+### Phase 2C — Agent File Structure Management via n8n
+- [ ] HIGH: n8n workflow to manage agent workspace directories
+- [ ] NORMAL: Automated project folder creation on PROJ-XXX registration
+- [ ] NORMAL: Lock file management and collision prevention
+- [ ] NICE: File structure health checks and cleanup automation
+
+### Phase 2D — Responsibility & Config Evolution via n8n
+- [ ] HIGH: n8n workflow for agent config changes (model swaps, tool grants, scope changes)
+- [ ] NORMAL: Config drift detection (live state vs declared state)
+- [ ] NORMAL: Role evolution tracking (when agents gain/lose responsibilities)
+- [ ] NICE: Automated changelog generation from config diffs
+
+### Phase 2E — Discord Channel & Category Redesign
+- [ ] HIGH: Map channel structure to n8n-managed routing rules
+- [ ] HIGH: Set up Discord channel permissions matching access control matrix
+- [ ] NORMAL: Category redesign informed by 2A-2D decisions
+- [ ] NORMAL: Channel archival and lifecycle management
 
 ---
 
-## Phase 2 — Deployment & Testing 🟡 READY TO START
+## Phase 3 — Context & Token Optimization (NORMAL)
 
-- [x] ✅ Deploy all 5 agents on VPS (containers defined, ready to start)
-- [ ] 🟡 Verify Discord channel bindings and routing
-- [ ] 🟡 Test full project lifecycle: charter → ID → dispatch → work → review → complete
-- [ ] 🟡 Test conflict detection on overlapping scope
-- [ ] 🟡 Test severity escalation chain (INFO → WARN → BLOCKED → CRITICAL)
-- [ ] 🟡 Test n8n enforcement catches violations
-- [ ] 🟢 Run first real project through the system end-to-end
+Context window bloat is a first-class architectural concern. This phase audits, refines, and proposes optimizations.
 
-**Next Action:** Start the agent swarm: `./deploy-agents.sh start`
+### Phase 3A — Token Caching Audit
+- [ ] NORMAL: Audit current contextPruning cache-ttl settings
+- [ ] NORMAL: Measure actual cache hit rates per agent
+- [ ] NORMAL: Evaluate compaction safeguard mode effectiveness
+
+### Phase 3B — Skills Inventory & Refinement
+- [ ] NORMAL: Catalog all active skills across agents
+- [ ] NORMAL: Identify redundant, conflicting, or bloated skills
+- [ ] NORMAL: Decide: system-wide skill model vs per-agent skill model
+
+### Phase 3C — Context Window Strategy
+- [ ] NORMAL: Define per-agent context budget (what goes in, what stays out)
+- [ ] NORMAL: Design progressive disclosure for agent system prompts
+- [ ] NORMAL: Implement context window health metrics in n8n
+
+### Phase 3D — Research Proposal
+- [ ] NORMAL: Write formal research proposal for token/context optimization
+- [ ] NORMAL: Benchmark current token spend per agent per task type
+- [ ] NICE: Propose optimization targets with measurable KPIs
 
 ---
 
-## Phase 3+ — Expansion ⚪ PLANNED
+## Phase 4 — Research: LangChain / LangFlow / LangGraph (NICE)
 
-- [ ] ⚪ Evaluate need for additional specialists (Creative, Data, Security, Writer)
-- [ ] ⚪ Implement on-demand specialist spawning via sessions_spawn
-- [ ] ⚪ Cross-project knowledge transfer system
-- [ ] ⚪ Automated charter generation for recurring project types
+Evaluate whether LangChain, LangFlow, or LangGraph adds meaningful scalability and capability to the n8n-based orchestration pipeline. This is exploratory, not committed.
+
+- [ ] NICE: Research LangChain integration points with n8n
+- [ ] NICE: Evaluate LangFlow as visual workflow layer alongside n8n
+- [ ] NICE: Assess LangGraph for multi-agent state machine orchestration
+- [ ] NICE: Pros/cons analysis with recommendation (augment n8n, replace, or skip)
+- [ ] NICE: Decision criteria: does it optimize end-use goals more effectively than n8n alone?
+
+---
+
+## Phase 5+ — Expansion (PLANNED)
+
+- [ ] Evaluate additional specialists (Creative, Data, Security, Writer)
+- [ ] On-demand specialist spawning via sessions_spawn
+- [ ] Cross-project knowledge transfer system
+- [ ] Automated charter generation for recurring project types
+- [ ] Self-optimization of governance rules based on retrospectives
 
 ---
 
@@ -87,23 +124,23 @@
 
 | Resource | Location |
 |----------|----------|
-| **Core Charter** | `governance/operations/CORE-CHARTER.md` |
-| **Agent Configs** | `agents/{agent-name}/{SOUL,AGENTS,HEARTBEAT}.md` |
-| **Deployment** | `deployment/discord-agents/` |
-| **Reference Docs** | `reference/` (13 files) |
-| **Project Registry** | `governance/operations/PROJECT-REGISTRY.md` |
-| **Task Board** | `governance/shared/task-board.json` |
+| Core Charter | `governance/operations/CORE-CHARTER.md` |
+| Agent Configs | `agents/{agent-name}/{SOUL,AGENTS,HEARTBEAT}.md` |
+| OpenClaw Config | `openclaw.json5` |
+| Model Routing | `config/model-routing.yaml` |
+| Cost Registry | `config/cost-registry.yaml` |
+| Design Docs | `docs/plans/` |
+| Reference Docs | `reference/` |
 
 ---
 
-## Current Blockers
+## Current Status
 
-**None** — All Phase 1A/1B/1D complete. Phase 2 ready to begin.
+**Phase 1:** DONE
+**Phase 2:** HIGH — Next up
+**Phase 3:** NORMAL — After Phase 2 foundations
+**Phase 4:** NICE — Research track
 
-## Immediate Next Steps
+**Blockers:** None
 
-1. **Start the agent swarm:** `cd /opt/openclaw/discord-agents && ./deploy-agents.sh start`
-2. **Invite bots to Discord server** with proper permissions
-3. **Test basic connectivity:** `make health`
-4. **Create first project charter** and run through lifecycle
-5. **Build n8n enforcement workflows** (Phase 1C)
+**Next Milestone:** Build Phase 2A Laws enforcement workflows in n8n

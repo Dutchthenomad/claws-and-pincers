@@ -2,16 +2,14 @@
 
 > **OpenClaw Multi-Agent Discord Framework — Central Command Repository**
 
-**Status**: IN DEVELOPMENT | **Platform**: Discord | **Agents**: 5 (Orchestrator + 4 Specialists) | **Governance**: CORE-CHARTER v1
+**Status**: DEPLOYED | **Platform**: Discord + Telegram | **Agents**: 5 Discord + 1 Telegram Debug | **Governance**: CORE-CHARTER v1.1
 
 ---
 
 ## For Claude Code Sessions: START HERE
 
-If you're a Claude Code session working on this project:
-
 1. **Read [CORE-CHARTER.md](governance/operations/CORE-CHARTER.md)** — source of truth for the entire framework
-2. **Check [TODO.md](TODO.md)** — current task priorities (phased, with blocker tags)
+2. **Check [TODO.md](TODO.md)** — current task priorities (phased, with priority tags)
 3. **Read [PROJECT-REFRESHER.md](PROJECT-REFRESHER.md)** — quick context on what's been built and what's next
 4. **Use the rugs-expert MCP** — it has RAG access to all project knowledge
 5. **Don't reinvent wheels** — query the RAG before building anything new
@@ -24,13 +22,15 @@ An autonomous multi-agent team built on OpenClaw, operating through Discord. Ins
 
 ### The Team
 
-| Agent | Role | Scope |
-|-------|------|-------|
-| **Orchestrator** | Coordination, task dispatch, governance enforcement | All channels |
-| **Researcher** | Knowledge gathering, RAG queries, analysis | #research workspace |
-| **Developer** | Code implementation, PRs, technical execution | #dev workspace |
-| **Sysadmin** | Infrastructure, Docker, VPS, monitoring | #infra workspace |
-| **Reviewer/QA** | Code review, quality gates, testing | #review workspace |
+| Agent | Role | Model (via OpenRouter) | Fallback |
+|-------|------|------------------------|----------|
+| **Orchestrator** | Coordination, task dispatch, governance | anthropic/claude-opus-4-6 | moonshotai/kimi-k2.5 |
+| **Researcher** | Knowledge gathering, RAG, analysis | x-ai/grok-4.1-fast | moonshotai/kimi-k2.5 |
+| **Developer** | Code implementation, PRs, technical | minimax/minimax-m2.5 | moonshotai/kimi-k2.5 |
+| **Sysadmin** | Infrastructure, Docker, VPS, monitoring | moonshotai/kimi-k2.5 | google/gemini-3-flash-preview |
+| **Reviewer/QA** | Code review, quality gates, testing | google/gemini-3-flash-preview | moonshotai/kimi-k2.5 |
+
+**Telegram Debug Bot** (Clawbot): anthropic/claude-sonnet-4-5 (direct Anthropic API)
 
 ### The 4 Absolute Laws
 
@@ -44,33 +44,39 @@ An autonomous multi-agent team built on OpenClaw, operating through Discord. Ins
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│                        VPS (srv1216617)                          │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │               DISCORD AGENT TEAM                          │   │
-│  │  ├── Orchestrator (coordination + dispatch)               │   │
-│  │  ├── Researcher (knowledge + analysis)                    │   │
-│  │  ├── Developer (code + PRs)                               │   │
-│  │  ├── Sysadmin (infra + monitoring)                        │   │
-│  │  └── Reviewer/QA (quality + testing)                      │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                              │                                   │
-│  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                 GOVERNANCE LAYER                            │  │
-│  │  ├── CORE-CHARTER.md (4 laws, lifecycle, severity)        │  │
-│  │  ├── File coordination (task-board, locks, conflicts)     │  │
-│  │  └── n8n enforcement (programmatic compliance)            │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                              │                                   │
-│  ┌──────────────────────────┴────────────────────────────────┐  │
-│  │                   SHARED SERVICES                          │  │
-│  │  qdrant (vectors) │ timescaledb (metrics) │ rag-api        │  │
-│  │  rabbitmq (queues) │ n8n (workflows) │ rugs-mcp (RAG)     │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------+
+|                      VPS (srv1216617)                            |
+|-----------------------------------------------------------------|
+|                                                                  |
+|  +----------------------------------------------------------+   |
+|  |             DISCORD AGENT TEAM (OpenRouter)               |   |
+|  |  +-- Orchestrator  [Opus 4.6]                             |   |
+|  |  +-- Researcher    [Grok 4.1 Fast]                        |   |
+|  |  +-- Developer     [MiniMax M2.5]                         |   |
+|  |  +-- Sysadmin      [Kimi K2.5]                            |   |
+|  |  +-- Reviewer/QA   [Gemini 3 Flash Preview]               |   |
+|  +----------------------------------------------------------+   |
+|                              |                                   |
+|  +----------------------------------------------------------+   |
+|  |             GOVERNANCE & CONTROL PLANE                    |   |
+|  |  +-- CORE-CHARTER.md (4 laws, lifecycle, severity)        |   |
+|  |  +-- n8n (workflow enforcement - Phase 2)                 |   |
+|  |  +-- File coordination (task-board, locks, conflicts)     |   |
+|  +----------------------------------------------------------+   |
+|                              |                                   |
+|  +----------------------------------------------------------+   |
+|  |                  SHARED SERVICES                          |   |
+|  |  qdrant (vectors) | timescaledb (metrics) | rag-api       |   |
+|  |  rabbitmq (queues) | n8n (workflows) | rugs-mcp (RAG)     |   |
+|  |  openclaw-memory (persistent memory API, localhost:8002)   |   |
+|  +----------------------------------------------------------+   |
+|                              |                                   |
+|  +----------------------------------------------------------+   |
+|  |           TELEGRAM DEBUG BOT (Clawbot)                    |   |
+|  |  Direct Anthropic API | Sonnet 4.5 | Debug interface      |   |
+|  +----------------------------------------------------------+   |
+|                                                                  |
++-----------------------------------------------------------------+
 ```
 
 ---
@@ -79,27 +85,29 @@ An autonomous multi-agent team built on OpenClaw, operating through Discord. Ins
 
 ```
 claws-and-pincers/
-├── governance/              # Operating system for the agent team
-│   ├── operations/          # CORE-CHARTER, project registry, roadmap
-│   ├── templates/           # Charter, task, conflict, severity templates
-│   └── shared/              # Task board, locks, conflict registry (JSON)
-├── reference/               # OpenClaw platform reference docs (13 files)
-├── agents/                  # Per-agent directories
-│   ├── orchestrator/        # SOUL.md, AGENTS.md, HEARTBEAT.md
-│   ├── researcher/
-│   ├── developer/
-│   ├── sysadmin/
-│   └── reviewer/
-├── visuals/                 # Dashboard HTML + Mermaid diagrams
-├── n8n/                     # Workflow exports (pending)
-├── config/                  # Model routing, permissions, cost registry
-├── docker/                  # Docker compose + security profiles
-├── scripts/                 # Operational scripts
-├── docs/
-│   └── archive/             # Historical docs from 30-day experiment
-├── TODO.md                  # Phased priorities with blocker tags
-├── PROJECT-REFRESHER.md     # Quick context doc for new sessions
-└── README.md                # You are here
++-- governance/              # Operating system for the agent team
+|   +-- operations/          # CORE-CHARTER, project registry, roadmap
+|   +-- templates/           # Charter, task, conflict, severity templates
+|   +-- shared/              # Task board, locks, conflict registry (JSON)
++-- reference/               # OpenClaw platform reference docs (13 files)
++-- agents/                  # Per-agent directories
+|   +-- orchestrator/        # SOUL.md, AGENTS.md, HEARTBEAT.md
+|   +-- researcher/
+|   +-- developer/
+|   +-- sysadmin/
+|   +-- reviewer/
++-- visuals/                 # Dashboard HTML + Mermaid diagrams
++-- config/                  # Model routing, permissions, cost registry
++-- docker/                  # Docker compose + security profiles
++-- scripts/                 # Operational scripts
++-- docs/
+|   +-- plans/               # Design documents and decisions
+|   +-- archive/             # Historical docs from 30-day experiment
++-- n8n/                     # Workflow exports (Phase 2)
++-- TODO.md                  # Phased priorities with priority tags
++-- PROJECT-REFRESHER.md     # Quick context doc for new sessions
++-- openclaw.json5           # OpenClaw config (repo version)
++-- README.md                # You are here
 ```
 
 ---
@@ -109,11 +117,13 @@ claws-and-pincers/
 | Document | Purpose |
 |----------|---------|
 | [CORE-CHARTER.md](governance/operations/CORE-CHARTER.md) | **Source of truth** — Laws, lifecycle, severity, coordination |
-| [TODO.md](TODO.md) | Current priorities (phased, blocker-tagged) |
+| [TODO.md](TODO.md) | Current priorities (phased, priority-tagged) |
 | [PROJECT-REFRESHER.md](PROJECT-REFRESHER.md) | Quick context for continuing sessions |
 | [PROJECT-REGISTRY.md](governance/operations/PROJECT-REGISTRY.md) | Active project tracking (PROJ-XXX) |
-| [EXPANSION-ROADMAP.md](governance/operations/EXPANSION-ROADMAP.md) | Phase 1-4 growth plan |
-| [Anti-Patterns](governance/shared/anti-patterns.md) | Self-learning pattern avoidance (AP-001 through AP-007) |
+| [EXPANSION-ROADMAP.md](governance/operations/EXPANSION-ROADMAP.md) | Growth plan |
+| [Anti-Patterns](governance/shared/anti-patterns.md) | Self-learning pattern avoidance |
+| [Model Routing](config/model-routing.yaml) | LLM provider and model assignments |
+| [Cost Registry](config/cost-registry.yaml) | Budget tracking per provider |
 | [Reference Docs](reference/README.md) | OpenClaw platform reference (13 files) |
 
 ---
@@ -126,6 +136,8 @@ claws-and-pincers/
 | **OS** | Ubuntu 24.04 LTS |
 | **Resources** | 4 vCPU, 16GB RAM, 200GB NVMe |
 | **VPN** | Tailscale (100.113.138.27) |
+| **LLM Provider** | OpenRouter (primary), Anthropic (Telegram), Groq (fallback) |
+| **OpenClaw Runtime** | 2026.2.25 |
 | **Docker Services** | qdrant, timescaledb, rag-api, rugs-mcp, n8n, rabbitmq, openclaw-memory |
 
 ### MCP Tools (Prefer over SSH)
@@ -156,4 +168,4 @@ Historical docs from the Telegram experiment are preserved in [docs/archive/](do
 
 ---
 
-*Framework initiated: 2026-02-16 | Evolved from 30-day experiment (2026-01-31)*
+*Framework initiated: 2026-02-16 | Deployed: 2026-02-26 | Evolved from 30-day experiment (2026-01-31)*

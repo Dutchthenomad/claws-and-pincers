@@ -1,135 +1,116 @@
 # OpenClaw Model Routing Configuration
-# Defines how to route requests to different LLM providers for cost optimization
-# Created: 2026-02-01
+# Defines how to route requests to different LLM providers
+# Updated: 2026-02-26 — Migrated to OpenRouter-first for Discord agents
 
 routing:
   enabled: true
-  default_provider: anthropic
-  default_model: claude-sonnet-4-20250514
+  default_provider: openrouter
+  default_model: moonshotai/kimi-k2.5
 
 # Provider configurations
 providers:
-  anthropic:
-    enabled: true
-    env_var: ANTHROPIC_API_KEY
-    models:
-      - id: claude-opus-4-5-20251101
-        alias: [opus, claude-opus, opus-4.5]
-        use_for: [complex_reasoning, creative_writing, code_review]
-        max_tokens: 8192
-        
-      - id: claude-sonnet-4-20250514
-        alias: [sonnet, claude-sonnet, sonnet-4]
-        use_for: [general, coding, analysis]
-        max_tokens: 8192
-        default: true
-        
-      - id: claude-3-5-haiku-20241022
-        alias: [haiku, claude-haiku]
-        use_for: [quick_tasks, simple_queries, summarization]
-        max_tokens: 4096
-
-  google:
-    enabled: true
-    env_var: GOOGLE_API_KEY
-    models:
-      - id: gemini-2.0-flash
-        alias: [gemini, gemini-flash, flash]
-        use_for: [fast_responses, multimodal, vision]
-        max_tokens: 8192
-        
-      - id: gemini-2.0-flash-lite
-        alias: [gemini-lite, flash-lite]
-        use_for: [very_fast, low_cost]
-        max_tokens: 4096
-        
-      - id: gemini-1.5-pro
-        alias: [gemini-pro]
-        use_for: [long_context, document_analysis]
-        max_tokens: 8192
-
   openrouter:
     enabled: true
     env_var: OPENROUTER_API_KEY
     base_url: https://openrouter.ai/api/v1
+    primary: true
     models:
-      - id: moonshotai/kimi-k2.5
-        alias: [kimi, kimi-k2.5, k2.5]
-        use_for: [reasoning, math, coding, cost_sensitive]
+      - id: anthropic/claude-opus-4-6
+        alias: [opus, claude-opus]
+        assigned_to: orchestrator
+        use_for: [coordination, governance, complex_reasoning]
         max_tokens: 8192
-        preferred_for_cost: true
-        
-      - id: openai/gpt-4o
-        alias: [gpt4o, gpt-4o]
-        use_for: [general, fallback]
-        max_tokens: 4096
 
-# Task-based routing rules
-task_routing:
-  # Quick, simple tasks -> cheapest option
-  simple_query:
-    priority: [groq-llama, haiku, gemini-lite, kimi]
-    
-  # General coding -> balanced option
-  coding:
-    priority: [sonnet, kimi, gpt4o]
-    
-  # Complex reasoning -> best available
-  complex_reasoning:
-    priority: [opus, sonnet, kimi]
-    
-  # Cost-sensitive -> cheapest capable
-  cost_sensitive:
-    priority: [groq-llama, kimi, haiku, gemini-lite]
-    
-  # Vision/multimodal -> only vision-capable
-  multimodal:
-    priority: [gemini-flash, sonnet]
-    
-  # Long documents -> best for context
-  long_context:
-    priority: [gemini-pro, opus]
+      - id: minimax/minimax-m2.5
+        alias: [minimax, m2.5]
+        assigned_to: developer
+        use_for: [coding, implementation, debugging, automation]
+        max_tokens: 8192
 
-# Fallback chain if primary provider fails
-fallback_chain:
-  - groq
-  - anthropic
-  - openrouter
-  - google
+      - id: x-ai/grok-4.1-fast
+        alias: [grok, grok-fast]
+        assigned_to: researcher
+        use_for: [research, analysis, web_search, deep_research]
+        max_tokens: 8192
 
-# Rate limiting (per minute)
-rate_limits:
-  anthropic: 60
-  google: 120
-  openrouter: 60
+      - id: moonshotai/kimi-k2.5
+        alias: [kimi, k2.5]
+        assigned_to: sysadmin
+        use_for: [infrastructure, reasoning, math, coding, cost_sensitive]
+        max_tokens: 8192
+        universal_fallback: true
 
-# Cost thresholds for alerts (USD)
-cost_alerts:
-  per_request_warn: 0.50
-  daily_warn: 5.00
-  daily_hard_limit: 10.00
+      - id: google/gemini-3-flash-preview
+        alias: [gemini, gemini-flash]
+        assigned_to: reviewer
+        use_for: [review, quality_gates, fast_analysis, multimodal]
+        max_tokens: 8192
 
-  # Groq - Free tier with fast inference
+  # Direct Anthropic (Telegram debug bot)
+  anthropic:
+    enabled: true
+    env_var: ANTHROPIC_API_KEY
+    models:
+      - id: claude-sonnet-4-5
+        alias: [sonnet, claude-sonnet]
+        assigned_to: telegram-debug
+        use_for: [general, coding, analysis]
+        max_tokens: 8192
+
+  # Groq (Telegram subagents - fast/free)
   groq:
     enabled: true
     env_var: GROQ_API_KEY
     base_url: https://api.groq.com/openai/v1
     models:
       - id: llama-3.3-70b-versatile
-        alias: [llama70b, llama-70b, groq-llama]
-        use_for: [general, coding, reasoning, cost_sensitive]
+        alias: [llama70b, groq-llama]
+        use_for: [general, coding, cost_sensitive]
         max_tokens: 8192
-        preferred_for_cost: true
         free_tier: true
-        
+
       - id: llama-3.1-8b-instant
         alias: [llama8b, groq-fast]
         use_for: [quick_tasks, simple_queries]
         max_tokens: 4096
         free_tier: true
-        
-      - id: mixtral-8x7b-32768
-        alias: [mixtral, groq-mixtral]
-        use_for: [long_context, reasoning]
-        max_tokens: 32768
-        free_tier: true
+
+# Agent-to-model mapping (Discord agents via OpenRouter)
+agent_models:
+  orchestrator:
+    primary: openrouter/anthropic/claude-opus-4-6
+    fallback: openrouter/moonshotai/kimi-k2.5
+
+  developer:
+    primary: openrouter/minimax/minimax-m2.5
+    fallback: openrouter/moonshotai/kimi-k2.5
+
+  researcher:
+    primary: openrouter/x-ai/grok-4.1-fast
+    fallback: openrouter/moonshotai/kimi-k2.5
+
+  sysadmin:
+    primary: openrouter/moonshotai/kimi-k2.5
+    fallback: openrouter/google/gemini-3-flash-preview
+
+  reviewer:
+    primary: openrouter/google/gemini-3-flash-preview
+    fallback: openrouter/moonshotai/kimi-k2.5
+
+# Fallback chain if primary provider fails
+fallback_chain:
+  - openrouter
+  - anthropic
+  - groq
+
+# Rate limiting (per minute)
+rate_limits:
+  openrouter: 120
+  anthropic: 60
+  groq: 30
+
+# Cost thresholds for alerts (USD)
+cost_alerts:
+  per_request_warn: 0.50
+  daily_warn: 10.00
+  daily_hard_limit: 25.00

@@ -1,7 +1,7 @@
 # CORE CHARTER — OpenClaw Agent Team Operations
 
-**Version:** 1.0  
-**Date:** 2026-02-16  
+**Version:** 1.1
+**Date:** 2026-02-26
 **Authority:** Devin (Human Operator)  
 **Scope:** All agents, all projects, all operations — no exceptions.
 
@@ -42,9 +42,10 @@ The operational model is inspired by Anthropic's Agent Teams framework: a lead a
 - **Cannot:** Write code, perform research, execute system commands, approve its own work
 
 ### 2.3 Specialists (Core Crew — Phase 1)
-All specialists run on **Sonnet 4.5** and are sandboxed to their domain.
+All specialists route through **OpenRouter** with individually assigned frontier models. Each is sandboxed to their domain.
 
 #### 🔬 Researcher
+- **Model:** x-ai/grok-4.1-fast (fallback: moonshotai/kimi-k2.5)
 - Web research, technical analysis, feasibility studies
 - Architecture proposals, literature review
 - Produces structured deliverables with confidence levels and source citations
@@ -52,6 +53,7 @@ All specialists run on **Sonnet 4.5** and are sandboxed to their domain.
 - **Cannot:** Execute code, deploy services, approve work
 
 #### 💻 Developer
+- **Model:** minimax/minimax-m2.5 (fallback: moonshotai/kimi-k2.5)
 - Code implementation, bug fixes, refactoring
 - Testing, CI/CD pipeline work
 - API integration, database work, script automation
@@ -59,6 +61,7 @@ All specialists run on **Sonnet 4.5** and are sandboxed to their domain.
 - **Cannot:** Deploy to production (sysadmin domain), approve own code
 
 #### 🖥️ Sysadmin
+- **Model:** moonshotai/kimi-k2.5 (fallback: google/gemini-3-flash-preview)
 - VPS management, Docker/container operations
 - Service deployment, monitoring, alerting
 - Security hardening, backup and recovery
@@ -66,6 +69,7 @@ All specialists run on **Sonnet 4.5** and are sandboxed to their domain.
 - **Cannot:** Write application code (developer domain), approve own deployments
 
 #### 🔍 Reviewer / QA
+- **Model:** google/gemini-3-flash-preview (fallback: moonshotai/kimi-k2.5)
 - Code review (READ-ONLY access to code)
 - Charter review before Devin approval
 - Conflict detection assistance
@@ -584,3 +588,4 @@ This charter is the supreme governing document for the agent team. All other doc
 | Version | Date | Change |
 |---------|------|--------|
 | 1.0 | 2026-02-16 | Initial charter |
+| 1.1 | 2026-02-26 | Updated specialist models to OpenRouter frontier stack; per-agent model assignments |
