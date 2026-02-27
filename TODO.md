@@ -14,7 +14,7 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 - **Location:** `agents/{orchestrator,researcher,developer,sysadmin,reviewer}/`
 
 ### Phase 1B — Configuration (DONE)
-- [x] openclaw.json5 multi-agent config (5 Discord agents + Telegram debug bot)
+- [x] openclaw.json5 multi-agent config (5 Discord agents)
 - [x] Discord bot tokens mapped to agent IDs
 - [x] OpenRouter model routing with frontier models
 - [x] Environment variable secret management (.env)
@@ -22,8 +22,7 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 
 ### Phase 1C — Deployment (DONE)
 - [x] All 5 Discord agents deployed and online on VPS
-- [x] Telegram debug bot preserved alongside Discord agents
-- [x] Merged config: single openclaw.json serving both channels
+- [x] Merged config: single openclaw.json serving Discord
 
 ### Phase 1D — Repo Housekeeping (DONE)
 - [x] README.md rewritten for multi-agent framework

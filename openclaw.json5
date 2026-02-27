@@ -1,10 +1,9 @@
 // ~/.openclaw/openclaw.json5
 // Claws & Pincers — Production Multi-Agent Configuration
-// Updated: 2026-02-26 — OpenRouter-first model stack + Telegram debug bot
+// Updated: 2026-02-27 — OpenRouter-first model stack (Discord-only)
 //
 // ENVIRONMENT VARIABLES REQUIRED (set in ~/.openclaw/.env):
 //   ANTHROPIC_API_KEY, OPENROUTER_API_KEY, GROQ_API_KEY, GOOGLE_AI_API_KEY
-//   TELEGRAM_BOT_TOKEN
 //   DISCORD_ORCHESTRATOR_TOKEN, DISCORD_RESEARCHER_TOKEN
 //   DISCORD_DEVELOPER_TOKEN, DISCORD_SYSADMIN_TOKEN, DISCORD_REVIEWER_TOKEN
 
@@ -15,7 +14,6 @@
       GROQ_API_KEY: "${GROQ_API_KEY}",
       OPENROUTER_API_KEY: "${OPENROUTER_API_KEY}",
       GOOGLE_AI_API_KEY: "${GOOGLE_AI_API_KEY}",
-      TELEGRAM_BOT_TOKEN: "${TELEGRAM_BOT_TOKEN}",
     },
   },
 
@@ -56,39 +54,6 @@
     },
 
     list: [
-      // === TELEGRAM DEBUG AGENTS (Clawbot + subagents) ===
-      {
-        id: "main",
-        model: { primary: "anthropic/claude-sonnet-4-5", fallbacks: ["groq/llama-3.3-70b-versatile", "openrouter/moonshotai/kimi-k2.5"] },
-        identity: { name: "Clawbot", theme: "helpful autonomous assistant with human-in-the-loop controls", emoji: "🦞" },
-        subagents: { allowAgents: ["quick", "tg-researcher", "coder", "creative", "reasoner"] },
-      },
-      {
-        id: "quick",
-        model: { primary: "groq/llama-3.1-8b-instant", fallbacks: ["groq/llama-3.3-70b-versatile", "openrouter/moonshotai/kimi-k2.5"] },
-        identity: { name: "QuickBot", theme: "fast responses for simple tasks", emoji: "⚡" },
-      },
-      {
-        id: "tg-researcher",
-        model: { primary: "openrouter/moonshotai/kimi-k2.5", fallbacks: ["groq/llama-3.3-70b-versatile"] },
-        identity: { name: "ResearchBot", theme: "information gathering and RAG queries", emoji: "🔍" },
-      },
-      {
-        id: "coder",
-        model: { primary: "anthropic/claude-sonnet-4-5", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
-        identity: { name: "CoderBot", theme: "code generation, review, and debugging", emoji: "🔧" },
-      },
-      {
-        id: "creative",
-        model: { primary: "anthropic/claude-sonnet-4-5", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
-        identity: { name: "CreativeBot", theme: "writing, brainstorming, and content generation", emoji: "✨" },
-      },
-      {
-        id: "reasoner",
-        model: { primary: "anthropic/claude-opus-4-5", fallbacks: ["anthropic/claude-sonnet-4-5", "openrouter/moonshotai/kimi-k2.5"] },
-        identity: { name: "ReasonerBot", theme: "complex analysis and strategic planning", emoji: "🧠" },
-      },
-
       // === DISCORD AGENTS (Claws & Pincers team) ===
       {
         id: "orchestrator",
@@ -167,20 +132,19 @@
       enabled: true,
       allow: ["orchestrator", "discord-researcher", "developer", "sysadmin", "reviewer"],
     },
-    elevated: { enabled: true, allowFrom: { telegram: ["6490779444"] } },
+    elevated: { enabled: true, allowFrom: { discord: ["13362138764"] } },
     exec: { host: "gateway", security: "full", ask: "off", backgroundMs: 10000, timeoutSec: 1800 },
   },
 
   bindings: [
     { agentId: "orchestrator", match: { channel: "discord" } },
-    { agentId: "main", match: { channel: "telegram" } },
   ],
 
   messages: { ackReaction: "👍", ackReactionScope: "all" },
   commands: { native: "auto", nativeSkills: "auto" },
 
   approvals: {
-    exec: { enabled: true, mode: "targets", targets: [{ channel: "telegram", to: "6490779444" }] },
+    exec: { enabled: true, mode: "targets", targets: [{ channel: "discord", to: "13362138764" }] },
   },
 
   session: {
@@ -191,16 +155,6 @@
   },
 
   channels: {
-    telegram: {
-      enabled: true,
-      dmPolicy: "allowlist",
-      botToken: "${TELEGRAM_BOT_TOKEN}",
-      groups: { "*": { requireMention: true } },
-      allowFrom: ["6490779444"],
-      groupAllowFrom: ["6490779444"],
-      groupPolicy: "allowlist",
-      streaming: "partial",
-    },
     discord: {
       enabled: true,
       allowBots: true,
@@ -232,7 +186,6 @@
 
   plugins: {
     entries: {
-      telegram: { enabled: true },
       discord: { enabled: true },
       "cli-offload": { enabled: true },
     },

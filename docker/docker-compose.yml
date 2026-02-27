@@ -28,7 +28,6 @@ services:
       # Skills (read-only)
       - /opt/openclaw/skills:/app/skills:ro
       # Secrets (read-only, mounted as individual files)
-      - /opt/openclaw/secrets/telegram-bot.env:/run/secrets/telegram:ro
       - /opt/openclaw/secrets/anthropic-api.env:/run/secrets/anthropic:ro
       - /opt/openclaw/secrets/wallet.env:/run/secrets/wallet:ro
     environment:
@@ -44,7 +43,6 @@ services:
       - TIMESCALE_PORT=5432
       - RABBITMQ_URL=amqp://rabbitmq:5672
     env_file:
-      - /opt/openclaw/secrets/telegram-bot.env
       - /opt/openclaw/secrets/anthropic-api.env
     deploy:
       resources:
@@ -111,7 +109,7 @@ services:
       - openclaw-net
     volumes:
       - /opt/openclaw/data/memory:/app/voiceprints:rw
-      - /opt/openclaw/config/profiles/telegram/voiceprint.yaml:/app/config/voiceprint.yaml:ro
+      - /opt/openclaw/config/profiles/voice/voiceprint.yaml:/app/config/voiceprint.yaml:ro
     deploy:
       resources:
         limits:

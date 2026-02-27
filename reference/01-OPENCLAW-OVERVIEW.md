@@ -4,7 +4,7 @@
 
 OpenClaw (formerly Clawdbot, then Moltbot) is an open-source, MIT-licensed personal AI assistant framework created by Peter Steinberger. It runs as a local-first Node.js daemon (the "Gateway") that connects AI models to messaging platforms, tools, and the local filesystem. Unlike cloud chatbots, OpenClaw is a persistent agent runtime — it maintains state, executes shell commands, controls browsers, manages files, and operates autonomously via heartbeat schedules.
 
-**Key differentiator:** OpenClaw is a *gateway and control plane*, not an AI model. It orchestrates communication between messaging channels (Discord, Telegram, Slack, WhatsApp, Signal, iMessage, etc.), AI model providers (Anthropic, OpenAI, Google, local via Ollama), and local/remote tools.
+**Key differentiator:** OpenClaw is a *gateway and control plane*, not an AI model. It orchestrates communication between messaging channels (Discord, Slack, WhatsApp, Signal, iMessage, etc.), AI model providers (Anthropic, OpenAI, Google, local via Ollama), and local/remote tools.
 
 ## Current State (Feb 2026)
 
@@ -12,12 +12,12 @@ OpenClaw (formerly Clawdbot, then Moltbot) is an open-source, MIT-licensed perso
 - **ClawHub Skills:** 5,700+ community-built skills
 - **Version:** 2026.2.16 (releases are date-versioned, shipping daily)
 - **Supported Models:** Claude Opus 4.6, Claude Sonnet 4.5, GPT-5.2 Codex, GLM-5, KIMI K2.5, Gemini 3 Pro, plus any OpenAI-compatible endpoint including Ollama local models
-- **Supported Channels:** WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, BlueBubbles, Microsoft Teams, Matrix, Zalo, WebChat, macOS app, iOS/Android nodes
+- **Supported Channels:** WhatsApp, Slack, Discord, Google Chat, Signal, iMessage, BlueBubbles, Microsoft Teams, Matrix, Zalo, WebChat, macOS app, iOS/Android nodes
 
 ## Core Architecture
 
 ```
-Messaging Channels (Discord/Telegram/Slack/WhatsApp/etc.)
+Messaging Channels (Discord/Slack/WhatsApp/etc.)
     │
     ▼
 ┌─────────────────────────────┐

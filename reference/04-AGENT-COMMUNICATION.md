@@ -32,7 +32,7 @@ Lists all active sessions across the system.
 **Returns per session:**
 - `key`: Session key string
 - `kind`: main | group | cron | hook | node | other
-- `channel`: whatsapp | telegram | discord | internal | unknown
+- `channel`: whatsapp | discord | internal | unknown
 - `displayName`: Group display label if available
 - `updatedAt`: Timestamp (ms)
 - `model`, `contextTokens`, `totalTokens`

@@ -2,7 +2,7 @@
 
 > **OpenClaw Multi-Agent Discord Framework — Central Command Repository**
 
-**Status**: DEPLOYED | **Platform**: Discord + Telegram | **Agents**: 5 Discord + 1 Telegram Debug | **Governance**: CORE-CHARTER v1.1
+**Status**: DEPLOYED | **Platform**: Discord | **Agents**: 5 Discord | **Governance**: CORE-CHARTER v1.1
 
 ---
 
@@ -29,8 +29,6 @@ An autonomous multi-agent team built on OpenClaw, operating through Discord. Ins
 | **Developer** | Code implementation, PRs, technical | minimax/minimax-m2.5 | moonshotai/kimi-k2.5 |
 | **Sysadmin** | Infrastructure, Docker, VPS, monitoring | moonshotai/kimi-k2.5 | google/gemini-3-flash-preview |
 | **Reviewer/QA** | Code review, quality gates, testing | google/gemini-3-flash-preview | moonshotai/kimi-k2.5 |
-
-**Telegram Debug Bot** (Clawbot): anthropic/claude-sonnet-4-5 (direct Anthropic API)
 
 ### The 4 Absolute Laws
 
@@ -69,11 +67,6 @@ An autonomous multi-agent team built on OpenClaw, operating through Discord. Ins
 |  |  qdrant (vectors) | timescaledb (metrics) | rag-api       |   |
 |  |  rabbitmq (queues) | n8n (workflows) | rugs-mcp (RAG)     |   |
 |  |  openclaw-memory (persistent memory API, localhost:8002)   |   |
-|  +----------------------------------------------------------+   |
-|                              |                                   |
-|  +----------------------------------------------------------+   |
-|  |           TELEGRAM DEBUG BOT (Clawbot)                    |   |
-|  |  Direct Anthropic API | Sonnet 4.5 | Debug interface      |   |
 |  +----------------------------------------------------------+   |
 |                                                                  |
 +-----------------------------------------------------------------+
@@ -136,7 +129,7 @@ claws-and-pincers/
 | **OS** | Ubuntu 24.04 LTS |
 | **Resources** | 4 vCPU, 16GB RAM, 200GB NVMe |
 | **VPN** | Tailscale (100.113.138.27) |
-| **LLM Provider** | OpenRouter (primary), Anthropic (Telegram), Groq (fallback) |
+| **LLM Provider** | OpenRouter (primary), Anthropic (fallback), Groq (fallback) |
 | **OpenClaw Runtime** | 2026.2.25 |
 | **Docker Services** | qdrant, timescaledb, rag-api, rugs-mcp, n8n, rabbitmq, openclaw-memory |
 
@@ -155,9 +148,9 @@ mcp__rugs-expert__run_health_checks()      # Full health check
 
 ## Historical Context
 
-This project evolved from a 30-day autonomous agent experiment using a single Telegram bot (@dutch_claws_bot). Phase 0 of that experiment was completed ahead of schedule (multi-model LLM routing, 5-tier authorization, cost tracking). The project then pivoted to a multi-agent Discord framework with formal governance.
+This project evolved from a 30-day autonomous agent experiment. Phase 0 of that experiment was completed ahead of schedule (multi-model LLM routing, 5-tier authorization, cost tracking). The project then pivoted to a multi-agent Discord framework with formal governance.
 
-Historical docs from the Telegram experiment are preserved in [docs/archive/](docs/archive/).
+Historical docs from the original experiment are preserved in [docs/archive/](docs/archive/).
 
 ---
 

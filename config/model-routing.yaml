@@ -46,18 +46,17 @@ providers:
         use_for: [review, quality_gates, fast_analysis, multimodal]
         max_tokens: 8192
 
-  # Direct Anthropic (Telegram debug bot)
+  # Direct Anthropic (fallback provider)
   anthropic:
     enabled: true
     env_var: ANTHROPIC_API_KEY
     models:
       - id: claude-sonnet-4-5
         alias: [sonnet, claude-sonnet]
-        assigned_to: telegram-debug
         use_for: [general, coding, analysis]
         max_tokens: 8192
 
-  # Groq (Telegram subagents - fast/free)
+  # Groq (fast/free fallback)
   groq:
     enabled: true
     env_var: GROQ_API_KEY

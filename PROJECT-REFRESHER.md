@@ -12,7 +12,7 @@ The model is inspired by Anthropic's Agent Teams framework (Carlini's C compiler
 
 ## Current State: DEPLOYED
 
-All 5 Discord agents are online and running on the VPS. A Telegram debug bot (Clawbot) runs alongside for development diagnostics.
+All 5 Discord agents are online and running on the VPS.
 
 ### Model Stack (via OpenRouter)
 
@@ -24,12 +24,10 @@ All 5 Discord agents are online and running on the VPS. A Telegram debug bot (Cl
 | Sysadmin | moonshotai/kimi-k2.5 | google/gemini-3-flash-preview |
 | Reviewer/QA | google/gemini-3-flash-preview | moonshotai/kimi-k2.5 |
 
-Telegram debug bot: anthropic/claude-sonnet-4-5 (direct Anthropic API)
-
 ### Key Infrastructure
 
 - **OpenClaw Runtime:** 2026.2.25
-- **LLM Provider:** OpenRouter (primary), Anthropic (Telegram), Groq (fallback)
+- **LLM Provider:** OpenRouter (primary), Anthropic (fallback), Groq (fallback)
 - **Memory:** OpenClaw Memory API at localhost:8002 (SQLite + FTS5, MCP-integrated)
 - **Orchestration:** n8n at port 5678 (Phase 2 will expand this significantly)
 - **Vector DB:** Qdrant at port 6333
@@ -49,13 +47,12 @@ All 5 agents have SOUL.md, AGENTS.md, and HEARTBEAT.md in `agents/{agent-name}/`
 - Anti-patterns knowledge base (AP-001 through AP-005)
 
 ### Configuration
-- Merged openclaw.json serving both Discord (5 agents) and Telegram (debug bot)
+- Merged openclaw.json serving Discord (5 agents)
 - OpenRouter-first model routing with per-agent frontier models
 - Environment variable secret management
 
 ### Deployment
 - All 5 Discord bots logged in and running
-- Telegram debug bot preserved
 - Unified gateway process on VPS
 
 ---

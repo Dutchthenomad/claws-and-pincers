@@ -40,7 +40,7 @@ week_1:
           description: "Write to designated log directories"
           auto_approve: true
       restrictions:
-        - "All write operations require explicit Telegram approval"
+        - "All write operations require explicit Discord approval"
         - "No external API calls without approval"
         - "No file modifications outside /var/log/openclaw"
       
@@ -135,7 +135,7 @@ week_1:
 
 # =============================================================================
 # WEEK 2: MONITORED WRITES (Days 8-14)
-# Focus: Enable controlled write operations with Telegram approval flow
+# Focus: Enable controlled write operations with Discord approval flow
 # =============================================================================
 week_2:
   name: "Monitored Writes"
@@ -145,7 +145,7 @@ week_2:
   
   objectives:
     - "Enable Tier 2 write operations"
-    - "Validate Telegram approval workflow under load"
+    - "Validate Discord approval workflow under load"
     - "Measure approval response time distribution"
     - "Test rollback mechanisms"
   
@@ -157,7 +157,7 @@ week_2:
           name: "workspace_write"
           description: "Write files to workspace directory"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           allowed_paths:
             - "/opt/openclaw/workspace/**"
             - "/tmp/openclaw/**"
@@ -168,7 +168,7 @@ week_2:
         - name: "workspace_mkdir"
           description: "Create directories in workspace"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
     
     day_10:
       date: "2026-02-10"
@@ -176,7 +176,7 @@ week_2:
         - name: "workspace_delete"
           description: "Delete files in workspace (with backup)"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           safety:
             backup_before_delete: true
             backup_retention_hours: 168  # 7 days
@@ -187,7 +187,7 @@ week_2:
         - name: "config_write"
           description: "Modify openclaw configuration files"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           allowed_paths:
             - "/opt/openclaw/config/runtime/**"
           excluded_paths:
@@ -200,7 +200,7 @@ week_2:
         - name: "script_execute"
           description: "Execute approved scripts"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           allowed_scripts:
             - "/opt/openclaw/scripts/approved/**"
     
@@ -220,7 +220,7 @@ week_2:
         - name: "batch_operations"
           description: "Queue multiple operations for batch approval"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           max_batch_size: 10
       review:
         type: "week_2_writes"
@@ -240,7 +240,7 @@ week_2:
     tier_2:
       enabled: true
       auto_approve: false
-      approval_method: "telegram"
+      approval_method: "discord"
       approval_timeout_seconds: 300
       operations:
         - "write_file"
@@ -322,7 +322,7 @@ week_3:
         - name: "git_push"
           description: "Push to remote repositories"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           restrictions:
             - "No force push"
             - "Protected branches require 2FA"
@@ -343,7 +343,7 @@ week_3:
         - name: "docker_restart"
           description: "Restart containers"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           allowed_containers:
             - "openclaw-*"
             - "rag-api"
@@ -355,7 +355,7 @@ week_3:
         - name: "docker_compose"
           description: "Docker compose operations"
           auto_approve: false
-          requires_approval: "telegram"
+          requires_approval: "discord"
           allowed_operations:
             - "up"
             - "down"
@@ -559,7 +559,7 @@ rollback_triggers:
       hourly_cost_usd: 1.00
       single_operation_usd: 0.50
     action: "rollback_to_previous_week"
-    notification: "telegram_urgent"
+    notification: "discord_urgent"
   
   error_rate:
     enabled: true
@@ -569,7 +569,7 @@ rollback_triggers:
       window_minutes: 60
       min_operations: 20
     action: "disable_tier_2_and_3"
-    notification: "telegram_urgent"
+    notification: "discord_urgent"
   
   unauthorized_access:
     enabled: true
@@ -578,7 +578,7 @@ rollback_triggers:
       attempts: 3
       window_minutes: 10
     action: "emergency_lockdown"
-    notification: "telegram_urgent"
+    notification: "discord_urgent"
   
   approval_timeout_rate:
     enabled: true
@@ -588,7 +588,7 @@ rollback_triggers:
       window_minutes: 60
       min_requests: 10
     action: "increase_timeout_or_pause"
-    notification: "telegram"
+    notification: "discord"
   
   resource_exhaustion:
     enabled: true
@@ -599,7 +599,7 @@ rollback_triggers:
       disk_percentage: 95
       duration_minutes: 5
     action: "pause_tier_3_operations"
-    notification: "telegram_urgent"
+    notification: "discord_urgent"
   
   security_anomaly:
     enabled: true
@@ -610,7 +610,7 @@ rollback_triggers:
       - "sensitive_file_access"
       - "unusual_process_spawn"
     action: "emergency_lockdown"
-    notification: "telegram_urgent"
+    notification: "discord_urgent"
 
 rollback_actions:
   rollback_to_previous_week:
@@ -776,10 +776,9 @@ metrics:
 # NOTIFICATION CONFIGURATION
 # =============================================================================
 notifications:
-  telegram:
+  discord:
     enabled: true
-    chat_id: "${TELEGRAM_CHAT_ID}"
-    bot_token: "${TELEGRAM_BOT_TOKEN}"
+    channel_id: "${DISCORD_NOTIFICATION_CHANNEL_ID}"
     
     templates:
       approval_request:

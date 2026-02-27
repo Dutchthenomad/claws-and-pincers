@@ -24,7 +24,7 @@ paid_services:
       dashboard: https://console.anthropic.com
       budget_alert_usd: 50
       status: active
-      notes: Direct API for Telegram debug bot (Clawbot)
+      notes: Direct API fallback provider
 
     groq:
       type: free-tier
@@ -33,7 +33,7 @@ paid_services:
       dashboard: https://console.groq.com
       budget_alert_usd: 0
       status: active
-      notes: Free tier for Telegram subagents (QuickBot, etc.)
+      notes: Free tier fallback for cost-sensitive tasks
 
   infrastructure:
     hostinger_vps:

@@ -142,7 +142,7 @@ Bindings map inbound messages to agents. **First match wins** — put specific b
 ```
 
 ### Binding Match Fields
-- `channel`: "discord", "telegram", "whatsapp", etc.
+- `channel`: "discord", "whatsapp", etc.
 - `guildId`: Discord guild (server) ID
 - `accountId`: For multi-account channels
 - `peer.kind`: "direct" | "group"

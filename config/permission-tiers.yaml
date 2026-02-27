@@ -207,27 +207,30 @@ tiers:
         description: "Redis read operations"
 
   # ---------------------------------------------------------------------------
-  # TIER 2: Telegram Approval - Quick inline button approval
+  # TIER 2: Discord Approval - Quick button approval
   # ---------------------------------------------------------------------------
   tier_2:
-    name: "Telegram Approval"
-    description: "Requires quick approval via Telegram inline buttons"
+    name: "Discord Approval"
+    description: "Requires quick approval via Discord button components"
     approval_required: true
-    approval_method: "telegram_inline"
+    approval_method: "discord_button"
     logging: full
     timeout_seconds: 300
     auto_deny_on_timeout: true
     max_pending_requests: 5
 
-    telegram_config:
-      button_layout: "inline"
+    discord_config:
+      button_layout: "action_row"
       buttons:
-        - text: "Approve"
-          callback: "approve"
-        - text: "Deny"
-          callback: "deny"
-        - text: "Details"
-          callback: "details"
+        - label: "Approve"
+          style: "success"
+          custom_id: "approve"
+        - label: "Deny"
+          style: "danger"
+          custom_id: "deny"
+        - label: "Details"
+          style: "secondary"
+          custom_id: "details"
       notification_priority: "normal"
       include_preview: true
       preview_max_lines: 10
@@ -348,8 +351,8 @@ tiers:
         - type: "totp"
           priority: 3
           issuer: "OpenClaw"
-      fallback_to_telegram: true
-      telegram_fallback_delay_seconds: 60
+      fallback_to_discord: true
+      discord_fallback_delay_seconds: 60
       require_reason: true
       notify_on_attempt: true
 
@@ -436,7 +439,7 @@ tiers:
       - pattern: "(sendmail|mail\\s+-s)"
         category: "user_impersonation"
         description: "Send email as user"
-      - pattern: "(slack|discord|telegram).*send"
+      - pattern: "(slack|discord).*send"
         category: "user_impersonation"
         description: "Send message as user"
       - pattern: "(twitter|tweet|post.*social)"
@@ -585,13 +588,13 @@ logging:
 
   alerts:
     tier_3_access:
-      notify: ["telegram", "email"]
+      notify: ["discord", "email"]
       priority: "high"
     denied_operations:
-      notify: ["telegram"]
+      notify: ["discord"]
       priority: "normal"
     anomaly_detected:
-      notify: ["telegram", "email", "slack"]
+      notify: ["discord", "email", "slack"]
       priority: "critical"
 
 # =============================================================================

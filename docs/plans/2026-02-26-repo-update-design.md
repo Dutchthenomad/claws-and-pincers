@@ -12,7 +12,7 @@ The Claws & Pincers project has evolved significantly since the last repo sync:
 
 - All 5 Discord agents are deployed and online
 - Model stack migrated from mixed Anthropic/Groq/Google to OpenRouter-first routing
-- Telegram debug bot preserved alongside Discord multi-agent setup
+- Discord multi-agent setup deployed
 - OpenClaw runtime updated from 2026.1.27-beta.1 to 2026.2.25
 - Static config approach identified as fragile; n8n adopted as the control plane
 
@@ -43,8 +43,6 @@ All 5 Discord agents route through OpenRouter with frontier models:
 | Researcher | x-ai/grok-4.1-fast | moonshotai/kimi-k2.5 |
 | SysAdmin | moonshotai/kimi-k2.5 | google/gemini-3-flash-preview |
 | Reviewer | google/gemini-3-flash-preview | moonshotai/kimi-k2.5 |
-
-Telegram debug bot (Clawbot) remains on anthropic/claude-sonnet-4-5 direct.
 
 ### 3. Phase Structure
 
