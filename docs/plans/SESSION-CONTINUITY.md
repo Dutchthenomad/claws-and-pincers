@@ -15,6 +15,8 @@
 | Phase 1 (Foundation) | DONE |
 | Phase 2 (n8n Core Systems) | NOT STARTED — Next priority |
 | All 5 Discord agents | DEPLOYED and ONLINE |
+| Agent directory scaffolding | DONE (workspace/, sessions/, skills/ per agent) |
+| Discord channel structure | DONE (27 channels, 8 categories, permissions set) |
 | Telegram references | REMOVED (commit 5e16445, 2026-02-27) |
 | Repo sync (local ↔ remote) | SYNCED as of 2026-02-27 |
 | CLAUDE.md | WRITTEN (project root) |
@@ -61,27 +63,13 @@ All 5 bot tokens stored at `/opt/openclaw/secrets/discord-bots.env`:
 
 ## What Needs To Happen Next
 
-### Immediate (This Session or Next)
+### Immediate — Completed (2026-02-27)
 
-1. **Charter-compliant directory scaffolding** — Agent directories currently have flat structure (SOUL.md, AGENTS.md, HEARTBEAT.md). Per CORE-CHARTER Section 9, each agent needs:
-   ```
-   agents/{agent}/
-   ├── SOUL.md
-   ├── AGENTS.md
-   ├── HEARTBEAT.md
-   ├── workspace/          # Per-agent working area
-   ├── sessions/           # Session history
-   └── skills/             # Agent-specific skills
-   ```
+1. **Charter-compliant directory scaffolding** — DONE. Added `workspace/`, `sessions/`, `skills/` subdirs to all 5 agent directories. Identity docs (SOUL.md, AGENTS.md, HEARTBEAT.md) remain at agent root.
 
-2. **Discord channel setup** — Channels referenced in CORE-CHARTER and agent AGENTS.md files need to be created in the Discord server. Per CORE-CHARTER Section 8:
-   - Human Control: `#direct-command`, `#human-oversight`, `#cost-tracking`
-   - Shared: `#task-dispatch`, `#status-updates`, `#completed`
-   - Per-Agent: `#{agent}-workspace`, `#{agent}-logs` (10 channels)
-   - Logging: `#conflict-log`, `#error-log`, `#severity-alerts`, `#anti-patterns`, `#review-verdicts`
-   - Permissions must match the access control matrix in CORE-CHARTER
+2. **Discord channel setup** — DONE. 27 channels across 8 categories created via `deployment/setup-discord-channels.py` using Orchestrator bot token. Permissions match CORE-CHARTER access control matrix. Added `#project-registry` channel to Logging & Reporting category.
 
-3. **Remove legacy Discord bots** — Old bot accounts that were from the Telegram era need to be cleaned up in the Discord server
+3. **Remove legacy Discord bots** — Still pending. Old bot accounts from the Telegram era need cleanup in the Discord server (manual action)
 
 ### Phase 2 — n8n Core Systems (HIGH Priority)
 
@@ -178,8 +166,9 @@ n8n becomes the universal control plane. Currently has 2 workflows (RAG Health C
 | 3 n8n credentials need re-entry | LOW | Encrypted with old key, re-enter via UI |
 | Legacy OpenRouter API keys | LOW | Need manual revocation on OpenRouter dashboard |
 | Network segmentation deferred | MEDIUM | Agents share n8n_default bridge with all services (H-13 from audit) |
-| Agent directories lack subdirs | MEDIUM | Need workspace/, sessions/, skills/ per CORE-CHARTER Section 9 |
-| Discord channels not yet created | HIGH | Governance channels referenced in CORE-CHARTER don't exist yet |
+| Agent directories lack subdirs | DONE | Added workspace/, sessions/, skills/ per CORE-CHARTER Section 9 |
+| Discord channels not yet created | DONE | 27 channels, 8 categories created via setup script |
+| Legacy Discord bots | LOW | Old Telegram-era bot accounts need manual cleanup |
 
 ---
 

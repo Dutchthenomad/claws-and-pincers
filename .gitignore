@@ -32,8 +32,9 @@ Thumbs.db
 *.swp
 *.swo
 
-# Agent session data
-agents/*/sessions/
+# Agent session data (keep directory structure via .gitkeep)
+agents/*/sessions/*
+!agents/*/sessions/.gitkeep
 
 # Credentials
 credentials/

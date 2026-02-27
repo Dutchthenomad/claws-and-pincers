@@ -1,6 +1,6 @@
 # TODO — OpenClaw Agent Team Framework
 
-**Updated:** 2026-02-26
+**Updated:** 2026-02-27
 **Priority Key:** BLOCKER | HIGH | NORMAL | NICE | DONE
 
 ---
@@ -29,6 +29,13 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 - [x] Outdated single-agent docs archived
 - [x] .gitignore updated
 - [x] Config files aligned with live deployment
+
+### Phase 1E — Foundation Completion (DONE)
+- [x] Agent directory scaffolding (workspace/, sessions/, skills/ per agent)
+- [x] Discord channel setup script (`deployment/setup-discord-channels.py`)
+- [x] 27 channels across 8 categories with CORE-CHARTER permissions
+- [x] `#project-registry` channel added to Logging & Reporting
+- [ ] Legacy Discord bot cleanup (manual — Telegram-era bots)
 
 ---
 

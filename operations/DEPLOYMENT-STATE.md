@@ -1,6 +1,6 @@
 # Deployment State — srv1216617
 
-**Last updated:** 2026-02-26
+**Last updated:** 2026-02-27
 **Server:** srv1216617 (Hostinger VPS)
 **OS:** Ubuntu, Linux 6.8.0-101-generic
 **Resources:** 15GB RAM, 193GB disk (52% used)
@@ -106,6 +106,25 @@ All files chmod 600, owned by root.
 | Reviewer | openrouter/google/gemini-3-flash-preview |
 
 Model routing configuration: `/opt/openclaw/config/model-routing.yaml`
+
+---
+
+## Discord Server Structure
+
+27 channels across 8 categories, created 2026-02-27 via `deployment/setup-discord-channels.py`.
+
+| Category | Channels |
+|----------|----------|
+| HUMAN CONTROL | #direct-command, #human-oversight, #cost-tracking |
+| SHARED WORKSPACE | #task-dispatch, #status-updates, #completed |
+| ORCHESTRATOR | #orch-workspace, #orch-logs |
+| RESEARCHER | #research-workspace, #research-sources, #research-logs |
+| DEVELOPER | #dev-workspace, #dev-testing, #dev-logs |
+| SYSADMIN | #sys-workspace, #sys-monitoring, #sys-logs |
+| REVIEWER | #review-workspace, #review-verdicts, #review-logs |
+| LOGGING & REPORTING | #conflict-log, #error-log, #severity-alerts, #anti-patterns, #project-registry |
+
+Permissions follow CORE-CHARTER Section 8 access control matrix. Script is idempotent.
 
 ---
 
