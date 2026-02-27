@@ -1,6 +1,6 @@
 # OpenClaw Agent Team — Project Refresher
 
-**Last Updated:** 2026-02-26
+**Last Updated:** 2026-02-27
 
 ## What This Is
 
@@ -111,11 +111,12 @@ Additional specialists, on-demand spawning, cross-project knowledge transfer, se
 
 ## For New Claude Code Sessions
 
-1. Read **CORE-CHARTER.md** — source of truth
-2. Read **agents/{agent}/SOUL.md** — understand who each agent is
-3. Check **TODO.md** — current priorities
-4. Use the **rugs-expert MCP** — RAG access to all project knowledge
-5. Check `docs/plans/` for design decisions and architectural context
+1. Read **CLAUDE.md** (project root) — auto-loaded by Claude Code, contains session start protocol
+2. Read **docs/plans/SESSION-CONTINUITY.md** — single source of truth for current state and pending work
+3. Read **CORE-CHARTER.md** — supreme governance document
+4. Read **agents/{agent}/SOUL.md** — understand who each agent is
+5. Check **TODO.md** — current priorities
+6. Check `docs/plans/` for design decisions and architectural context
 
 ---
 
