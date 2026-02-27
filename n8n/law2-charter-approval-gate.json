@@ -1,0 +1,33 @@
+{
+  "name": "Law 2 — Charter Approval Gate",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "seconds", "secondsInterval": 30 }]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "Every 30 Seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\n\nconst token = fs.readFileSync('/governance/.discord-token', 'utf8').trim();\nconst statePath = '/governance/shared/.n8n-law2-state.json';\nconst registryPath = '/governance/operations/PROJECT-REGISTRY.md';\nconst channelId = '1476794551250194443';\n\nlet lastId = '0';\ntry {\n  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));\n  lastId = state.lastMessageId || '0';\n} catch(e) {}\n\nconst messages = await new Promise((resolve) => {\n  const req = https.request({\n    hostname: 'discord.com', path: `/api/v10/channels/${channelId}/messages?limit=10`, method: 'GET',\n    headers: { 'Authorization': `Bot ${token}` }\n  }, (res) => {\n    let data = ''; res.on('data', c => data += c);\n    res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { resolve([]); } });\n  });\n  req.on('error', () => resolve([]));\n  req.end();\n});\n\nif (!Array.isArray(messages) || messages.length === 0) {\n  return [{ json: { violations: 0, processed: 0 } }];\n}\n\nconst newMessages = messages.filter(m => m.id > lastId).reverse();\nif (newMessages.length === 0) {\n  return [{ json: { violations: 0, processed: 0 } }];\n}\n\nlet registryContent = '';\ntry { registryContent = fs.readFileSync(registryPath, 'utf8'); } catch(e) {\n  return [{ json: { error: 'Cannot read registry' } }];\n}\n\nconst violations = [];\n\nfor (const msg of newMessages) {\n  const content = msg.content || '';\n  const author = msg.author?.username || 'unknown';\n  const mentioned = content.match(/PROJ-[A-Z0-9]+-?[A-Z0-9]*/g);\n  if (!mentioned) continue;\n\n  for (const projId of mentioned) {\n    const lines = registryContent.split('\\n');\n    let found = false, charterApproved = false;\n\n    for (const line of lines) {\n      if (line.includes(projId)) {\n        found = true;\n        const cells = line.split('|').map(c => c.trim());\n        if (cells.length >= 5) {\n          const cf = cells[4];\n          charterApproved = cf && cf !== '\\u2014' && cf !== '-' && cf.length > 3;\n        }\n        break;\n      }\n    }\n\n    const isCharterPrep = content.includes('CHARTER-PREP') || content.toLowerCase().includes('charter prep');\n    if (found && !charterApproved && !isCharterPrep) {\n      violations.push({ projId, author, timestamp: msg.timestamp });\n    }\n  }\n}\n\nconst severityAlerts = '1476794637762039808';\nconst humanOversight = '1476794543897837662';\n\nfor (const v of violations) {\n  const message = `\\u{1F6A8} **LAW 2 VIOLATION \\u2014 CRITICAL**\\n\\n**Type:** Work dispatched without charter approval\\n**Project:** ${v.projId}\\n**Author:** ${v.author}\\n**Time:** ${v.timestamp}\\n\\n> _No Charter, No Code_ \\u2014 CORE-CHARTER Law 2\\n> Project \\`${v.projId}\\` has no approved charter.\\n> Charter-prep tasks are exempt. Implementation is **blocked**.`;\n\n  for (const ch of [severityAlerts, humanOversight]) {\n    const body = JSON.stringify({ content: message });\n    await new Promise((resolve) => {\n      const req = https.request({\n        hostname: 'discord.com', path: `/api/v10/channels/${ch}/messages`, method: 'POST',\n        headers: { 'Authorization': `Bot ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }\n      }, (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); });\n      req.write(body); req.end();\n    });\n  }\n}\n\nconst newestId = newMessages[newMessages.length - 1]?.id || lastId;\ntry { fs.writeFileSync(statePath, JSON.stringify({ lastMessageId: newestId, updatedAt: new Date().toISOString() })); } catch(e) {}\n\nreturn [{ json: { violations: violations.length, processed: newMessages.length } }];"
+      },
+      "id": "law2-main",
+      "name": "Validate & Alert (Law 2)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    }
+  ],
+  "connections": {
+    "Every 30 Seconds": {
+      "main": [[{ "node": "Validate & Alert (Law 2)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

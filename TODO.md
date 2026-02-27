@@ -44,10 +44,10 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 n8n becomes the universal control plane. Static YAML/JSON configs are state snapshots; n8n workflows are the living, enforceable, debuggable truth.
 
 ### Phase 2A — Laws Enforcement via n8n
-- [ ] HIGH: Project ID validator (webhook on #task-dispatch)
-- [ ] HIGH: Charter approval gate check
+- [x] HIGH: Project ID validator (polls #task-dispatch, validates PROJ-XXX)
+- [x] HIGH: Charter approval gate check (validates charter in PROJECT-REGISTRY.md)
+- [x] HIGH: Severity routing automation (routes from #review-verdicts per notification matrix)
 - [ ] HIGH: Conflict registry watchdog
-- [ ] HIGH: Severity routing automation
 - [ ] HIGH: Token cost monitor with kill switch
 - [ ] NORMAL: Anti-pattern repeat detection
 - [ ] NORMAL: Heartbeat dead man's switch

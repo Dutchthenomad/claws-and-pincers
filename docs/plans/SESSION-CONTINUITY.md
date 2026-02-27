@@ -13,7 +13,7 @@
 | Item | Status |
 |------|--------|
 | Phase 1 (Foundation) | DONE |
-| Phase 2 (n8n Core Systems) | NOT STARTED — Next priority |
+| Phase 2A (Laws Enforcement) | IN PROGRESS — Core trio deployed |
 | All 5 Discord agents | DEPLOYED and ONLINE |
 | Agent directory scaffolding | DONE (workspace/, sessions/, skills/ per agent) |
 | Discord channel structure | DONE (27 channels, 8 categories, permissions set) |
@@ -78,10 +78,10 @@ n8n becomes the universal control plane. Currently has 2 workflows (RAG Health C
 **n8n access**: Port 5678, accessible via Tailscale at `http://100.113.138.27:5678`
 
 #### Phase 2A — Laws Enforcement via n8n
-- [ ] Project ID validator (webhook on `#task-dispatch`)
-- [ ] Charter approval gate check
+- [x] Project ID validator (polls `#task-dispatch` every 30s, validates PROJ-XXX against registry)
+- [x] Charter approval gate check (validates charter approval status before allowing work)
+- [x] Severity routing automation (routes WARN/BLOCKED/CRITICAL from `#review-verdicts` to correct channels)
 - [ ] Conflict registry watchdog
-- [ ] Severity routing automation
 - [ ] Token cost monitor with kill switch
 - [ ] Anti-pattern repeat detection
 - [ ] Heartbeat dead man's switch

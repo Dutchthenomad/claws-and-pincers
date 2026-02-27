@@ -1,0 +1,33 @@
+{
+  "name": "Law 1 — Project ID Validator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "seconds", "secondsInterval": 30 }]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "Every 30 Seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\n\nconst token = fs.readFileSync('/governance/.discord-token', 'utf8').trim();\nconst statePath = '/governance/shared/.n8n-law1-state.json';\nconst registryPath = '/governance/operations/PROJECT-REGISTRY.md';\nconst channelId = '1476794551250194443';\n\nlet lastId = '0';\ntry {\n  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));\n  lastId = state.lastMessageId || '0';\n} catch(e) {}\n\nconst messages = await new Promise((resolve) => {\n  const req = https.request({\n    hostname: 'discord.com',\n    path: `/api/v10/channels/${channelId}/messages?limit=10`,\n    method: 'GET',\n    headers: { 'Authorization': `Bot ${token}` }\n  }, (res) => {\n    let data = ''; res.on('data', c => data += c);\n    res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { resolve([]); } });\n  });\n  req.on('error', () => resolve([]));\n  req.end();\n});\n\nif (!Array.isArray(messages) || messages.length === 0) {\n  return [{ json: { violations: 0, processed: 0 } }];\n}\n\nconst newMessages = messages.filter(m => m.id > lastId).reverse();\nif (newMessages.length === 0) {\n  return [{ json: { violations: 0, processed: 0 } }];\n}\n\nlet registryContent = '';\ntry { registryContent = fs.readFileSync(registryPath, 'utf8'); } catch(e) {\n  return [{ json: { error: 'Cannot read PROJECT-REGISTRY.md' } }];\n}\n\nconst projIdPattern = /PROJ-[A-Z0-9]+-?[A-Z0-9]*/g;\nconst registeredIds = new Set(registryContent.match(projIdPattern) || []);\nconst violations = [];\n\nfor (const msg of newMessages) {\n  const content = msg.content || '';\n  const author = msg.author?.username || 'unknown';\n  const mentioned = content.match(/PROJ-[A-Z0-9]+-?[A-Z0-9]*/g);\n\n  if (!mentioned || mentioned.length === 0) {\n    violations.push({ type: 'NO_PROJECT_ID', author, content: content.substring(0, 200), timestamp: msg.timestamp });\n  } else {\n    for (const projId of mentioned) {\n      if (!registeredIds.has(projId)) {\n        violations.push({ type: 'UNREGISTERED', projId, author, content: content.substring(0, 200), timestamp: msg.timestamp });\n      }\n    }\n  }\n}\n\n// Send alerts for violations\nconst severityAlerts = '1476794637762039808';\nconst humanOversight = '1476794543897837662';\n\nfor (const v of violations) {\n  let message = '';\n  if (v.type === 'NO_PROJECT_ID') {\n    message = `\\u{1F6A8} **LAW 1 VIOLATION \\u2014 CRITICAL**\\n\\n**Type:** Task dispatched without Project ID\\n**Author:** ${v.author}\\n**Time:** ${v.timestamp}\\n**Content:** \\`${v.content}\\`\\n\\n> _No Project ID, No Work Allowed_ \\u2014 CORE-CHARTER Law 1\\n> This work product is considered **invalid**.`;\n  } else {\n    message = `\\u{1F6A8} **LAW 1 VIOLATION \\u2014 CRITICAL**\\n\\n**Type:** Unregistered Project ID\\n**Project ID:** ${v.projId}\\n**Author:** ${v.author}\\n**Time:** ${v.timestamp}\\n\\n> Project \\`${v.projId}\\` not in PROJECT-REGISTRY.md.`;\n  }\n\n  for (const ch of [severityAlerts, humanOversight]) {\n    const body = JSON.stringify({ content: message });\n    await new Promise((resolve) => {\n      const req = https.request({\n        hostname: 'discord.com', path: `/api/v10/channels/${ch}/messages`, method: 'POST',\n        headers: { 'Authorization': `Bot ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }\n      }, (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); });\n      req.write(body); req.end();\n    });\n  }\n}\n\nconst newestId = newMessages[newMessages.length - 1]?.id || lastId;\ntry { fs.writeFileSync(statePath, JSON.stringify({ lastMessageId: newestId, updatedAt: new Date().toISOString() })); } catch(e) {}\n\nreturn [{ json: { violations: violations.length, processed: newMessages.length } }];"
+      },
+      "id": "law1-main",
+      "name": "Validate & Alert (Law 1)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    }
+  ],
+  "connections": {
+    "Every 30 Seconds": {
+      "main": [[{ "node": "Validate & Alert (Law 1)", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}

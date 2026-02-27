@@ -128,6 +128,20 @@ Permissions follow CORE-CHARTER Section 8 access control matrix. Script is idemp
 
 ---
 
+## n8n Workflows (5 Active)
+
+| Workflow | Purpose | Schedule |
+|----------|---------|----------|
+| Simple RAG Health Check | RAG stack health monitoring | Cron |
+| Knowledge Curator | RAG ingestion pipeline | Cron |
+| Law 1 — Project ID Validator | Validates PROJ-XXX in #task-dispatch | Every 30s |
+| Law 2 — Charter Approval Gate | Validates charter approval status | Every 30s |
+| Severity Routing — Review Verdicts | Routes severity alerts per CORE-CHARTER | Every 30s |
+
+Governance workflows read from `/governance/` mount (shared-governance dir). Discord token stored at `/governance/.discord-token`.
+
+---
+
 ## Known Issues
 
 - 3 n8n credentials need re-entry (encrypted with old key after rotation)

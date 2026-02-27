@@ -1,0 +1,33 @@
+{
+  "name": "Severity Routing — Review Verdicts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [{ "field": "seconds", "secondsInterval": 30 }]
+        }
+      },
+      "id": "trigger-schedule",
+      "name": "Every 30 Seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst https = require('https');\n\nconst token = fs.readFileSync('/governance/.discord-token', 'utf8').trim();\nconst statePath = '/governance/shared/.n8n-severity-state.json';\nconst channelId = '1476794621903241357';\n\nconst CHANNELS = {\n  'status-updates': '1476794554601574593',\n  'severity-alerts': '1476794637762039808',\n  'human-oversight': '1476794543897837662'\n};\n\nlet lastId = '0';\ntry {\n  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'));\n  lastId = state.lastMessageId || '0';\n} catch(e) {}\n\nconst messages = await new Promise((resolve) => {\n  const req = https.request({\n    hostname: 'discord.com', path: `/api/v10/channels/${channelId}/messages?limit=10`, method: 'GET',\n    headers: { 'Authorization': `Bot ${token}` }\n  }, (res) => {\n    let data = ''; res.on('data', c => data += c);\n    res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { resolve([]); } });\n  });\n  req.on('error', () => resolve([]));\n  req.end();\n});\n\nif (!Array.isArray(messages) || messages.length === 0) {\n  return [{ json: { routed: 0, processed: 0 } }];\n}\n\nconst newMessages = messages.filter(m => m.id > lastId).reverse();\nif (newMessages.length === 0) {\n  return [{ json: { routed: 0, processed: 0 } }];\n}\n\nlet routedCount = 0;\n\nfor (const msg of newMessages) {\n  const content = (msg.content || '').toUpperCase();\n  const author = msg.author?.username || 'unknown';\n  let severity = 'INFO';\n\n  if (content.includes('CRITICAL')) severity = 'CRITICAL';\n  else if (content.includes('BLOCKED')) severity = 'BLOCKED';\n  else if (content.includes('WARN')) severity = 'WARN';\n\n  const targets = [];\n  if (['WARN', 'BLOCKED', 'CRITICAL'].includes(severity)) targets.push('status-updates');\n  if (['BLOCKED', 'CRITICAL'].includes(severity)) targets.push('severity-alerts');\n  if (severity === 'CRITICAL') targets.push('human-oversight');\n\n  if (targets.length === 0) continue;\n\n  const prefix = severity === 'CRITICAL' ? '\\u{1F534}' : severity === 'BLOCKED' ? '\\u{1F6D1}' : '\\u26A0\\uFE0F';\n  const routeMsg = `${prefix} **${severity}** \\u2014 Routed from #review-verdicts\\n**Author:** ${author} | **Time:** ${msg.timestamp}\\n\\n${(msg.content || '').substring(0, 1800)}`;\n\n  for (const target of targets) {\n    const body = JSON.stringify({ content: routeMsg });\n    await new Promise((resolve) => {\n      const req = https.request({\n        hostname: 'discord.com', path: `/api/v10/channels/${CHANNELS[target]}/messages`, method: 'POST',\n        headers: { 'Authorization': `Bot ${token}`, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }\n      }, (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); });\n      req.write(body); req.end();\n    });\n    routedCount++;\n  }\n}\n\nconst newestId = newMessages[newMessages.length - 1]?.id || lastId;\ntry { fs.writeFileSync(statePath, JSON.stringify({ lastMessageId: newestId, updatedAt: new Date().toISOString() })); } catch(e) {}\n\nreturn [{ json: { routed: routedCount, processed: newMessages.length } }];"
+      },
+      "id": "severity-main",
+      "name": "Classify & Route Severity",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [220, 0]
+    }
+  ],
+  "connections": {
+    "Every 30 Seconds": {
+      "main": [[{ "node": "Classify & Route Severity", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" }
+}
