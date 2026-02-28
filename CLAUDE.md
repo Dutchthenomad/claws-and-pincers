@@ -24,6 +24,11 @@ Inspired by Anthropic's Agent Teams framework (Carlini's C compiler project — 
 3. `TODO.md` — Phased roadmap with priorities
 4. `operations/DEPLOYMENT-STATE.md` — Live infrastructure state (23 containers)
 
+**For any OpenClaw platform questions**, query the docs vector search first:
+```bash
+cd /root/claws-and-pincers/scripts/openclaw-docs-scraper && .venv/bin/python3 query.py "your question"
+```
+
 **Then verify the local repo is current:**
 ```bash
 cd /root/claws-and-pincers && git fetch origin && git status
@@ -179,6 +184,40 @@ uptime; free -h | grep Mem; df -h / | tail -1; docker ps -q | wc -l
 
 ---
 
+## OpenClaw Documentation (Gold Standard)
+
+**MANDATORY**: When implementing or configuring any OpenClaw feature, consult the official docs first via the `openclaw_docs` Qdrant collection.
+
+| Property | Value |
+|----------|-------|
+| Collection | `openclaw_docs` in Qdrant (localhost:6333) |
+| Source | docs.openclaw.ai (94 pages, 216 chunks) |
+| Model | all-MiniLM-L6-v2 (384d embeddings) |
+| Pipeline | `scripts/openclaw-docs-scraper/` |
+| Query CLI | `scripts/openclaw-docs-scraper/query.py "your question"` |
+| Venv | `scripts/openclaw-docs-scraper/.venv/` |
+| Re-index | `cd scripts/openclaw-docs-scraper && .venv/bin/python3 -c "from run_all import *"` or `bash run_all.sh` |
+
+**Usage for agents**: Before writing any OpenClaw config, agent SOUL/AGENTS/HEARTBEAT files, gateway settings, or tool configurations, search the docs:
+```bash
+cd /root/claws-and-pincers/scripts/openclaw-docs-scraper
+.venv/bin/python3 query.py "your question" --top-k 5
+.venv/bin/python3 query.py "your question" --tier 1  # Critical docs only
+.venv/bin/python3 query.py "your question" --json     # Machine-readable output
+```
+
+**Programmatic access** (from Python):
+```python
+from qdrant_client import QdrantClient
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer("all-MiniLM-L6-v2")
+client = QdrantClient(host="localhost", port=6333)
+embedding = model.encode("your query").tolist()
+results = client.query_points(collection_name="openclaw_docs", query=embedding, limit=5, with_payload=True)
+```
+
+---
+
 ## Related Systems
 
 | System | Location | Purpose |
@@ -187,3 +226,4 @@ uptime; free -h | grep Mem; df -h / | tail -1; docker ps -q | wc -l
 | OpenClaw Memory API | `127.0.0.1:8002` | Persistent agent memory (MCP-integrated) |
 | Knowledge Curator | `/root/curator-mcp/` | RAG ingestion pipeline |
 | RAG Stack | `/root/rag-stack/` | Vector search infrastructure |
+| OpenClaw Docs Vector Search | `scripts/openclaw-docs-scraper/` | **Gold standard** OpenClaw reference (Qdrant `openclaw_docs`) |
