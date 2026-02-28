@@ -37,6 +37,14 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 - [x] `#project-registry` channel added to Logging & Reporting
 - [ ] Legacy Discord bot cleanup (manual — Telegram-era bots)
 
+### Phase 1F — Deployment Architecture Fix (DONE)
+- [x] Replaced 5 OOM crash-looping containers with single gateway architecture
+- [x] Updated OpenClaw from v2026.2.9 to v2026.2.26
+- [x] Built local Docker image from official OpenClaw source
+- [x] Fixed config: expanded bindings, guild locked, sandbox off, no Telegram
+- [x] Gateway token generated and stored
+- [x] Single `openclaw-gateway` container on port 18789 (was 5 containers on 8081-8085)
+
 ---
 
 ## Phase 2 — n8n Core Systems Architecture (HIGH)

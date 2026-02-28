@@ -55,11 +55,11 @@ These are NON-NEGOTIABLE and govern all agent behavior:
 | Sysadmin | kimi-k2.5 | Infrastructure guardian — deploys, configures, monitors |
 | Reviewer | gemini-3-flash-preview | Quality gate — reviews, enforces governance, catches defects |
 
-### Infrastructure (23 Docker Containers)
+### Infrastructure (19 Docker Containers)
 
 All ports bound to `127.0.0.1`, accessible via Tailscale VPN only.
 
-- **5 OpenClaw agents** (8081-8085)
+- **OpenClaw gateway** (18789) — single container, 5 agents via routing bindings (v2026.2.26)
 - **RAG/Knowledge**: rag-api (8000), rugs-mcp (8001), qdrant (6333), timescaledb (5433)
 - **Orchestration**: n8n (5678), n8n-postgres, openclaw-memory (8002), rabbitmq (5672)
 - **Monitoring**: grafana (3000), uptime-kuma (3001), metabase (3002), dozzle (8080)
@@ -71,7 +71,8 @@ All ports bound to `127.0.0.1`, accessible via Tailscale VPN only.
 |--------|----------|
 | Discord bot tokens | `/opt/openclaw/secrets/discord-bots.env` |
 | OpenRouter API key | `/opt/openclaw/secrets/openrouter-api.env` |
-| Deployed agent .env | `/opt/openclaw/discord-agents/.env` |
+| Gateway .env | `/opt/openclaw/config/.env` |
+| Gateway auth token | `/opt/openclaw/secrets/gateway-token.txt` |
 | n8n encryption key | `/docker/n8n/.env` |
 | Memory API key | `/root/openclaw-memory/.env` |
 
@@ -153,17 +154,24 @@ claws-and-pincers/
 ## Key Commands
 
 ```bash
-# Check agent health
-cd /opt/openclaw/discord-agents && docker compose -f docker-compose.agents.yml ps
+# Check gateway health
+openclaw health
+docker stats openclaw-gateway --no-stream
 
-# View agent logs
-docker logs openclaw-orchestrator --tail 50
+# View gateway logs
+docker logs openclaw-gateway --tail 50
+
+# Gateway status
+openclaw gateway status
+
+# Restart gateway
+cd /opt/openclaw/gateway && docker compose restart
+
+# Access Control UI (from Tailscale)
+# http://100.113.138.27:18789/
 
 # Access n8n UI (from Tailscale)
 # http://100.113.138.27:5678
-
-# Run deployment health check
-cd /root/claws-and-pincers/deployment/discord-agents && bash health-check.sh
 
 # Quick VPS health
 uptime; free -h | grep Mem; df -h / | tail -1; docker ps -q | wc -l

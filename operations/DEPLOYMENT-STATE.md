@@ -1,21 +1,17 @@
 # Deployment State — srv1216617
 
-**Last updated:** 2026-02-27
+**Last updated:** 2026-02-28
 **Server:** srv1216617 (Hostinger VPS)
 **OS:** Ubuntu, Linux 6.8.0-101-generic
 **Resources:** 15GB RAM, 193GB disk (52% used)
 
 ---
 
-## Running Containers (23)
+## Running Containers (19)
 
 | Container | Image | Port | Status |
 |-----------|-------|------|--------|
-| openclaw-orchestrator | ghcr.io/hostinger/hvps-openclaw:latest | 127.0.0.1:8081 | healthy |
-| openclaw-researcher | ghcr.io/hostinger/hvps-openclaw:latest | 127.0.0.1:8082 | healthy |
-| openclaw-developer | ghcr.io/hostinger/hvps-openclaw:latest | 127.0.0.1:8083 | healthy |
-| openclaw-sysadmin | ghcr.io/hostinger/hvps-openclaw:latest | 127.0.0.1:8084 | healthy |
-| openclaw-reviewer | ghcr.io/hostinger/hvps-openclaw:latest | 127.0.0.1:8085 | healthy |
+| openclaw-gateway | openclaw:local (v2026.2.26) | 127.0.0.1:18789 | healthy |
 | openclaw-memory | openclaw-memory (custom) | 127.0.0.1:8002 | healthy |
 | rag-api | rag-api (custom) | 127.0.0.1:8000 | healthy |
 | rugs-mcp | rugs-mcp (custom) | 127.0.0.1:8001 | healthy |
@@ -43,7 +39,7 @@ All ports bound to 127.0.0.1 (localhost only). External access via Tailscale VPN
 
 | Stack | Path |
 |-------|------|
-| Discord Agents (5) | `/opt/openclaw/discord-agents/docker-compose.agents.yml` |
+| OpenClaw Gateway (single, 5 agents) | `/opt/openclaw/gateway/docker-compose.yml` |
 | n8n + Postgres | `/docker/n8n/docker-compose.yml` |
 | RAG stack (rag-api, rugs-mcp, rugs-feed, rugs-sanitizer, qdrant, timescaledb, rabbitmq) | `/root/rag-stack/docker-compose.yml` |
 | Grafana + Postgres | `/docker/grafana-53ys/docker-compose.yml` |
@@ -61,13 +57,12 @@ All ports bound to 127.0.0.1 (localhost only). External access via Tailscale VPN
 
 | Config | Path |
 |--------|------|
-| Agent workspace files | `/opt/openclaw/discord-agents/{agent}-data/.openclaw/workspace/` |
-| Agent runtime config | `/opt/openclaw/discord-agents/{agent}-data/.openclaw/openclaw.json` |
+| Gateway config (live) | `/opt/openclaw/config/openclaw.json` |
+| Gateway config (repo) | `/root/claws-and-pincers/openclaw.json5` |
+| Agent workspaces | `/opt/openclaw/config/workspace-{agent}/` |
+| Agent state dirs | `/opt/openclaw/config/agents/{agent}/agent/` |
 | Governance files (shared mount) | `/opt/openclaw/discord-agents/shared-governance/` (host) mounted read-only at `/opt/governance/` (container) |
-| Model routing | `/opt/openclaw/config/model-routing.yaml` |
-| Agent YAML profiles | `/opt/openclaw/config/agents/` |
-| Source of truth doc | `/opt/openclaw/CONFIG-SOURCE-OF-TRUTH.md` |
-| Image version pins | `/opt/openclaw/IMAGE-PINS.md` |
+| Model routing | `/root/claws-and-pincers/config/model-routing.yaml` |
 
 ---
 
@@ -77,8 +72,8 @@ All files chmod 600, owned by root.
 
 | File | Contents |
 |------|----------|
-| `/opt/openclaw/discord-agents/.env` | Discord tokens, OpenRouter API key |
-| `/root/.openclaw/.env` | All API keys, gateway auth token |
+| `/opt/openclaw/config/.env` | Discord tokens, OpenRouter API key, gateway auth token |
+| `/opt/openclaw/secrets/gateway-token.txt` | Gateway auth token (reference copy) |
 | `/docker/n8n/.env` | n8n encryption key, postgres password |
 | `/root/openclaw-memory/.env` | Memory API key |
 
@@ -105,7 +100,7 @@ All files chmod 600, owned by root.
 | Sysadmin | openrouter/moonshotai/kimi-k2.5 |
 | Reviewer | openrouter/google/gemini-3-flash-preview |
 
-Model routing configuration: `/opt/openclaw/config/model-routing.yaml`
+Model routing defined in: `/opt/openclaw/config/openclaw.json` (agents.list[].model)
 
 ---
 

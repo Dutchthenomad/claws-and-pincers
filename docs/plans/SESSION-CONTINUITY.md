@@ -13,12 +13,16 @@
 | Item | Status |
 |------|--------|
 | Phase 1 (Foundation) | DONE |
+| Phase 1F (Deployment Fix) | DONE — Single gateway architecture |
 | Phase 2A (Laws Enforcement) | IN PROGRESS — Core trio deployed |
-| All 5 Discord agents | DEPLOYED and ONLINE |
+| All 5 Discord agents | DEPLOYED via single `openclaw-gateway` on port 18789 |
+| OpenClaw version | v2026.2.26 (updated from v2026.2.9) |
+| Architecture | Single gateway container (was 5 separate containers on 8081-8085) |
+| Container count | 19 (reduced from 23 — 5 agents → 1 gateway) |
 | Agent directory scaffolding | DONE (workspace/, sessions/, skills/ per agent) |
 | Discord channel structure | DONE (27 channels, 8 categories, permissions set) |
 | Telegram references | REMOVED (commit 5e16445, 2026-02-27) |
-| Repo sync (local ↔ remote) | SYNCED as of 2026-02-27 |
+| Repo sync (local ↔ remote) | SYNCED as of 2026-02-28 |
 | CLAUDE.md | WRITTEN (project root) |
 | This document | WRITTEN |
 
