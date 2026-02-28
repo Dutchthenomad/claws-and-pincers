@@ -41,3 +41,6 @@ credentials/
 
 # Temp
 *.tmp
+
+# Scraper runtime data
+scripts/openclaw-docs-scraper/data/

@@ -1,0 +1,142 @@
+# OpenClaw Documentation URLs for Vector Search
+# Format: TIER|URL
+# Tier 1 = CRITICAL, Tier 2 = USEFUL, Tier 3 = SKIP (not listed)
+
+# ═══════════════════════════════════════════════
+# TIER 1 — CRITICAL
+# ═══════════════════════════════════════════════
+
+# Workspace Templates
+1|https://docs.openclaw.ai/reference/templates/SOUL
+1|https://docs.openclaw.ai/reference/templates/AGENTS
+1|https://docs.openclaw.ai/reference/templates/HEARTBEAT
+1|https://docs.openclaw.ai/reference/templates/IDENTITY
+1|https://docs.openclaw.ai/reference/templates/TOOLS
+1|https://docs.openclaw.ai/reference/templates/USER
+1|https://docs.openclaw.ai/reference/templates/BOOT
+1|https://docs.openclaw.ai/reference/templates/BOOTSTRAP
+1|https://docs.openclaw.ai/reference/AGENTS.default
+
+# Core Agent Concepts
+1|https://docs.openclaw.ai/concepts/agent
+1|https://docs.openclaw.ai/concepts/agent-loop
+1|https://docs.openclaw.ai/concepts/agent-workspace
+1|https://docs.openclaw.ai/concepts/system-prompt
+1|https://docs.openclaw.ai/concepts/context
+1|https://docs.openclaw.ai/concepts/memory
+1|https://docs.openclaw.ai/concepts/multi-agent
+1|https://docs.openclaw.ai/concepts/session
+1|https://docs.openclaw.ai/concepts/sessions
+1|https://docs.openclaw.ai/concepts/session-tool
+1|https://docs.openclaw.ai/concepts/session-pruning
+1|https://docs.openclaw.ai/concepts/compaction
+1|https://docs.openclaw.ai/concepts/channel-routing
+1|https://docs.openclaw.ai/concepts/presence
+
+# Gateway & Operations
+1|https://docs.openclaw.ai/gateway/configuration
+1|https://docs.openclaw.ai/gateway/configuration-examples
+1|https://docs.openclaw.ai/gateway/heartbeat
+1|https://docs.openclaw.ai/gateway/security
+1|https://docs.openclaw.ai/gateway/sandboxing
+1|https://docs.openclaw.ai/gateway/sandbox-vs-tool-policy-vs-elevated
+1|https://docs.openclaw.ai/gateway/health
+1|https://docs.openclaw.ai/gateway/logging
+1|https://docs.openclaw.ai/gateway/troubleshooting
+1|https://docs.openclaw.ai/gateway/tailscale
+1|https://docs.openclaw.ai/gateway/remote
+1|https://docs.openclaw.ai/gateway/background-process
+
+# Discord Integration
+1|https://docs.openclaw.ai/channels/discord
+
+# Tools & Skills
+1|https://docs.openclaw.ai/tools/skills
+1|https://docs.openclaw.ai/tools/skills-config
+1|https://docs.openclaw.ai/tools/clawhub
+1|https://docs.openclaw.ai/tools/exec
+1|https://docs.openclaw.ai/tools/elevated
+1|https://docs.openclaw.ai/tools/subagents
+1|https://docs.openclaw.ai/tools/agent-send
+1|https://docs.openclaw.ai/tools/thinking
+1|https://docs.openclaw.ai/tools/slash-commands
+1|https://docs.openclaw.ai/tools/browser
+1|https://docs.openclaw.ai/tools/web
+1|https://docs.openclaw.ai/multi-agent-sandbox-tools
+
+# Automation
+1|https://docs.openclaw.ai/automation/cron-jobs
+1|https://docs.openclaw.ai/automation/cron-vs-heartbeat
+1|https://docs.openclaw.ai/hooks
+1|https://docs.openclaw.ai/hooks/soul-evil
+
+# ═══════════════════════════════════════════════
+# TIER 2 — USEFUL
+# ═══════════════════════════════════════════════
+
+# Models & Providers
+2|https://docs.openclaw.ai/providers
+2|https://docs.openclaw.ai/providers/models
+2|https://docs.openclaw.ai/providers/anthropic
+2|https://docs.openclaw.ai/providers/openai
+2|https://docs.openclaw.ai/providers/openrouter
+2|https://docs.openclaw.ai/concepts/model-providers
+2|https://docs.openclaw.ai/concepts/models
+2|https://docs.openclaw.ai/concepts/model-failover
+
+# Additional Concepts
+2|https://docs.openclaw.ai/concepts/architecture
+2|https://docs.openclaw.ai/concepts/groups
+2|https://docs.openclaw.ai/concepts/group-messages
+2|https://docs.openclaw.ai/concepts/messages
+2|https://docs.openclaw.ai/concepts/streaming
+2|https://docs.openclaw.ai/concepts/markdown-formatting
+2|https://docs.openclaw.ai/concepts/typing-indicators
+2|https://docs.openclaw.ai/concepts/queue
+2|https://docs.openclaw.ai/concepts/retry
+2|https://docs.openclaw.ai/concepts/usage-tracking
+2|https://docs.openclaw.ai/concepts/timezone
+2|https://docs.openclaw.ai/concepts/oauth
+
+# Install & Docker
+2|https://docs.openclaw.ai/install/docker
+2|https://docs.openclaw.ai/install
+2|https://docs.openclaw.ai/install/updating
+
+# Gateway Extras
+2|https://docs.openclaw.ai/gateway/protocol
+2|https://docs.openclaw.ai/gateway/bridge-protocol
+2|https://docs.openclaw.ai/gateway/gateway-lock
+2|https://docs.openclaw.ai/gateway/multiple-gateways
+2|https://docs.openclaw.ai/gateway/local-models
+2|https://docs.openclaw.ai/gateway/authentication
+2|https://docs.openclaw.ai/gateway/doctor
+2|https://docs.openclaw.ai/gateway/discovery
+2|https://docs.openclaw.ai/gateway/openai-http-api
+
+# Help & Troubleshooting
+2|https://docs.openclaw.ai/help
+2|https://docs.openclaw.ai/help/faq
+2|https://docs.openclaw.ai/help/troubleshooting
+2|https://docs.openclaw.ai/environment
+2|https://docs.openclaw.ai/debugging
+2|https://docs.openclaw.ai/token-use
+
+# Reference
+2|https://docs.openclaw.ai/reference/rpc
+2|https://docs.openclaw.ai/reference/session-management-compaction
+2|https://docs.openclaw.ai/reference/device-models
+2|https://docs.openclaw.ai/security/formal-verification
+
+# Web UI
+2|https://docs.openclaw.ai/web
+2|https://docs.openclaw.ai/web/control-ui
+2|https://docs.openclaw.ai/web/dashboard
+2|https://docs.openclaw.ai/web/webchat
+
+# Channels (non-Discord, for reference)
+2|https://docs.openclaw.ai/channels
+2|https://docs.openclaw.ai/channels/telegram
+2|https://docs.openclaw.ai/channels/whatsapp
+2|https://docs.openclaw.ai/channels/slack
+2|https://docs.openclaw.ai/channels/troubleshooting
