@@ -55,13 +55,14 @@ Core agent coordination uses native OpenClaw features (sessions, heartbeats, `/u
 - [x] HIGH: Project ID validator (n8n polls #task-dispatch, validates PROJ-XXX)
 - [x] HIGH: Charter approval gate check (n8n validates charter in PROJECT-REGISTRY.md)
 - [x] HIGH: Severity routing automation (n8n routes from #review-verdicts per notification matrix)
-- [ ] HIGH: Conflict detection via native OpenClaw session tools (replaces conflict-registry.json)
+- [ ] HIGH: Conflict detection via native OpenClaw session tools (config aligned; runtime testing remains)
 - [ ] HIGH: Token cost monitoring via native `/usage` endpoint + cron job
 - [ ] NORMAL: Anti-pattern repeat detection
 - [ ] NORMAL: Heartbeat dead man's switch via native heartbeat system + per-agent cron intervals
 
-### Phase 2B — Native Session & Memory Migration
-- [ ] HIGH: Migrate from file-based coordination (task-board.json, active-locks.json, conflict-registry.json) to native OpenClaw session tools
+### Phase 2B — Native Session & Memory Integration
+- [x] HIGH: Docs/config aligned to native session tools (JSON files archived to `docs/archive/governance/`)
+- [ ] HIGH: Runtime testing of session-based coordination (sessions_spawn, sessions_send)
 - [ ] HIGH: Integrate OpenClaw Memory API (localhost:8002) with native session lifecycle
 - [ ] NORMAL: Per-agent namespaced memory contexts using native session scoping
 - [ ] NORMAL: Cross-agent knowledge sharing rules (what's shared vs private)
@@ -69,7 +70,7 @@ Core agent coordination uses native OpenClaw features (sessions, heartbeats, `/u
 ### Phase 2C — Agent Workspace Management
 - [ ] HIGH: Agent workspace directory management via native OpenClaw workspace mounts
 - [ ] NORMAL: Automated project folder creation on PROJ-XXX registration
-- [ ] NORMAL: Lock management via native session tools (replaces active-locks.json)
+- [ ] NORMAL: Lock management via native session tools (config aligned; runtime testing remains)
 - [ ] NICE: Workspace health checks and cleanup automation
 
 ### Phase 2D — Config Evolution & Drift Detection

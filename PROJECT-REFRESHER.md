@@ -73,7 +73,7 @@ All 5 agents have SOUL.md, AGENTS.md, and HEARTBEAT.md in `agents/{agent-name}/`
 Core agent coordination uses native OpenClaw features (sessions, heartbeats, `/usage`, cron jobs). n8n retains a reduced scope for external integrations only (Discord polling, webhooks, RAG health).
 
 - **2A:** Laws enforcement (hybrid n8n + native) — conflict detection via sessions, cost tracking via `/usage` + cron, heartbeat dead man's switch
-- **2B:** Native session & memory migration — replace file-based coordination (task-board.json, active-locks.json) with native session tools
+- **2B:** Native session & memory integration — docs/config aligned to session tools; runtime testing and Memory API integration remain
 - **2C:** Agent workspace management — native workspace mounts, lock management via sessions
 - **2D:** Config evolution & drift detection — live gateway state vs declared config
 - **2E:** Discord channel optimization — permissions audit, category redesign
@@ -99,7 +99,7 @@ Additional specialists, on-demand spawning, cross-project knowledge transfer, se
 
 | Resource | Location | Status |
 |----------|----------|--------|
-| Core Charter | `governance/operations/CORE-CHARTER.md` | v1.1 |
+| Core Charter | `governance/operations/CORE-CHARTER.md` | v2.0 |
 | Agent Configs | `agents/{agent-name}/` | DONE |
 | OpenClaw Config | `openclaw.json5` | DONE |
 | Model Routing | `config/model-routing.yaml` | DONE |
@@ -126,9 +126,9 @@ Additional specialists, on-demand spawning, cross-project knowledge transfer, se
 claws-and-pincers/
 +-- agents/                  # Per-agent SOUL, AGENTS, HEARTBEAT
 +-- governance/              # Operating system
-|   +-- operations/          # CORE-CHARTER, PROJECT-REGISTRY
+|   +-- operations/          # CORE-CHARTER v2.0, PROJECT-REGISTRY
 |   +-- templates/           # Charter, task, conflict templates
-|   +-- shared/              # Legacy JSON files (migrating to native OpenClaw sessions)
+|   +-- shared/              # Anti-patterns knowledge base (JSON files archived to docs/archive/)
 +-- reference/               # OpenClaw platform reference docs
 +-- config/                  # Model routing, cost registry
 +-- visuals/                 # Dashboard HTML + diagrams

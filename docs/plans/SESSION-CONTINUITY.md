@@ -105,13 +105,14 @@ Core agent coordination now uses native OpenClaw features (sessions, heartbeats,
 - [x] Project ID validator (n8n polls `#task-dispatch` every 30s, validates PROJ-XXX against registry)
 - [x] Charter approval gate check (n8n validates charter approval status before allowing work)
 - [x] Severity routing automation (n8n routes WARN/BLOCKED/CRITICAL from `#review-verdicts` to correct channels)
-- [ ] Conflict detection via native OpenClaw session tools (replaces file-based conflict-registry.json)
-- [ ] Token cost monitoring via native OpenClaw `/usage` endpoint + cron job (replaces planned n8n workflow)
+- [ ] Conflict detection via native OpenClaw session tools (config aligned; runtime testing remains)
+- [ ] Token cost monitoring via native OpenClaw `/usage` endpoint + cron job (config aligned; runtime testing remains)
 - [ ] Anti-pattern repeat detection
 - [ ] Heartbeat dead man's switch via native OpenClaw heartbeat system + per-agent cron intervals
 
 #### Phase 2B — Native Session & Memory Integration
-- [ ] Migrate from file-based coordination (task-board.json, active-locks.json, conflict-registry.json) to native OpenClaw session tools
+- [x] Docs/config aligned to native OpenClaw session tools (JSON files archived to `docs/archive/governance/`)
+- [ ] Runtime testing of session-based coordination (sessions_spawn, sessions_send)
 - [ ] Integrate OpenClaw Memory API (`localhost:8002`) with native session lifecycle
 - [ ] Design per-agent namespaced memory contexts using native session scoping
 - [ ] Cross-agent knowledge sharing rules (what's shared vs private)
@@ -119,7 +120,7 @@ Core agent coordination now uses native OpenClaw features (sessions, heartbeats,
 #### Phase 2C — Agent Workspace Management
 - [ ] Agent workspace directory management (native OpenClaw workspace mounts)
 - [ ] Automated project folder creation on PROJ-XXX registration
-- [ ] Lock management via native session tools (replaces active-locks.json)
+- [ ] Lock management via native session tools (config aligned; runtime testing remains)
 
 #### Phase 2D — Config Evolution & Drift Detection
 - [ ] Config change tracking (model swaps, tool grants, scope changes)
