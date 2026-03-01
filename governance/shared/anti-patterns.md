@@ -1,7 +1,9 @@
 # ANTI-PATTERNS — Self-Learning Mistake Registry
 
-**Rule:** ALL agents must read this document before starting ANY task.  
-**Rule:** Repeat violations auto-escalate one severity level.  
+**Note:** This file is replicated into each agent's workspace `memory/` directory as an evergreen file. Agents consult their local copy during every task.
+
+**Rule:** ALL agents must read this document before starting ANY task.
+**Rule:** Repeat violations auto-escalate one severity level.
 **Maintained by:** Reviewer/QA + Orchestrator
 
 ---

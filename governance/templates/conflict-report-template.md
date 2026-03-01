@@ -34,10 +34,19 @@ _How should this be resolved?_
 
 
 
+## Resolution Pathway
+
+1. Reporter sends conflict details to Orchestrator via `sessions_send`
+2. Orchestrator posts to `#conflict-log` Discord channel
+3. Orchestrator evaluates and proposes resolution
+4. If CRITICAL: Devin reviews in `#human-oversight`
+
+**Conflict tracked in:** Workspace memory + Discord `#conflict-log`
+
 ## Resolution Decision
-**Resolved by:** [Devin / Orchestrator]  
-**Decision:**  
-**Date:**  
+**Resolved by:** [Devin / Orchestrator]
+**Decision:**
+**Date:**
 
 ## Notes
 

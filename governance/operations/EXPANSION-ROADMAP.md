@@ -20,7 +20,7 @@
 - Human control channels
 - Logging & reporting channels
 - Full governance framework (CORE-CHARTER.md)
-- File-based coordination (task-board, locks, conflict registry)
+- Native OpenClaw session-based coordination (`sessions_spawn`, `sessions_send`, `sessions_list`, `sessions_history`)
 - Self-learning anti-pattern system
 
 **Milestone:** All governance rules operational, first project completed end-to-end through the full lifecycle.
@@ -28,6 +28,8 @@
 ---
 
 ## Phase 2 — Capabilities Expansion (Planned)
+
+> **Native OpenClaw migration complete.** Task dispatch, session tracking, and conflict logging now use OpenClaw native tools (`sessions_spawn`, `sessions_send`, `sessions_list`, `sessions_history`) instead of file-based JSON coordination. File-based artifacts (task-board.json, active-locks.json, conflict-registry.json) archived to `docs/archive/governance/`.
 
 Potential new specialists. Each addition must go through the standard project process (charter, approval, PROJ-ID).
 
@@ -69,7 +71,7 @@ Potential new specialists. Each addition must go through the standard project pr
 
 ### On-Demand Specialist Spawning
 - Orchestrator can spawn temporary specialist agents for burst work
-- Uses OpenClaw `sessions_spawn` for short-lived task sessions
+- Uses OpenClaw `sessions_spawn` for short-lived task sessions (already available in Phase 1)
 - Temporary agents inherit project context but don't persist
 - Reduces idle token cost for rarely-needed capabilities
 
@@ -112,3 +114,4 @@ Potential new specialists. Each addition must go through the standard project pr
 | 2026-02-16 | Initial Phase 1 core crew defined | 1 | Devin |
 | 2026-02-28 | Models rotated to OpenRouter frontier mix | 1 | Devin |
 | 2026-03-01 | R&M character identities assigned to all agents | 1 | Devin |
+| 2026-03-01 | Migrated from file-based coordination to native OpenClaw session tools | 1 | Devin |

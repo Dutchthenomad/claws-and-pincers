@@ -1,11 +1,12 @@
 # TASK: PROJ-XXX-T-YYY — [Task Title]
 
-**Project:** PROJ-XXX  
-**Assigned to:** [Specialist]  
-**Status:** PENDING / LOCKED / IN_PROGRESS / REVIEW / DONE / BLOCKED  
-**Priority:** LOW / MEDIUM / HIGH / URGENT  
-**Created:** YYYY-MM-DD  
+**Project:** PROJ-XXX
+**Assigned to:** [Specialist]
+**Status:** PENDING / IN_PROGRESS / REVIEW / DONE / BLOCKED
+**Priority:** LOW / MEDIUM / HIGH / URGENT
+**Created:** YYYY-MM-DD
 **Updated:** YYYY-MM-DD
+**Session tracking:** Dispatched via `sessions_spawn`, tracked via `sessions_list`
 
 ---
 
@@ -35,7 +36,7 @@ _Specialist must verify before starting._
 - [ ] Charter approved for this project
 - [ ] No active conflicts for this project
 - [ ] anti-patterns.md consulted
-- [ ] Lock acquired in active-locks.json
+- [ ] Task dispatched via `sessions_spawn` with project context
 
 ## Deliverables
 _What files/outputs will this task produce?_

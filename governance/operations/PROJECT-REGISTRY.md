@@ -42,8 +42,17 @@
 - Conflict IDs: `CONF-XXX` (sequential, global)
 - Anti-pattern IDs: `AP-XXX` (sequential, global)
 
+## Project Lifecycle
+
+Projects are tracked through Discord threads and OpenClaw native session tools:
+
+1. **Registration**: Orchestrator creates project entry here, spawns a Discord thread via `sessions_spawn`
+2. **Task dispatch**: Individual tasks dispatched to specialists via `sessions_spawn` with project context
+3. **Tracking**: Active sessions monitored via `sessions_list`; history via `sessions_history`
+4. **Completion**: All tasks reviewed, project marked COMPLETED, thread archived
+
 ## Status Definitions
-- **ACTIVE** — Charter approved, work in progress
+- **ACTIVE** — Charter approved, work in progress (tracked via `sessions_list`)
 - **PAUSED** — Work temporarily halted (by Devin or due to BLOCKED issue)
 - **COMPLETED** — All tasks done, reviewed, and delivered
 - **CANCELLED** — Project terminated before completion

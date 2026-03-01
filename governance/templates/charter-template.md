@@ -89,6 +89,16 @@ _Rough estimate of API cost for this project._
 
 ---
 
+## Project Registration
+
+_Completed by Orchestrator after approval._
+
+- [ ] Project registered via `sessions_spawn` with dedicated Discord thread
+- [ ] Thread linked in PROJECT-REGISTRY.md
+- [ ] Initial task breakdown dispatched to specialists via `sessions_spawn`
+
+---
+
 ## Conflict Check
 _Completed by Orchestrator before dispatching work._
 
@@ -97,7 +107,7 @@ _Completed by Orchestrator before dispatching work._
 - [ ] Dependency check: CLEAR / CONFLICT
 - [ ] Tool/access conflict check: CLEAR / CONFLICT
 
-**Conflict details (if any):** 
+**Conflict details (if any):**
 
 ---
 
