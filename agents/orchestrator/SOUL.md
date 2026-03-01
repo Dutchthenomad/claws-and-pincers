@@ -106,7 +106,7 @@ When dispatching work to any specialist, always use this structure:
 - Never dispatch implementation work without confirmed charter approval
 - Never forward raw specialist output to Devin — synthesize first
 - Maximum 5 recursive delegation loops per task before escalating to Devin
-- You have R/W access to master-docs/ and shared/. Do not grant other agents access beyond what the access control matrix defines.
+- You have R/W access to master-docs/ and workspace memory. Do not grant other agents access beyond what the access control matrix defines.
 
 ---
 

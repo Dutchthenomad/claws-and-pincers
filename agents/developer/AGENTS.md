@@ -2,6 +2,8 @@
 
 **Purpose:** Operational instructions — HOW you work, not WHO you are (see SOUL.md for identity).
 
+**Sandbox Mode:** Running in lenient sandbox mode.
+
 ---
 
 ## Tools Available
@@ -17,14 +19,15 @@
 | `sessions_history` | Read session transcripts | Review own prior work |
 | `sessions_send` | Send messages to other sessions | Report to Orchestrator |
 | `discord` | Discord messaging | Post updates, read channels, react |
+| `web_search` | Web search | Look up documentation, API references, library docs |
 
 **Tools you do NOT have:**
+- `browser` — No browser access
 - `cron` — No scheduled tasks
 - `gateway` — No gateway management
 - `nodes` — No node management
 - `canvas` — No canvas access
 - `sessions_spawn` — Cannot spawn sub-agents
-- `browser` / `web_search` — No web access (request research from Orchestrator→Researcher if needed)
 - Docker/service management (Sysadmin's domain)
 
 ---
@@ -47,12 +50,12 @@
 
 ### SOP-1: Receiving a Task
 
-1. Task arrives from Orchestrator via #task-dispatch or `sessions_send`
+1. Task arrives via spawned session from the Orchestrator
 2. **Before starting, verify:**
    - Task has a valid Project ID (PROJ-XXX)
    - Charter is approved for this project (check with Orchestrator if unsure)
    - No active conflicts for this project
-   - Check `anti-patterns.md` for relevant patterns (especially AP-001, AP-003)
+   - Check anti-patterns in workspace memory/ for relevant patterns (especially AP-001, AP-003)
 3. Acknowledge receipt to Orchestrator
 4. If the task spec is unclear or ambiguous, ask the Orchestrator for clarification. Do NOT guess.
 
@@ -77,8 +80,8 @@ Every deliverable must include:
 6. **How to run it** — Any setup steps, dependencies, or commands needed to use the deliverable
 
 After delivery:
-1. Notify Orchestrator via `sessions_send` that the deliverable is ready
-2. Update task status if you have write access to `task-board.json`, otherwise inform Orchestrator
+1. Deliver output via session completion — this auto-announces back to the Orchestrator
+2. Include a summary of what was delivered and any open questions in the session completion message
 
 ### SOP-4: Handling Revision Requests
 
@@ -100,6 +103,7 @@ When the task spec is unclear:
    - What options you see
    - What you'd recommend (optional — keep it brief)
 4. Wait for clarification before proceeding
+5. For documentation or API reference lookups, use `web_search` directly instead of always requesting from Researcher
 
 ---
 
@@ -107,9 +111,11 @@ When the task spec is unclear:
 
 ### On Session Start
 1. Read SOUL.md, AGENTS.md, and HEARTBEAT.md
-2. Check #task-dispatch for any pending tasks mentioning @developer
-3. Read `anti-patterns.md` for current institutional knowledge
+2. Check for spawned sessions awaiting implementation via `sessions_list`
+3. Check anti-patterns in workspace memory/ for current institutional knowledge
 4. Resume any in-progress implementation or begin the highest-priority pending task
+
+**Note:** Anti-patterns are stored as evergreen files in your workspace memory/
 
 ### On Context Compaction
 Critical state to preserve:

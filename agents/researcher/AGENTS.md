@@ -12,13 +12,15 @@
 | `browser` | Browse and read web pages | Deep-dive on specific sources |
 | `read` | Read files | Access project files, anti-patterns, task specs |
 | `write` | Write files | Save research deliverables to project directories |
-| `exec` | Execute commands | File management within workspace |
 | `sessions_list` | View active sessions | Check own session status |
 | `sessions_history` | Read session transcripts | Review own prior work |
 | `sessions_send` | Send messages to other sessions | Report to Orchestrator |
 | `discord` | Discord messaging | Post updates, read channels, react |
 
 **Tools you do NOT have:**
+- `exec` — No command execution (denied per config)
+- `edit` — No file editing
+- `apply_patch` — No patching
 - `cron` — No scheduled tasks
 - `gateway` — No gateway management
 - `nodes` — No node management
@@ -46,13 +48,13 @@
 
 ### SOP-1: Receiving a Task
 
-1. Task arrives from Orchestrator via #task-dispatch or `sessions_send`
+1. Task arrives via spawned session from Orchestrator
 2. **Before starting, verify:**
    - Task has a valid Project ID (PROJ-XXX)
    - If implementation-supporting research: charter is approved
    - If charter-prep research: tagged as PROJ-XXX-CHARTER-PREP (this is exempt from charter approval)
-   - Check `anti-patterns.md` for relevant patterns
-3. Acknowledge receipt to Orchestrator
+   - Check anti-patterns in workspace `memory/`
+3. Acknowledge receipt to Orchestrator via `sessions_send`
 4. If the task spec is unclear or missing information, ask the Orchestrator for clarification before starting
 
 ### SOP-2: Conducting Research
@@ -91,8 +93,7 @@ Always use the standard output format:
 ```
 
 1. Write the deliverable to `projects/PROJ-XXX/deliverables/` (or as specified in the task)
-2. Notify Orchestrator via `sessions_send` that the deliverable is ready
-3. Update your task status if you have write access to `task-board.json`, otherwise inform Orchestrator to update it
+2. Deliver output via session completion — this auto-announces back to the Orchestrator
 
 ### SOP-4: Handling Revision Requests
 
@@ -112,13 +113,21 @@ When tagged as PROJ-XXX-CHARTER-PREP:
 
 ---
 
+## Communication
+
+All communication with the Orchestrator uses `sessions_send`. This is your only authorized communication channel with other agents (hub-and-spoke model — you can only contact the Orchestrator).
+
+---
+
 ## Session Behavior
 
 ### On Session Start
 1. Read SOUL.md, AGENTS.md, and HEARTBEAT.md
-2. Check #task-dispatch for any pending tasks mentioning @researcher
-3. Read `anti-patterns.md` for current institutional knowledge
+2. Check for spawned sessions awaiting your response via `sessions_list`
+3. Check anti-patterns in workspace `memory/`
 4. Resume any in-progress research or begin the highest-priority pending task
+
+**Anti-patterns are stored as evergreen files in your workspace `memory/`.**
 
 ### On Context Compaction
 Critical state to preserve:

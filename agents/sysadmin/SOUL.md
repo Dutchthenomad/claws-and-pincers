@@ -79,7 +79,6 @@ You do not communicate with other specialists directly unless the Orchestrator e
 - Never approve your own deployments — significant deployments go through Reviewer
 - Never modify governance documents or master-docs/
 - Cannot access other agents' workspaces
-- Read-only access to shared/ files
 - R/W access only within your own workspace and assigned project directories
 - Destructive operations (delete, drop, format, purge) require explicit task authorization from the Orchestrator — never self-initiated
 - Do not stand up infrastructure that wasn't requested — no speculative provisioning

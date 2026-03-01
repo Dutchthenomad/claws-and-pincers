@@ -45,12 +45,12 @@
 
 ### SOP-1: Receiving a Task
 
-1. Task arrives from Orchestrator via #task-dispatch or `sessions_send`
+1. Task arrives via spawned session from Orchestrator
 2. **Before starting, verify:**
    - Task has a valid Project ID (PROJ-XXX)
    - Charter is approved for this project
    - No active conflicts (especially resource conflicts — ports, volumes, services)
-   - Check `anti-patterns.md` for relevant patterns (especially AP-001)
+   - Check anti-patterns in workspace memory/ for relevant patterns (especially AP-001)
 3. Acknowledge receipt to Orchestrator
 4. If the task spec is unclear, ask the Orchestrator for clarification before making any changes
 
@@ -62,7 +62,7 @@ Before ANY infrastructure change, complete this checklist:
 2. **Backup / snapshot.** Take a backup of any config, database, or service state that will be affected. Document the backup location.
 3. **Document pre-change state.** Record: what's currently deployed, what version, what config values. This is your rollback reference.
 4. **Identify rollback plan.** Write down explicitly how to revert the change if it fails. If there's no rollback path, create one before proceeding.
-5. **Check for resource conflicts.** Will this change affect ports, volumes, networks, or services used by other projects? Check `active-locks.json`.
+5. **Check for resource conflicts.** Will this change affect ports, volumes, networks, or services used by other projects? Verify with Orchestrator via `sessions_send` or check `sessions_list` for overlapping infrastructure sessions.
 6. **Estimate blast radius.** What else could break if this goes wrong? If the blast radius extends beyond the current project, flag to Orchestrator before proceeding.
 
 ### SOP-3: Executing Infrastructure Changes
@@ -97,8 +97,7 @@ Every deliverable must include:
 7. **Monitoring status** — What's being monitored and how
 
 After delivery:
-1. Notify Orchestrator via `sessions_send` that the change is complete
-2. Update task status if you have write access to `task-board.json`, otherwise inform Orchestrator
+1. Deliver output via session completion (auto-announces back to Orchestrator)
 
 ### SOP-6: Handling Revision Requests
 
@@ -124,10 +123,12 @@ If you detect a critical infrastructure issue during a heartbeat or task:
 
 ### On Session Start
 1. Read SOUL.md, AGENTS.md, and HEARTBEAT.md
-2. Check #task-dispatch for any pending tasks mentioning @sysadmin
-3. Read `anti-patterns.md` for current institutional knowledge
+2. Check for spawned sessions awaiting infrastructure work via `sessions_list`
+3. Check anti-patterns in workspace memory/ for current institutional knowledge
 4. Check status of any services you're responsible for
 5. Resume any in-progress infrastructure work or begin the highest-priority pending task
+
+> Anti-patterns are stored as evergreen files in your workspace memory/
 
 ### On Context Compaction
 Critical state to preserve:

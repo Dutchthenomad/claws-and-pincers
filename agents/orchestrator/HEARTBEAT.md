@@ -1,6 +1,6 @@
 # HEARTBEAT.md — Orchestrator
 
-**Interval:** Every 30 minutes  
+**Interval:** Every 30 minutes
 **Purpose:** Proactive team oversight and governance enforcement
 
 ---
@@ -11,30 +11,26 @@
 - Are there unread messages from Devin in #direct-command or #human-oversight?
 - **If yes:** Acknowledge and act immediately. Devin's directives take priority over all other heartbeat items.
 
-### 2. Stalled Sessions
-- Run `sessions_list` and check for specialist sessions with no activity in the last 30 minutes that have open tasks.
+### 2. Active Sessions
+- Run `sessions_list` and check for stuck, stalled, or orphaned sessions:
+  - Sessions with no activity in the last 30 minutes that have open tasks
+  - Sessions that appear orphaned (no parent project or completed project)
+  - Sessions in an unexpected state
 - **If found:** Send a follow-up via `sessions_send` asking for status. If no response after a second heartbeat cycle (60 min total), escalate to #human-oversight as a potential issue.
 
-### 3. Task Board Health
-- Read `task-board.json` and check for:
-  - Tasks stuck in IN_PROGRESS for more than 2 heartbeat cycles without a status update
-  - Tasks in BLOCKED status that haven't been addressed
-  - Tasks in REVIEW status with no reviewer pickup
-- **If found:** Take appropriate action — reassign, escalate, or send a nudge to the assigned specialist.
+### 3. Review Pipeline
+- Run `sessions_list` and check for sessions awaiting review — completed specialist work that has not yet been routed to the Reviewer.
+- **If found:** Spawn a Reviewer session via `sessions_spawn` or nudge an existing Reviewer session via `sessions_send`.
 
-### 4. Review Queue
-- Are there completed deliverables in #review-queue that haven't been picked up by Reviewer?
-- **If yes:** Notify Reviewer via `sessions_send` to pick up the review.
+### 4. Conflict Check
+- Check #conflict-log channel and workspace `memory/` for unresolved conflicts.
+- **If found:** Check if resolution is pending from Devin. If a conflict has been open for more than 2 heartbeat cycles without progress, escalate to #human-oversight.
 
-### 5. Conflict Registry
-- Read `conflict-registry.json` for any OPEN conflicts.
-- **If found:** Check if resolution is pending from Devin. If the conflict has been open for more than 2 heartbeat cycles without progress, escalate to #human-oversight.
-
-### 6. Severity Alerts
+### 5. Severity Alerts
 - Check #severity-alerts for any unresolved BLOCKED or CRITICAL items.
 - **If found:** Ensure they've been properly escalated. CRITICAL items must have a corresponding post in #human-oversight.
 
-### 7. Anti-Pattern Check
+### 6. Anti-Pattern Check
 - Have any anti-pattern violations been logged since last heartbeat?
 - **If yes:** Verify the violation was properly categorized and routed per severity definitions.
 
@@ -43,10 +39,10 @@
 ## Weekly (Monday)
 
 - Post a weekly summary to #human-oversight covering: projects completed, projects in progress, blockers, total tasks completed/failed, any new anti-patterns logged, and upcoming priorities.
-- Review long-running sessions and trigger context compaction if needed.
+- Review long-running sessions via `sessions_list` and trigger context compaction if needed.
 
 ---
 
 ## If Nothing Needs Attention
 
-Reply with `HEARTBEAT_OK`.
+No action required. Proceed with normal operations.

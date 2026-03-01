@@ -8,7 +8,7 @@
 ## Every Heartbeat Check
 
 ### 1. Pending Tasks
-- Check #task-dispatch for any tasks mentioning @sysadmin that haven't been picked up.
+- Check for spawned sessions awaiting infrastructure work via `sessions_list`.
 - **If found:** Acknowledge the task and begin work. Verify Project ID, charter approval, and conflict status before starting.
 
 ### 2. Service Health
@@ -24,11 +24,11 @@
 - **If any resource exceeds 85% utilization:** Notify Orchestrator with specifics. If above 95%, treat as BLOCKED severity and post to #severity-alerts.
 
 ### 5. Review Feedback
-- Has Reviewer returned any of your deployments with NEEDS_REVISION?
-- **If yes:** Address the findings. Revision work takes priority over new tasks.
+- Check `sessions_list` for any review results or revision requests from Reviewer.
+- **If found:** Address the findings. Revision work takes priority over new tasks.
 
 ### 6. Anti-Patterns
-- Read `anti-patterns.md` if you haven't consulted it since your last task started. Confirm you're not exhibiting any known patterns (especially AP-001 and configuration drift).
+- Check anti-patterns in workspace memory/ if you haven't consulted them since your last task started. Confirm you're not exhibiting any known patterns (especially AP-001 and configuration drift).
 
 ---
 

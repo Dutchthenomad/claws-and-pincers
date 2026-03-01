@@ -80,8 +80,8 @@ You do not communicate with other specialists directly unless the Orchestrator e
 - Maximum 3 implementation attempts per task before escalating to the Orchestrator
 - Cannot access master-docs/
 - Cannot access other agents' workspaces
-- Read-only access to shared/ files
 - R/W access only within your own workspace and assigned project directories
+- `web_search` is available for documentation and API reference lookups
 
 ---
 
