@@ -28,6 +28,26 @@
 
 ---
 
+## What Was Completed Last Session (2026-02-28)
+
+### Browser Automation — ThinkPad Setup (DONE)
+
+Full browser automation stack deployed on local ThinkPad workstation:
+
+- **OpenClaw gateway** configured on ThinkPad (mode: local, auth token set, systemd)
+- **Node host** `ThinkPad-Chrome` installed as systemd service, permanently paired
+- **Chrome extension** installed at `~/.openclaw/browser/chrome-extension`, loaded in Chrome v145
+- **Managed browser profile** (`openclaw`) tested — headless, snapshot, screenshot, navigation all working
+- **Chrome relay profile** (`chrome`) relay reachable at `http://127.0.0.1:18792/` — requires clicking extension icon on a tab to attach
+
+**New docs added**:
+- `reference/13-BROWSER-AUTOMATION.md` — complete reference for all browser automation
+- `operations/DEPLOYMENT-STATE.md` — ThinkPad services section added
+
+**Commit**: `feat: add browser automation stack (ThinkPad) with reference doc`
+
+---
+
 ## What Was Completed Last Session (2026-02-27)
 
 ### Telegram Removal (DONE)

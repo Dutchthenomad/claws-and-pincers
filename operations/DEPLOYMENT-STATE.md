@@ -137,6 +137,26 @@ Governance workflows read from `/governance/` mount (shared-governance dir). Dis
 
 ---
 
+## ThinkPad Local Services (Browser Automation)
+
+**Machine**: devops-ThinkPad-P52 | **Tailscale IP**: 100.91.65.58 | **Added**: 2026-02-28
+
+A separate OpenClaw instance runs on the local ThinkPad workstation for browser automation. This is distinct from the VPS gateway.
+
+| Service | Bind | Port | Systemd unit | Status |
+|---------|------|------|-------------|--------|
+| OpenClaw Gateway (local) | 127.0.0.1 | 18789 | `openclaw-gateway.service` (user) | RUNNING |
+| Node Host (`ThinkPad-Chrome`) | — | — | `openclaw-node.service` (user) | RUNNING, paired |
+| CDP Relay | 127.0.0.1 | 18792 | managed by node host | RUNNING |
+| Managed browser (`openclaw` profile) | 127.0.0.1 | 18800 | on-demand | ON-DEMAND |
+| Chrome extension relay | Chrome | — | loaded in Chrome v145 | INSTALLED |
+
+**Playwright**: v1.58.2 installed. All browser features available.
+
+Full reference: [`reference/13-BROWSER-AUTOMATION.md`](../reference/13-BROWSER-AUTOMATION.md)
+
+---
+
 ## Known Issues
 
 - 3 n8n credentials need re-entry (encrypted with old key after rotation)

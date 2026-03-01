@@ -20,6 +20,7 @@ This documentation folder contains comprehensive research and architectural plan
 | [10-SECURITY-AND-SAFETY.md](./10-SECURITY-AND-SAFETY.md) | Bot loop prevention, sandboxing, token safety, skill auditing |
 | [11-DEPLOYMENT-GUIDE.md](./11-DEPLOYMENT-GUIDE.md) | VPS deployment, Docker, systemd, production considerations |
 | [12-RESOURCE-LINKS.md](./12-RESOURCE-LINKS.md) | Curated links to all key documentation, community, and tools |
+| [13-BROWSER-AUTOMATION.md](./13-BROWSER-AUTOMATION.md) | Browser automation setup on ThinkPad — managed profile, Chrome relay, extension, Playwright |
 
 ## Architecture Summary
 
