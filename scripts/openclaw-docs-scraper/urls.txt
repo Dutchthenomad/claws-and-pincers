@@ -30,7 +30,6 @@
 1|https://docs.openclaw.ai/concepts/session-tool
 1|https://docs.openclaw.ai/concepts/session-pruning
 1|https://docs.openclaw.ai/concepts/compaction
-1|https://docs.openclaw.ai/concepts/channel-routing
 1|https://docs.openclaw.ai/concepts/presence
 
 # Gateway & Operations
@@ -62,13 +61,9 @@
 1|https://docs.openclaw.ai/tools/slash-commands
 1|https://docs.openclaw.ai/tools/browser
 1|https://docs.openclaw.ai/tools/web
-1|https://docs.openclaw.ai/multi-agent-sandbox-tools
-
 # Automation
 1|https://docs.openclaw.ai/automation/cron-jobs
 1|https://docs.openclaw.ai/automation/cron-vs-heartbeat
-1|https://docs.openclaw.ai/hooks
-1|https://docs.openclaw.ai/hooks/soul-evil
 
 # ═══════════════════════════════════════════════
 # TIER 2 — USEFUL
@@ -86,8 +81,6 @@
 
 # Additional Concepts
 2|https://docs.openclaw.ai/concepts/architecture
-2|https://docs.openclaw.ai/concepts/groups
-2|https://docs.openclaw.ai/concepts/group-messages
 2|https://docs.openclaw.ai/concepts/messages
 2|https://docs.openclaw.ai/concepts/streaming
 2|https://docs.openclaw.ai/concepts/markdown-formatting
@@ -118,9 +111,6 @@
 2|https://docs.openclaw.ai/help
 2|https://docs.openclaw.ai/help/faq
 2|https://docs.openclaw.ai/help/troubleshooting
-2|https://docs.openclaw.ai/environment
-2|https://docs.openclaw.ai/debugging
-2|https://docs.openclaw.ai/token-use
 
 # Reference
 2|https://docs.openclaw.ai/reference/rpc
