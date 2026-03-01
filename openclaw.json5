@@ -1,6 +1,6 @@
 // ~/.openclaw/openclaw.json5
 // Claws & Pincers — Production Multi-Agent Configuration
-// Updated: 2026-02-28 — Single gateway architecture (was 5 containers)
+// Updated: 2026-03-01 — Native OpenClaw alignment (hub-and-spoke, heartbeats, tool policy, native features)
 //
 // ENVIRONMENT VARIABLES REQUIRED (set in /opt/openclaw/config/.env):
 //   OPENROUTER_API_KEY
@@ -45,14 +45,15 @@
       compaction: { mode: "safeguard" },
       thinkingDefault: "low",
       timeoutSeconds: 600,
-      heartbeat: { every: "30m" },
+      // NOTE: Per-agent heartbeats defined below. When any agent has a heartbeat block,
+      // only those agents run heartbeats (per OpenClaw docs).
       maxConcurrent: 2,
       subagents: { maxConcurrent: 8 },
       sandbox: { mode: "off" },
     },
 
     list: [
-      // === DISCORD AGENTS (Claws & Pincers team) ===
+      // === ORCHESTRATOR — Hub of hub-and-spoke. Coordinator only. ===
       {
         id: "orchestrator",
         default: true,
@@ -63,11 +64,17 @@
         groupChat: { mentionPatterns: ["@orchestrator", "@orch", "@Orchestrator"] },
         subagents: { allowAgents: ["*"] },
         sandbox: { mode: "off" },
+        heartbeat: { every: "15m" },
         tools: {
           profile: "full",
-          allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "discord", "web_search", "browser", "cron"],
+          // Orchestrator: coordinator only — no exec (C-09). Full session + cron tools.
+          allow: ["read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "discord", "web_search", "browser", "cron"],
+          deny: ["exec", "apply_patch"],
+          agentToAgent: { enabled: true, allow: ["*"] },
         },
       },
+
+      // === RESEARCHER — Knowledge engine. Read-only research, no exec. ===
       {
         id: "researcher",
         workspace: "~/.openclaw/workspace-researcher",
@@ -76,11 +83,16 @@
         identity: { name: "Researcher", emoji: "🔬" },
         groupChat: { mentionPatterns: ["@researcher", "@research", "@Researcher"] },
         sandbox: { mode: "off" },
+        heartbeat: { every: "2h", model: "groq/llama-3.3-70b-versatile" },
         tools: {
-          allow: ["exec", "read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "browser", "discord"],
-          deny: ["cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          // Researcher: no exec (C-09), no sessions_spawn (only Orchestrator spawns).
+          allow: ["read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "browser", "discord"],
+          deny: ["exec", "edit", "apply_patch", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
       },
+
+      // === DEVELOPER — Builder. Code execution with lenient sandbox. ===
       {
         id: "developer",
         workspace: "~/.openclaw/workspace-developer",
@@ -88,12 +100,17 @@
         model: { primary: "openrouter/minimax/minimax-m2.5", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
         identity: { name: "Developer", emoji: "💻" },
         groupChat: { mentionPatterns: ["@developer", "@dev", "@Developer"] },
-        sandbox: { mode: "off" },
+        sandbox: { mode: "lenient" },
+        heartbeat: { every: "2h", model: "groq/llama-3.3-70b-versatile" },
         tools: {
-          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "discord"],
-          deny: ["browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          // Developer: exec allowed (needs to run code), web_search added (C-09). No sessions_spawn.
+          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "web_search", "discord"],
+          deny: ["browser", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
       },
+
+      // === SYSADMIN — Infrastructure guardian. Full host access needed. ===
       {
         id: "sysadmin",
         workspace: "~/.openclaw/workspace-sysadmin",
@@ -102,11 +119,16 @@
         identity: { name: "Sysadmin", emoji: "🖥️" },
         groupChat: { mentionPatterns: ["@sysadmin", "@sys", "@Sysadmin"] },
         sandbox: { mode: "off" },
+        heartbeat: { every: "30m", model: "groq/llama-3.3-70b-versatile" },
         tools: {
+          // Sysadmin: full host access for infrastructure. No sessions_spawn.
           allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "discord"],
           deny: ["browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
       },
+
+      // === REVIEWER — Quality gate. Read-only by tool policy. ===
       {
         id: "reviewer",
         workspace: "~/.openclaw/workspace-reviewer",
@@ -115,9 +137,12 @@
         identity: { name: "Reviewer", emoji: "🔍" },
         groupChat: { mentionPatterns: ["@reviewer", "@review", "@Reviewer"] },
         sandbox: { mode: "off" },
+        heartbeat: { every: "4h", model: "groq/llama-3.3-70b-versatile" },
         tools: {
+          // Reviewer: read-only. No exec, write, edit, apply_patch, or sessions_spawn.
           allow: ["read", "sessions_list", "sessions_history", "sessions_send", "discord"],
           deny: ["exec", "write", "edit", "apply_patch", "browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
       },
     ],
@@ -125,10 +150,9 @@
 
   tools: {
     allow: ["exec", "process", "read", "write", "edit"],
-    // browser access controlled per-agent (orchestrator + researcher: allow; others: deny)
+    // agentToAgent: hub-and-spoke routing enforced per-agent above (C-05)
     agentToAgent: {
       enabled: true,
-      allow: ["orchestrator", "researcher", "developer", "sysadmin", "reviewer"],
     },
     elevated: { enabled: true, allowFrom: { discord: ["13362138764"] } },
     exec: { host: "gateway", security: "full", ask: "off", backgroundMs: 10000, timeoutSec: 1800 },
@@ -167,6 +191,10 @@
       dmPolicy: "pairing",
       allowFrom: ["13362138764"],
       streaming: "off",
+      execApprovals: {
+        enabled: true,
+        approvers: ["<DEVIN_DISCORD_USER_ID>"],
+      },
       guilds: {
         "1472374974340665477": {
           requireMention: true,
@@ -191,6 +219,7 @@
     port: 18789,
     mode: "local",
     bind: "lan",  // Container needs LAN binding; host-side port bound to 127.0.0.1
+    openaiApi: { enabled: true },
     controlUi: {
       enabled: true,
       basePath: "/",
@@ -199,10 +228,17 @@
     auth: { mode: "token", token: "${OPENCLAW_GATEWAY_TOKEN}" },
   },
 
+  // Native features enabled (O-01, O-06, O-08, O-09)
+  hooks: { enabled: true },
+  cron: { enabled: true },
+
   plugins: {
     entries: {
       discord: { enabled: true },
       "cli-offload": { enabled: true },
+    },
+    slots: {
+      memory: "memory-core",
     },
   },
 }
