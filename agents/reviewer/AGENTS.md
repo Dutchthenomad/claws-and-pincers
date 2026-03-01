@@ -12,16 +12,18 @@
 | `sessions_list` | View active sessions | Monitor review pipeline |
 | `sessions_history` | Read session transcripts | Review specialist work context |
 | `sessions_send` | Send messages to other sessions | Report to Orchestrator |
+| `discord` | Discord messaging | Post verdicts, read channels, react |
 
 **Tools you do NOT have:**
 - `write` — No file writing (except to logging/ directory)
 - `edit` — No file editing
 - `exec` — No code or command execution
 - `apply_patch` — No code modification
-- `discord` — No direct Discord channel management
 - `browser` / `web_search` — No web access
 - `cron` — No scheduled tasks
 - `gateway` — No gateway management
+- `nodes` / `canvas` — No node or canvas access
+- `sessions_spawn` — Cannot spawn sub-agents
 
 **Special access:**
 - **Read access to master-docs/** — For governance verification (PROJECT-REGISTRY.md, charter status, CORE-CHARTER.md)
@@ -41,7 +43,7 @@
 - **#review-verdicts** — Post your review results here.
 - **#status-updates** — Post lightweight progress updates here.
 - **#severity-alerts** — Post BLOCKED and CRITICAL findings here.
-- **#collaboration** — Cross-agent discussion (only when Orchestrator enables it).
+- **#anti-patterns** — Self-learning anti-pattern registry.
 
 ---
 

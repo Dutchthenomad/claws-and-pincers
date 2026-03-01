@@ -21,26 +21,26 @@ fi
 echo ""
 echo "=== Step 1/4: Scraping documentation ==="
 echo ""
-python3 scraper.py $TIER_FLAG
+"$SCRIPT_DIR/.venv/bin/python3" scraper.py $TIER_FLAG
 
 echo ""
 echo "=== Step 2/4: Chunking content ==="
 echo ""
-python3 chunker.py $TIER_FLAG
+"$SCRIPT_DIR/.venv/bin/python3" chunker.py $TIER_FLAG
 
 echo ""
 echo "=== Step 3/4: Embedding and storing in Qdrant ==="
 echo ""
-python3 embedder.py
+"$SCRIPT_DIR/.venv/bin/python3" embedder.py
 
 echo ""
 echo "=== Step 4/4: Running verification queries ==="
 echo ""
-python3 query.py --verify
+"$SCRIPT_DIR/.venv/bin/python3" query.py --verify
 
 echo ""
 echo "=== Pipeline complete ==="
 echo ""
 echo "Query the docs with:"
-echo "  python3 query.py \"your question here\""
-echo "  python3 query.py \"your question\" --top-k 10 --tier 1"
+echo "  .venv/bin/python3 query.py \"your question here\""
+echo "  .venv/bin/python3 query.py \"your question\" --top-k 10 --tier 1"

@@ -4,7 +4,7 @@
 
 set -e
 
-COMPOSE_FILE="/opt/openclaw/docker/docker-compose.yml"
+COMPOSE_FILE="/opt/openclaw/gateway/docker-compose.yml"
 PROJECT_NAME="openclaw"
 
 # Colors for output
@@ -33,12 +33,11 @@ cmd_start() {
     cmd_status
 }
 
-cmd_start_voice() {
-    check_compose
-    log_info "Starting OpenClaw with voice processing..."
-    docker compose -f "$COMPOSE_FILE" -p "$PROJECT_NAME" --profile voice up -d
-    log_info "Services started."
-    cmd_status
+cmd_doctor() {
+    log_info "Running OpenClaw config validation..."
+    docker exec openclaw-gateway openclaw doctor 2>&1 || log_warn "openclaw doctor not available or failed"
+    echo ""
+    cmd_health
 }
 
 cmd_stop() {
@@ -123,7 +122,6 @@ cmd_help() {
     echo ""
     echo "Commands:"
     echo "  start       Start the OpenClaw gateway"
-    echo "  start-voice Start gateway with voice processing"
     echo "  stop        Stop all OpenClaw services"
     echo "  restart     Restart OpenClaw services"
     echo "  status      Show service status"
@@ -131,6 +129,7 @@ cmd_help() {
     echo "  shell       Open shell in gateway container"
     echo "  health      Check health of all services"
     echo "  pull        Pull latest images"
+    echo "  doctor      Validate config and check health"
     echo "  help        Show this help message"
     echo ""
 }
@@ -138,7 +137,6 @@ cmd_help() {
 # Main
 case "${1:-help}" in
     start)       cmd_start ;;
-    start-voice) cmd_start_voice ;;
     stop)        cmd_stop ;;
     restart)     cmd_restart ;;
     status)      cmd_status ;;
@@ -146,6 +144,7 @@ case "${1:-help}" in
     shell)       cmd_shell ;;
     health)      cmd_health ;;
     pull)        cmd_pull ;;
+    doctor)      cmd_doctor ;;
     help|--help|-h) cmd_help ;;
     *)
         log_error "Unknown command: $1"

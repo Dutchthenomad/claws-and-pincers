@@ -42,5 +42,9 @@ credentials/
 # Temp
 *.tmp
 
+# Virtual environments
+.venv/
+scripts/openclaw-docs-scraper/.venv/
+
 # Scraper runtime data
 scripts/openclaw-docs-scraper/data/

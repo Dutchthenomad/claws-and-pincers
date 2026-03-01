@@ -1,4 +1,5 @@
 #!/bin/bash
+# DEPRECATED: This script was for the old 5-container deployment model.
 # health-check.sh - Quick health check for all 5 agents
 # Run this to verify agents are online and responsive
 

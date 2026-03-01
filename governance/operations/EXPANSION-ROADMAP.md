@@ -8,11 +8,11 @@
 ## Phase 1 — Core Crew ✅ (Current)
 
 **Agents:**
-- 🎯 Orchestrator (Opus 4.6) — Coordinator
-- 🔬 Researcher (Sonnet 4.5) — Research & analysis
-- 💻 Developer (Sonnet 4.5) — Code & automation
-- 🖥️ Sysadmin (Sonnet 4.5) — Infrastructure & deployment
-- 🔍 Reviewer/QA (Sonnet 4.5) — Quality assurance
+- 🧪 Orchestrator (claude-opus-4-6) — Coordinator — Rick Sanchez
+- 🔬 Researcher (x-ai/grok-4.1-fast) — Research & analysis — Beth Smith
+- 💻 Developer (minimax/minimax-m2.5) — Code & automation — Morty Smith
+- 🖥️ Sysadmin (moonshotai/kimi-k2.5) — Infrastructure & deployment — Summer Smith
+- 🔍 Reviewer/QA (google/gemini-3-flash-preview) — Quality assurance — Jerry Smith
 
 **Infrastructure:**
 - Discord server with per-agent categories
@@ -110,3 +110,5 @@ Potential new specialists. Each addition must go through the standard project pr
 | Date | Decision | Phase | Approved By |
 |------|----------|-------|-------------|
 | 2026-02-16 | Initial Phase 1 core crew defined | 1 | Devin |
+| 2026-02-28 | Models rotated to OpenRouter frontier mix | 1 | Devin |
+| 2026-03-01 | R&M character identities assigned to all agents | 1 | Devin |

@@ -15,12 +15,14 @@
 | `sessions_list` | View active sessions | Check own session status |
 | `sessions_history` | Read session transcripts | Review own prior work |
 | `sessions_send` | Send messages to other sessions | Report to Orchestrator |
+| `discord` | Discord messaging | Post updates, read channels, react |
 
 **Tools you do NOT have:**
-- `discord` — No direct Discord channel management
 - `cron` — No scheduled tasks (request from Orchestrator if needed)
 - `gateway` — No gateway management
 - `nodes` — No node management
+- `canvas` — No canvas access
+- `sessions_spawn` — Cannot spawn sub-agents
 - `browser` / `web_search` — No web access (request research from Orchestrator→Researcher if needed)
 
 ---
@@ -29,12 +31,13 @@
 
 ### Your Private Channels
 - **#sys-workspace** — Your working space. Infrastructure work, deployment planning, monitoring.
+- **#sys-monitoring** — Service health, alerts.
 - **#sys-logs** — Your activity logs.
 
 ### Shared Channels (Read + Respond to @mentions)
 - **#task-dispatch** — Where you receive task assignments from Orchestrator.
-- **#collaboration** — Cross-agent discussion (only when Orchestrator enables it).
 - **#status-updates** — Post lightweight progress updates here.
+- **#completed** — Final approved deliverables.
 
 ---
 

@@ -1,6 +1,6 @@
 # OpenClaw Agent Team — Project Refresher
 
-**Last Updated:** 2026-02-27
+**Last Updated:** 2026-03-01
 
 ## What This Is
 
@@ -26,7 +26,7 @@ All 5 Discord agents are online and running on the VPS.
 
 ### Key Infrastructure
 
-- **OpenClaw Runtime:** 2026.2.25
+- **OpenClaw Runtime:** v2026.2.26
 - **LLM Provider:** OpenRouter (primary), Anthropic (fallback), Groq (fallback)
 - **Memory:** OpenClaw Memory API at localhost:8002 (SQLite + FTS5, MCP-integrated)
 - **Orchestration:** n8n at port 5678 (Phase 2 will expand this significantly)
@@ -104,7 +104,7 @@ Additional specialists, on-demand spawning, cross-project knowledge transfer, se
 | OpenClaw Config | `openclaw.json5` | DONE |
 | Model Routing | `config/model-routing.yaml` | DONE |
 | Cost Registry | `config/cost-registry.yaml` | DONE |
-| TODO | `TODO.md` | Updated 2026-02-26 |
+| TODO | `TODO.md` | Updated 2026-03-01 |
 | Design Docs | `docs/plans/` | Active |
 
 ---
@@ -129,7 +129,7 @@ claws-and-pincers/
 |   +-- operations/          # CORE-CHARTER, PROJECT-REGISTRY
 |   +-- templates/           # Charter, task, conflict templates
 |   +-- shared/              # Task board, locks, registry (JSON)
-+-- reference/               # 13 OpenClaw reference docs
++-- reference/               # OpenClaw platform reference docs
 +-- config/                  # Model routing, cost registry
 +-- visuals/                 # Dashboard HTML + diagrams
 +-- docs/plans/              # Design documents

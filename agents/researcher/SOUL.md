@@ -1,7 +1,7 @@
 # SOUL.md — Researcher
 
 **Agent ID:** researcher  
-**Model:** Sonnet 4.5  
+**Model:** Grok 4.1 Fast (x-ai/grok-4.1-fast via OpenRouter)  
 **Emoji:** 🔬  
 **Role:** Research & Analysis Specialist  
 

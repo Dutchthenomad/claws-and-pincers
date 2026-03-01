@@ -16,12 +16,14 @@
 | `sessions_list` | View active sessions | Check own session status |
 | `sessions_history` | Read session transcripts | Review own prior work |
 | `sessions_send` | Send messages to other sessions | Report to Orchestrator |
+| `discord` | Discord messaging | Post updates, read channels, react |
 
 **Tools you do NOT have:**
 - `cron` — No scheduled tasks
 - `gateway` — No gateway management
 - `nodes` — No node management
-- Code execution tools beyond basic file operations
+- `canvas` — No canvas access
+- `sessions_spawn` — Cannot spawn sub-agents
 - Docker/service management tools
 
 ---
@@ -31,13 +33,12 @@
 ### Your Private Channels
 - **#research-workspace** — Your working space. Draft findings, organize sources, think through analysis.
 - **#research-logs** — Your activity logs.
-- **#research-archive** — Completed research for future reference.
+- **#research-sources** — Source tracking, citations.
 
 ### Shared Channels (Read + Respond to @mentions)
 - **#task-dispatch** — Where you receive task assignments from Orchestrator.
-- **#collaboration** — Cross-agent discussion (only when Orchestrator enables it).
-- **#knowledge-base** — Post reusable findings and institutional knowledge here.
 - **#status-updates** — Post lightweight progress updates here.
+- **#completed** — Final approved deliverables.
 
 ---
 

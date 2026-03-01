@@ -63,7 +63,9 @@
 - **#direct-command** — Devin sends directives here. Monitor and act on these immediately.
 
 ### System Channels
-- **#system-logs** — Automated diagnostics and health data.
+- **#error-log** — System errors and diagnostics.
+- **#anti-patterns** — Self-learning mistake memory (AP-001+).
+- **#project-registry** — Project tracking updates.
 - **#cost-tracking** — Token usage and API cost monitoring.
 
 ---

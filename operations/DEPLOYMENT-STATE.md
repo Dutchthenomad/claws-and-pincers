@@ -1,6 +1,6 @@
 # Deployment State — srv1216617
 
-**Last updated:** 2026-02-28
+**Last updated:** 2026-03-01
 **Server:** srv1216617 (Hostinger VPS)
 **OS:** Ubuntu, Linux 6.8.0-101-generic
 **Resources:** 15GB RAM, 193GB disk (52% used)
@@ -61,7 +61,7 @@ All ports bound to 127.0.0.1 (localhost only). External access via Tailscale VPN
 | Gateway config (repo) | `/root/claws-and-pincers/openclaw.json5` |
 | Agent workspaces | `/opt/openclaw/config/workspace-{agent}/` |
 | Agent state dirs | `/opt/openclaw/config/agents/{agent}/agent/` |
-| Governance files (shared mount) | `/opt/openclaw/discord-agents/shared-governance/` (host) mounted read-only at `/opt/governance/` (container) |
+| Governance files (shared mount) | `/opt/openclaw/discord-agents/shared-governance/` (host) → `/opt/governance/` (container, read-only) |
 | Model routing | `/root/claws-and-pincers/config/model-routing.yaml` |
 
 ---

@@ -1,3 +1,4 @@
+# DEPRECATED: This Makefile was for the old 5-container deployment model.
 .PHONY: start stop restart status logs health clean setup
 
 # Default action

@@ -1,7 +1,7 @@
 # Session Continuity Document — Claws & Pincers
 
 > **Purpose**: Single source of truth for fresh Claude Code sessions. Read this to understand the complete project state and pick up where the last session left off.
-> **Last Updated**: 2026-02-27
+> **Last Updated**: 2026-03-01
 > **Updated By**: Claude Opus 4.6 + Devin
 > **Repo**: https://github.com/Dutchthenomad/claws-and-pincers
 > **Local Path**: `/root/claws-and-pincers`
@@ -141,27 +141,29 @@ n8n becomes the universal control plane. Currently has 2 workflows (RAG Health C
 
 ## Infrastructure Reference
 
-### Docker Service Map (23 Containers)
+### Docker Service Map (19 Containers)
 
 | Service | Port | Compose File |
 |---------|------|-------------|
-| openclaw-orchestrator | 127.0.0.1:8081 | `/opt/openclaw/discord-agents/docker-compose.agents.yml` |
-| openclaw-researcher | 127.0.0.1:8082 | same |
-| openclaw-developer | 127.0.0.1:8083 | same |
-| openclaw-sysadmin | 127.0.0.1:8084 | same |
-| openclaw-reviewer | 127.0.0.1:8085 | same |
+| openclaw-gateway | 127.0.0.1:18789 | `/opt/openclaw/gateway/docker-compose.yml` |
 | rag-api | 127.0.0.1:8000 | `/root/rag-stack/docker-compose.yml` |
 | rugs-mcp | 127.0.0.1:8001 | same |
-| n8n | 127.0.0.1:5678 | `/docker/n8n/docker-compose.yml` |
 | openclaw-memory | 127.0.0.1:8002 | `/root/openclaw-memory/docker-compose.yml` |
+| n8n | 127.0.0.1:5678 | `/docker/n8n/docker-compose.yml` |
+| n8n-postgres | — | same |
 | qdrant | 127.0.0.1:6333 | `/root/rag-stack/docker-compose.yml` |
-| timescaledb | 127.0.0.1:5433 | `/root/rag-stack/docker-compose.yml` |
-| rabbitmq | 127.0.0.1:5672 | varies |
+| timescaledb | 127.0.0.1:5433 | same |
+| rabbitmq | 127.0.0.1:5672, 15672 | varies |
 | grafana | 127.0.0.1:3000 | `/docker/grafana/docker-compose.yml` |
+| open-webui (+ ollama) | 127.0.0.1:3000 | varies |
 | uptime-kuma | 127.0.0.1:3001 | `/docker/uptime-kuma/docker-compose.yml` |
 | metabase | 127.0.0.1:3002 | `/docker/metabase/docker-compose.yml` |
 | dozzle | 127.0.0.1:8080 | `/docker/dozzle/docker-compose.yml` |
-| ollama | 127.0.0.1:11434 | varies |
+| apprise-api | 127.0.0.1:8003 | varies |
+| rugs-feed | 127.0.0.1:9016 | `/opt/vectra-pipeline/docker-compose.vps.yml` |
+| rugs-sanitizer | 127.0.0.1:9017 | same |
+
+**Note:** Single `openclaw-gateway` container serves all 5 Discord agents via routing bindings (replaced 5 separate containers on ports 8081-8085 as of v2026.2.26).
 
 ### Secrets Map
 
@@ -169,7 +171,7 @@ n8n becomes the universal control plane. Currently has 2 workflows (RAG Health C
 |------|-------|-------|
 | Discord bot tokens (5) | `/opt/openclaw/secrets/discord-bots.env` | ORCHESTRATOR, RESEARCHER, DEVELOPER, SYSADMIN, REVIEWER |
 | OpenRouter API key | `/opt/openclaw/secrets/openrouter-api.env` | Also configured in n8n UI |
-| Deployed agent env | `/opt/openclaw/discord-agents/.env` | Combined tokens + config for docker-compose |
+| Gateway .env | `/opt/openclaw/config/.env` | Gateway env config |
 | n8n encryption + postgres | `/docker/n8n/.env` | |
 | OpenClaw Memory API key | `/root/openclaw-memory/.env` | Also in docker-compose.yml env |
 

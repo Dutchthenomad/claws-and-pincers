@@ -1,4 +1,5 @@
 #!/bin/bash
+# DEPRECATED: This script was for the old 5-container deployment model.
 # deploy-agents.sh - Deploy all 5 Discord agents with best practices
 # Usage: ./deploy-agents.sh [start|stop|restart|status|logs]
 

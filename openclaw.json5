@@ -69,7 +69,7 @@
         },
       },
       {
-        id: "discord-researcher",
+        id: "researcher",
         workspace: "~/.openclaw/workspace-researcher",
         agentDir: "~/.openclaw/agents/researcher/agent",
         model: { primary: "openrouter/x-ai/grok-4.1-fast", fallbacks: ["openrouter/moonshotai/kimi-k2.5"] },
@@ -128,7 +128,7 @@
     deny: ["browser"],
     agentToAgent: {
       enabled: true,
-      allow: ["orchestrator", "discord-researcher", "developer", "sysadmin", "reviewer"],
+      allow: ["orchestrator", "researcher", "developer", "sysadmin", "reviewer"],
     },
     elevated: { enabled: true, allowFrom: { discord: ["13362138764"] } },
     exec: { host: "gateway", security: "full", ask: "off", backgroundMs: 10000, timeoutSec: 1800 },
@@ -137,7 +137,7 @@
   // Per-account bindings: each Discord bot account routes to its agent
   bindings: [
     { agentId: "orchestrator", match: { channel: "discord", accountId: "orchestrator" } },
-    { agentId: "discord-researcher", match: { channel: "discord", accountId: "researcher" } },
+    { agentId: "researcher", match: { channel: "discord", accountId: "researcher" } },
     { agentId: "developer", match: { channel: "discord", accountId: "developer" } },
     { agentId: "sysadmin", match: { channel: "discord", accountId: "sysadmin" } },
     { agentId: "reviewer", match: { channel: "discord", accountId: "reviewer" } },

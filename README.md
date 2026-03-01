@@ -82,7 +82,7 @@ claws-and-pincers/
 |   +-- operations/          # CORE-CHARTER, project registry, roadmap
 |   +-- templates/           # Charter, task, conflict, severity templates
 |   +-- shared/              # Task board, locks, conflict registry (JSON)
-+-- reference/               # OpenClaw platform reference docs (13 files)
++-- reference/               # OpenClaw platform reference docs
 +-- agents/                  # Per-agent directories
 |   +-- orchestrator/        # SOUL.md, AGENTS.md, HEARTBEAT.md
 |   +-- researcher/
@@ -91,7 +91,7 @@ claws-and-pincers/
 |   +-- reviewer/
 +-- visuals/                 # Dashboard HTML + Mermaid diagrams
 +-- config/                  # Model routing, permissions, cost registry
-+-- docker/                  # Docker compose + security profiles
++-- deployment/              # Deployment scripts and configs
 +-- scripts/                 # Operational scripts
 +-- docs/
 |   +-- plans/               # Design documents and decisions
@@ -130,7 +130,7 @@ claws-and-pincers/
 | **Resources** | 4 vCPU, 16GB RAM, 200GB NVMe |
 | **VPN** | Tailscale (100.113.138.27) |
 | **LLM Provider** | OpenRouter (primary), Anthropic (fallback), Groq (fallback) |
-| **OpenClaw Runtime** | 2026.2.25 |
+| **OpenClaw Runtime** | v2026.2.26 |
 | **Docker Services** | qdrant, timescaledb, rag-api, rugs-mcp, n8n, rabbitmq, openclaw-memory |
 
 ### MCP Tools (Prefer over SSH)

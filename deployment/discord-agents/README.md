@@ -1,4 +1,6 @@
-# OpenClaw Discord Multi-Agent Swarm
+# DEPRECATED — OpenClaw Discord Multi-Agent Swarm
+
+> **DEPRECATED (2026-03-01):** This multi-container deployment approach has been replaced by a single `openclaw-gateway` container on port 18789. See `/opt/openclaw/gateway/docker-compose.yml` for the current architecture. This directory is preserved for reference only.
 
 Production-ready deployment of 5 specialized AI agents for Discord, following best practices for containerization, security, and monitoring.
 

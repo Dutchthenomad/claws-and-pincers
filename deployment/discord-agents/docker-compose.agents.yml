@@ -1,199 +1,64 @@
-# Discord Multi-Agent Swarm - Docker Compose
-# Best Practices: Isolation, Health Checks, Resource Limits, Secret Management
-
-version: '3.8'
-
-x-agent-common: &agent-common
-  image: ghcr.io/hostinger/hvps-openclaw:latest
-  restart: unless-stopped
-  networks:
-    - openclaw-agents
-  env_file:
-    - .env
-  volumes:
-    - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-    - /opt/openclaw/config:/opt/openclaw/config:ro
-    - agent-data:/data
-  logging:
-    driver: "json-file"
-    options:
-      max-size: "10m"
-      max-file: "3"
-  healthcheck:
-    test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-    interval: 30s
-    timeout: 10s
-    retries: 3
-    start_period: 40s
-  deploy:
-    resources:
-      limits:
-        cpus: '1.0'
-        memory: 1G
-      reservations:
-        cpus: '0.25'
-        memory: 256M
+# OpenClaw Single Gateway — 5 Discord Agents via Routing Bindings
+# Replaced 5-container architecture (OOM crash-looping) with single gateway
+# Updated: 2026-02-28
+#
+# Architecture: One openclaw-gateway container serves all 5 Discord bot accounts.
+# Agent routing is handled via bindings[] in openclaw.json, not separate containers.
+#
+# Volumes:
+#   - /opt/openclaw/config → OpenClaw config, agent workspaces, agent state dirs
+#   - /opt/openclaw/discord-agents/shared-governance → Governance docs (read-only)
+#
+# Secrets: /opt/openclaw/config/.env (Discord tokens, OpenRouter key, gateway token)
 
 services:
-  # ═══════════════════════════════════════════════════════════════════
-  # ORCHESTRATOR - Main coordinator, full capabilities
-  # ═══════════════════════════════════════════════════════════════════
-  openclaw-orchestrator:
-    <<: *agent-common
-    container_name: openclaw-orchestrator
-    environment:
-      - AGENT_ID=orchestrator
-      - DISCORD_TOKEN=${DISCORD_ORCHESTRATOR_TOKEN}
-      - DEFAULT_MODEL=anthropic/claude-opus-4-6
-      - SANDBOX_MODE=off
-      - TOOLS_PROFILE=full
+  openclaw-gateway:
+    image: openclaw:local
+    container_name: openclaw-gateway
+    init: true
+    restart: unless-stopped
     ports:
-      - "8081:8080"
+      - "127.0.0.1:18789:18789"
+    env_file:
+      - /opt/openclaw/config/.env
+    environment:
+      - HOME=/home/node
+      - TERM=xterm-256color
+      - NODE_OPTIONS=--max-old-space-size=1536
+      - TZ=America/New_York
     volumes:
-      - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-      - /opt/openclaw/config:/opt/openclaw/config:ro
-      - orchestrator-data:/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/openclaw/config:/home/node/.openclaw
+      - /opt/openclaw/discord-agents/shared-governance:/opt/governance:ro
+    command:
+      [
+        "node",
+        "dist/index.js",
+        "gateway",
+        "--bind",
+        "lan",
+        "--port",
+        "18789",
+      ]
+    networks:
+      - n8n_default
     deploy:
       resources:
         limits:
-          cpus: '2.0'
           memory: 2G
-
-  # ═══════════════════════════════════════════════════════════════════
-  # RESEARCHER - Web search, browser, read-only exec
-  # ═══════════════════════════════════════════════════════════════════
-  openclaw-researcher:
-    <<: *agent-common
-    container_name: openclaw-researcher
-    environment:
-      - AGENT_ID=researcher
-      - DISCORD_TOKEN=${DISCORD_RESEARCHER_TOKEN}
-      - DEFAULT_MODEL=anthropic/claude-sonnet-4-5
-      - SANDBOX_MODE=all
-      - TOOLS_ALLOW=exec,read,write,sessions_list,sessions_history,sessions_send,web_search,browser,discord
-      - TOOLS_DENY=cron,gateway,nodes,canvas,sessions_spawn
-    ports:
-      - "8082:8080"
-    volumes:
-      - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-      - /opt/openclaw/config:/opt/openclaw/config:ro
-      - researcher-data:/data
-
-  # ═══════════════════════════════════════════════════════════════════
-  # DEVELOPER - Code editing, patching, file operations
-  # ═══════════════════════════════════════════════════════════════════
-  openclaw-developer:
-    <<: *agent-common
-    container_name: openclaw-developer
-    environment:
-      - AGENT_ID=developer
-      - DISCORD_TOKEN=${DISCORD_DEVELOPER_TOKEN}
-      - DEFAULT_MODEL=anthropic/claude-sonnet-4-5
-      - SANDBOX_MODE=all
-      - TOOLS_ALLOW=exec,read,write,edit,apply_patch,sessions_list,sessions_history,sessions_send,discord
-      - TOOLS_DENY=browser,web_search,cron,gateway,nodes,canvas,sessions_spawn
-    ports:
-      - "8083:8080"
-    volumes:
-      - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-      - /opt/openclaw/config:/opt/openclaw/config:ro
-      - developer-data:/data
-      - /home/agent-main:/workspace:rw
-
-  # ═══════════════════════════════════════════════════════════════════
-  # SYSADMIN - System monitoring, infrastructure
-  # ═══════════════════════════════════════════════════════════════════
-  openclaw-sysadmin:
-    <<: *agent-common
-    container_name: openclaw-sysadmin
-    environment:
-      - AGENT_ID=sysadmin
-      - DISCORD_TOKEN=${DISCORD_SYSADMIN_TOKEN}
-      - DEFAULT_MODEL=anthropic/claude-sonnet-4-5
-      - SANDBOX_MODE=all
-      - TOOLS_ALLOW=exec,read,write,edit,sessions_list,sessions_history,sessions_send,discord
-      - TOOLS_DENY=browser,web_search,cron,gateway,nodes,canvas,sessions_spawn
-    ports:
-      - "8084:8080"
-    volumes:
-      - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-      - /opt/openclaw/config:/opt/openclaw/config:ro
-      - sysadmin-data:/data
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-
-  # ═══════════════════════════════════════════════════════════════════
-  # REVIEWER - Read-only, audit, code review
-  # ═══════════════════════════════════════════════════════════════════
-  openclaw-reviewer:
-    <<: *agent-common
-    container_name: openclaw-reviewer
-    environment:
-      - AGENT_ID=reviewer
-      - DISCORD_TOKEN=${DISCORD_REVIEWER_TOKEN}
-      - DEFAULT_MODEL=anthropic/claude-sonnet-4-5
-      - SANDBOX_MODE=all
-      - TOOLS_ALLOW=read,sessions_list,sessions_history,sessions_send,discord
-      - TOOLS_DENY=exec,write,edit,apply_patch,browser,web_search,cron,gateway,nodes,canvas,sessions_spawn
-    ports:
-      - "8085:8080"
-    volumes:
-      - /opt/openclaw/secrets:/opt/openclaw/secrets:ro
-      - /opt/openclaw/config:/opt/openclaw/config:ro
-      - reviewer-data:/data
-      - /home/agent-main:/workspace:ro
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
+        reservations:
           memory: 512M
-
-  # ═══════════════════════════════════════════════════════════════════
-  # REDIS - Shared state/cache between agents
-  # ═══════════════════════════════════════════════════════════════════
-  redis:
-    image: redis:7-alpine
-    container_name: openclaw-redis
-    restart: unless-stopped
-    networks:
-      - openclaw-agents
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-
-  # ═══════════════════════════════════════════════════════════════════
-  # WATCHTOWER - Auto-update containers
-  # ═══════════════════════════════════════════════════════════════════
-  watchtower:
-    image: containrrr/watchtower:latest
-    container_name: openclaw-watchtower
-    restart: unless-stopped
-    networks:
-      - openclaw-agents
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    environment:
-      - WATCHTOWER_CLEANUP=true
-      - WATCHTOWER_POLL_INTERVAL=3600
-      - WATCHTOWER_INCLUDE_STOPPED=true
-      - WATCHTOWER_REVIVE_STOPPED=false
-    command: --interval 3600 openclaw-orchestrator openclaw-researcher openclaw-developer openclaw-sysadmin openclaw-reviewer
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:18789/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
-  openclaw-agents:
-    driver: bridge
-
-volumes:
-  orchestrator-data:
-  researcher-data:
-  developer-data:
-  sysadmin-data:
-  reviewer-data:
-  redis-data:
+  n8n_default:
+    external: true
