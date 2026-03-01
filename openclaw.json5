@@ -125,7 +125,8 @@
 
   tools: {
     allow: ["exec", "process", "read", "write", "edit"],
-    deny: ["browser"],
+    // browser tool enabled globally — Orchestrator and Researcher have it in their allow lists;
+    // Developer/Sysadmin/Reviewer explicitly deny it in their per-agent config.
     agentToAgent: {
       enabled: true,
       allow: ["orchestrator", "discord-researcher", "developer", "sysadmin", "reviewer"],

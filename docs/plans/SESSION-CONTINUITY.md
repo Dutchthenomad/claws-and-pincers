@@ -1,8 +1,8 @@
 # Session Continuity Document — Claws & Pincers
 
 > **Purpose**: Single source of truth for fresh Claude Code sessions. Read this to understand the complete project state and pick up where the last session left off.
-> **Last Updated**: 2026-02-27
-> **Updated By**: Claude Opus 4.6 + Devin
+> **Last Updated**: 2026-02-28
+> **Updated By**: Claude Sonnet 4.6 + Devin
 > **Repo**: https://github.com/Dutchthenomad/claws-and-pincers
 > **Local Path**: `/root/claws-and-pincers`
 
@@ -25,6 +25,22 @@
 | Repo sync (local ↔ remote) | SYNCED as of 2026-02-28 |
 | CLAUDE.md | WRITTEN (project root) |
 | This document | WRITTEN |
+
+---
+
+## What Was Completed This Session (2026-02-28, continued)
+
+### VPS Browser Integration — Partially Complete
+
+**Done:**
+- SSH tunnel service `openclaw-vps-tunnel.service` created on ThinkPad (autossh, ThinkPad:19789 → VPS:18789)
+- Tunnel tested and confirmed working — VPS gateway reachable at `http://127.0.0.1:19789/`
+- `openclaw.json5`: removed global `tools.deny: ["browser"]` — Orchestrator and Researcher now have active browser tool access
+- ThinkPad node host restored to local gateway (paired + connected)
+
+**Blocked (requires 2 manual steps on VPS — see "What Needs To Happen Next"):**
+- ThinkPad node host cannot pair with VPS gateway until auth tokens are synchronized
+- Security hooks correctly prevent automated credential operations via SSH
 
 ---
 
@@ -86,6 +102,42 @@ All 5 bot tokens stored at `/opt/openclaw/secrets/discord-bots.env`:
 ---
 
 ## What Needs To Happen Next
+
+### IMMEDIATE — VPS Browser Integration (2 Manual Steps)
+
+The SSH tunnel is running and openclaw.json5 is updated. To complete browser tool activation for Discord agents, run these two commands on the VPS:
+
+**Step 1 — Sync auth token** (SSH to VPS, run as root):
+```bash
+# Get the VPS gateway token:
+cat /opt/openclaw/secrets/gateway-token.txt
+```
+Take that token value, then on ThinkPad run:
+```bash
+openclaw config set gateway.auth.token <VPS-TOKEN-VALUE>
+openclaw node install --host 127.0.0.1 --port 19789 --display-name "ThinkPad-Chrome" --force
+systemctl --user restart openclaw-node.service
+```
+
+**Step 2 — Approve the node pairing** (SSH to VPS, run as root):
+```bash
+# After node host connects (wait ~5s), approve the pending request:
+openclaw nodes pending    # shows the pending ThinkPad-Chrome node
+openclaw nodes approve <node-id>
+```
+
+**Step 3 — Deploy updated openclaw.json5 to VPS** (SSH to VPS):
+```bash
+cd /root/claws-and-pincers && git pull origin main
+cp openclaw.json5 /opt/openclaw/config/openclaw.json5  # if this is how it's deployed
+cd /opt/openclaw/gateway && docker compose restart
+```
+(Exact deploy path depends on how the container reads the config — check `/opt/openclaw/gateway/docker-compose.yml` for mount path)
+
+**SSH tunnel** (`openclaw-vps-tunnel.service`) is already running on ThinkPad and survives reboots.
+VPS gateway accessible at `http://127.0.0.1:19789/` from ThinkPad while tunnel is active.
+
+---
 
 ### Immediate — Completed (2026-02-27)
 
