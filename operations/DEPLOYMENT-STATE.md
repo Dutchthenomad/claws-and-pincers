@@ -123,7 +123,7 @@ Permissions follow CORE-CHARTER Section 8 access control matrix. Script is idemp
 
 ---
 
-## n8n Workflows (5 Active)
+## n8n Workflows (5 Active — External Integrations)
 
 | Workflow | Purpose | Schedule |
 |----------|---------|----------|
@@ -133,7 +133,7 @@ Permissions follow CORE-CHARTER Section 8 access control matrix. Script is idemp
 | Law 2 — Charter Approval Gate | Validates charter approval status | Every 30s |
 | Severity Routing — Review Verdicts | Routes severity alerts per CORE-CHARTER | Every 30s |
 
-Governance workflows read from `/governance/` mount (shared-governance dir). Discord token stored at `/governance/.discord-token`.
+n8n scope is limited to external integrations (Discord polling, webhook-driven pipelines). Core agent coordination, session management, and cost tracking use native OpenClaw features. Governance workflows read from `/governance/` mount (shared-governance dir). Discord token stored at `/governance/.discord-token`.
 
 ---
 

@@ -1,7 +1,8 @@
 # Quick Start Guide - Testing Your Discord Agents
 
-**Status:** Agents deployed and connected to Discord ✅  
-**Next:** Invite bots to your server and test
+**Status:** Agents deployed and connected to Discord
+**Architecture:** Single `openclaw-gateway` container (v2026.2.26) on port 18789 serving all 5 agents
+**Native features:** OpenClaw sessions, heartbeats, `/usage` cost tracking, cron jobs are available natively. n8n handles external integrations (Discord polling, webhooks) only.
 
 ---
 
@@ -145,21 +146,22 @@ Please coordinate with all agents to test their capabilities.
 
 ### Bot shows as offline:
 ```bash
-# Check if container is running
-docker ps | grep openclaw-orchestrator
+# Check if the single gateway container is running
+docker ps | grep openclaw-gateway
 
 # Check logs
-docker logs openclaw-orchestrator
+docker logs openclaw-gateway --tail 50
 
 # Restart if needed
-cd /opt/openclaw/discord-agents && docker compose restart
+cd /opt/openclaw/gateway && docker compose restart
 ```
 
 ### Bot doesn't respond:
-- ✅ Verify bot is online (green dot in Discord)
-- ✅ Check bot has permission to read/send in channel
-- ✅ Try @ mentioning with exact username
-- ✅ Check logs: `docker logs openclaw-orchestrator`
+- Verify bot is online (green dot in Discord)
+- Check bot has permission to read/send in channel
+- Try @ mentioning with exact username
+- Check gateway logs: `docker logs openclaw-gateway --tail 50`
+- Check gateway health: `openclaw health`
 
 ### Can't invite bot:
 - ✅ You need "Manage Server" permission
@@ -172,17 +174,17 @@ cd /opt/openclaw/discord-agents && docker compose restart
 
 ### Run Health Check:
 ```bash
-cd /opt/openclaw/discord-agents
-./health-check.sh
+openclaw health
+openclaw gateway status
 ```
 
 ### Watch Logs:
 ```bash
-# All agents
-docker compose logs -f
+# Gateway logs (all agents)
+docker logs -f openclaw-gateway
 
-# Specific agent
-docker logs -f openclaw-orchestrator
+# Native usage/cost tracking
+openclaw usage
 ```
 
 ### Resource Usage:
@@ -195,8 +197,8 @@ docker stats
 ## 🎯 Next Steps After Testing
 
 1. **Document what works** - Update TODO.md
-2. **Build n8n workflows** - Add enforcement layer
-3. **Run real project** - Use actual task
+2. **Enable native features** - Configure heartbeats, session tools, `/usage` cron jobs
+3. **Run real project** - Use actual task with PROJ-XXX governance
 4. **Expand team** - Add more specialists if needed
 
 ---

@@ -90,6 +90,57 @@ Skills install to `./skills` under current working directory (or workspace if co
 - Auto-updater skills (common malware vector)
 - Skills that require broad system access without clear justification
 
+## Workspace-Level Skills for Governance SOPs
+
+Workspace-level skills (installed to `<workspace>/skills/`) are the recommended way to encode governance standard operating procedures. Each agent's workspace can include skills that define its operational rules.
+
+### Governance SOP Skills
+
+```
+agents/orchestrator/skills/
+├── governance-enforcement/
+│   └── SKILL.md       # Law enforcement procedures, escalation rules
+├── cost-tracking/
+│   └── SKILL.md       # Budget thresholds, cost report format
+└── delegation-protocol/
+    └── SKILL.md       # Task format, quality criteria, iteration limits
+
+agents/reviewer/skills/
+├── law-audit/
+│   └── SKILL.md       # Law 1-4 audit checklists, violation reporting
+└── review-protocol/
+    └── SKILL.md       # Code review format, verdict categories
+
+agents/sysadmin/skills/
+└── infra-runbook/
+    └── SKILL.md       # Health check procedures, emergency protocols
+```
+
+### Example: Governance Enforcement Skill
+```markdown
+---
+name: governance-enforcement
+description: Enforces the 4 Absolute Laws across all agent operations
+version: 1.0.0
+tags: [governance, laws, enforcement]
+---
+
+# Governance Enforcement
+
+## Before Any Task
+1. Verify PROJ-XXX identifier exists (Law 1)
+2. Verify charter is approved (Law 2)
+3. Check for scope/resource conflicts (Law 3)
+4. Confirm quality gates are defined (Law 4)
+
+## On Violation
+- Post violation to #human-oversight with severity level
+- Block the task until resolved
+- Log violation in governance audit trail
+```
+
+Workspace-level skills take precedence over shared skills (`~/.openclaw/skills/`), so agent-specific governance rules override any global defaults.
+
 ## Writing Custom Skills
 
 A skill is just a `SKILL.md` file with YAML frontmatter:

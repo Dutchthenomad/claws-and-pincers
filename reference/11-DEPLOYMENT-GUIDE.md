@@ -5,8 +5,8 @@
 - **Node.js 22+** (required)
 - **Docker** (recommended for agent sandboxing)
 - **Git** (for version control of workspaces)
-- **API Keys:** Anthropic (primary), optionally OpenAI, Google
-- **Discord Bot:** Created via Developer Portal with proper intents
+- **API Keys:** OpenRouter (primary), optionally direct Anthropic, Groq
+- **Discord Bots:** One bot per agent, created via Developer Portal with proper intents
 
 ## Installation
 
@@ -22,8 +22,8 @@ openclaw onboard
 docker pull openclaw/openclaw:latest
 docker run -it \
   -v ~/.openclaw:/root/.openclaw \
-  -e DISCORD_BOT_TOKEN="your_token" \
-  -e ANTHROPIC_API_KEY="sk-ant-..." \
+  -e OPENROUTER_API_KEY="sk-or-v1-..." \
+  -e DISCORD_ORCHESTRATOR_TOKEN="..." \
   openclaw/openclaw
 ```
 
@@ -62,22 +62,32 @@ openclaw --version
 
 ### 3. Configure Environment
 ```bash
-cat > ~/.openclaw/.env << 'EOF'
-DISCORD_BOT_TOKEN=your_discord_bot_token_here
-ANTHROPIC_API_KEY=sk-ant-api03-your_key_here
+# Create secrets directory
+mkdir -p /opt/openclaw/secrets /opt/openclaw/config
+chmod 700 /opt/openclaw/secrets
+
+# Store secrets (chmod 600 each)
+cat > /opt/openclaw/config/.env << 'EOF'
+OPENROUTER_API_KEY=sk-or-v1-your_key_here
+DISCORD_ORCHESTRATOR_TOKEN=your_orchestrator_token
+DISCORD_RESEARCHER_TOKEN=your_researcher_token
+DISCORD_DEVELOPER_TOKEN=your_developer_token
+DISCORD_SYSADMIN_TOKEN=your_sysadmin_token
+DISCORD_REVIEWER_TOKEN=your_reviewer_token
+OPENCLAW_GATEWAY_TOKEN=your_gateway_auth_token
 EOF
 
-chmod 600 ~/.openclaw/.env
+chmod 600 /opt/openclaw/config/.env
 ```
 
 ### 4. Create Workspace Structure
 ```bash
 # Create agent workspaces
-mkdir -p ~/.openclaw/workspace-{orchestrator,researcher,coder,reviewer}
+mkdir -p ~/.openclaw/workspace-{orchestrator,researcher,developer,sysadmin,reviewer}
 
 # Copy identity files to each workspace
 # (Use the templates from 05-IDENTITY-AND-PERSONAS.md)
-for agent in orchestrator researcher coder reviewer; do
+for agent in orchestrator researcher developer sysadmin reviewer; do
   touch ~/.openclaw/workspace-$agent/SOUL.md
   touch ~/.openclaw/workspace-$agent/AGENTS.md
   touch ~/.openclaw/workspace-$agent/HEARTBEAT.md
@@ -86,8 +96,7 @@ for agent in orchestrator researcher coder reviewer; do
 done
 
 # Create agent state directories
-mkdir -p ~/.openclaw/agents/{orchestrator,researcher,coder,reviewer}/agent
-mkdir -p ~/.openclaw/agents/{orchestrator,researcher,coder,reviewer}/sessions
+mkdir -p ~/.openclaw/agents/{orchestrator,researcher,developer,sysadmin,reviewer}/agent
 ```
 
 ### 5. Apply Configuration
@@ -99,7 +108,36 @@ cp openclaw.json5 ~/.openclaw/openclaw.json5
 openclaw doctor
 ```
 
-### 6. Install as Systemd Service
+### 6. Config Hardening
+
+Before going live, verify these security and compliance settings:
+
+```bash
+# Verify hub-and-spoke enforcement
+# Check that only orchestrator has sessions_spawn in allow list
+grep -A5 "sessions_spawn" ~/.openclaw/openclaw.json5
+
+# Verify agentToAgent restrictions
+# Specialists should have: allow: ["orchestrator"]
+# Orchestrator should have: allow: ["*"]
+grep -B2 -A2 "agentToAgent" ~/.openclaw/openclaw.json5
+
+# Verify sandbox modes
+# Developer should be "lenient", not "off"
+grep -B1 "sandbox" ~/.openclaw/openclaw.json5
+
+# Verify gateway is not exposed to public internet
+# Port 18789 should be bound to 127.0.0.1 on the host
+ss -tlnp | grep 18789
+
+# Verify gateway auth is enabled
+grep -A2 "auth:" ~/.openclaw/openclaw.json5
+
+# Verify Discord requireMention is set
+grep "requireMention" ~/.openclaw/openclaw.json5
+```
+
+### 7. Install as Systemd Service
 ```bash
 # Using OpenClaw's built-in daemon installer
 openclaw gateway --install-daemon
@@ -116,7 +154,7 @@ Type=simple
 User=openclaw
 Group=openclaw
 WorkingDirectory=/home/openclaw
-EnvironmentFile=/home/openclaw/.openclaw/.env
+EnvironmentFile=/opt/openclaw/config/.env
 ExecStart=/usr/bin/openclaw gateway
 Restart=always
 RestartSec=10
@@ -126,7 +164,7 @@ StandardError=journal
 # Security hardening
 NoNewPrivileges=true
 ProtectSystem=strict
-ReadWritePaths=/home/openclaw/.openclaw
+ReadWritePaths=/home/openclaw/.openclaw /opt/openclaw
 
 [Install]
 WantedBy=multi-user.target
@@ -137,7 +175,51 @@ sudo systemctl enable openclaw
 sudo systemctl start openclaw
 ```
 
-### 7. Verify
+### 8. Enable Native Features
+
+After the gateway is running, enable these native features:
+
+```bash
+# Enable cron jobs for governance automation
+openclaw cron add --name "law1-audit" --schedule "*/5 * * * *" \
+  --agent orchestrator --prompt "Check #task-dispatch for messages without PROJ-XXX tags"
+
+openclaw cron add --name "law2-audit" --schedule "*/15 * * * *" \
+  --agent orchestrator --prompt "Check for projects with unapproved charters"
+
+openclaw cron add --name "cost-daily" --schedule "0 0 * * *" \
+  --agent orchestrator --prompt "Run /usage and post daily cost summary to #cost-tracking"
+
+# Verify cron jobs
+openclaw cron list
+
+# Verify hooks/webhooks are active
+openclaw hooks list
+
+# Test heartbeat
+openclaw heartbeat trigger --agent orchestrator
+```
+
+### 9. Set Up Webhooks
+
+Configure n8n to receive OpenClaw webhook events:
+
+```bash
+# In n8n, create a Webhook node at:
+#   http://127.0.0.1:5678/webhook/openclaw-governance
+#
+# The webhook receives events configured in openclaw.json5:
+#   - cron.complete: Governance audit results
+#   - session.error: Agent session failures
+#   - heartbeat.alert: Heartbeat check failures
+#
+# n8n workflow should:
+#   1. Parse the event type
+#   2. Route to appropriate handler
+#   3. Send notifications via Apprise if critical
+```
+
+### 10. Verify
 ```bash
 # Check service status
 sudo systemctl status openclaw
@@ -147,6 +229,12 @@ openclaw status
 
 # Check Discord connection
 openclaw channels status --probe
+
+# Verify all agents are registered
+openclaw agents list
+
+# Verify sessions are working
+openclaw sessions list
 
 # View logs
 journalctl -u openclaw -f
@@ -227,38 +315,38 @@ git push -u origin main
 Recommended order for bringing the system online:
 
 ### Phase 1: Single Agent Baseline
-1. Deploy OpenClaw with just the orchestrator agent
+1. Deploy OpenClaw with just the Orchestrator agent
 2. Connect to Discord — verify bot responds in a test channel
 3. Test basic Discord tool actions (create channel, send message)
-4. Verify heartbeat is working
+4. Verify heartbeat is working (check HEARTBEAT.md triggers)
 5. Confirm DM communication works
 
 ### Phase 2: Add Specialist Agents
-1. Add researcher agent to config
+1. Add Researcher agent to config with `agentToAgent: { allow: ["orchestrator"] }`
 2. Create workspace with SOUL.md and AGENTS.md
-3. Test `sessions_spawn` from orchestrator → researcher
+3. Test `sessions_spawn` from Orchestrator to Researcher
 4. Verify isolated sessions and workspace separation
-5. Repeat for coder and reviewer
+5. Repeat for Developer, Sysadmin, and Reviewer
 
 ### Phase 3: Discord Server Structure
-1. Have orchestrator create the full channel/category structure agentically
-2. Update config with actual channel IDs
-3. Test per-channel routing and skill filtering
-4. Verify `requireMention` works correctly in shared channels
+1. Have Orchestrator create the full channel/category structure agentically
+2. Test per-account routing (each bot token routes to its agent)
+3. Verify `requireMention` works correctly in shared channels
+4. Set up project thread workflow in #task-dispatch
 
-### Phase 4: Agent-to-Agent Communication
-1. Enable `agentToAgent` in config
-2. Set `allowBots: true` in Discord config
-3. Test orchestrator delegating to researcher in shared Discord channel
-4. Verify loop prevention (requireMention + SOUL.md rules)
-5. Test the full recursive feedback loop (research → code → review)
+### Phase 4: Native Features
+1. Enable cron jobs for governance audits
+2. Configure webhooks to n8n for external notifications
+3. Test the full delegation loop (Orchestrator spawns Researcher, Developer, Reviewer)
+4. Verify hub-and-spoke enforcement (specialists cannot spawn or message each other)
+5. Test heartbeat model overrides (groq for cheap check-ins)
 
 ### Phase 5: Autonomous Operation
 1. Configure heartbeat checklists for each agent
-2. Set up cron jobs for scheduled tasks
-3. Monitor for 24 hours with close oversight
-4. Tune iteration limits and cost thresholds
-5. Gradually reduce oversight as confidence builds
+2. Monitor for 24 hours with close oversight
+3. Tune iteration limits and cost thresholds in SOUL.md files
+4. Gradually reduce oversight as confidence builds
+5. Set up Grafana dashboards for token usage and session metrics
 
 ## Updating
 
@@ -275,7 +363,7 @@ sudo systemctl restart openclaw
 
 OpenClaw is shipping daily. Pin to specific versions if stability matters more than features:
 ```bash
-npm install -g openclaw@2026.2.16
+npm install -g openclaw@2026.3.1
 ```
 
 ## Monitoring Checklist
@@ -285,7 +373,10 @@ After deployment, regularly check:
 - [ ] `openclaw status` — Gateway health
 - [ ] `openclaw channels status --probe` — Discord connection
 - [ ] `openclaw sessions list` — Active sessions (any stuck/errored?)
-- [ ] `openclaw agents list` — All agents configured correctly
-- [ ] Provider dashboards — API token usage and spend
+- [ ] `openclaw agents list` — All 5 agents configured correctly
+- [ ] `openclaw cron list` — Cron jobs running on schedule
+- [ ] `openclaw heartbeat status` — Heartbeats firing
+- [ ] Provider dashboards — API token usage and spend (OpenRouter, Groq)
 - [ ] Discord #system-logs — Any errors or warnings
 - [ ] `journalctl -u openclaw --since "1 hour ago"` — System logs
+- [ ] `docker stats openclaw-gateway --no-stream` — Container resource usage

@@ -6,13 +6,14 @@ OpenClaw (formerly Clawdbot, then Moltbot) is an open-source, MIT-licensed perso
 
 **Key differentiator:** OpenClaw is a *gateway and control plane*, not an AI model. It orchestrates communication between messaging channels (Discord, Slack, WhatsApp, Signal, iMessage, etc.), AI model providers (Anthropic, OpenAI, Google, local via Ollama), and local/remote tools.
 
-## Current State (Feb 2026)
+## Current State (Mar 2026)
 
 - **GitHub Stars:** 157,000+ (one of the fastest-growing OSS repos in history)
 - **ClawHub Skills:** 5,700+ community-built skills
-- **Version:** 2026.2.16 (releases are date-versioned, shipping daily)
+- **Version:** 2026.2.26 (releases are date-versioned, shipping daily)
 - **Supported Models:** Claude Opus 4.6, Claude Sonnet 4.5, GPT-5.2 Codex, GLM-5, KIMI K2.5, Gemini 3 Pro, plus any OpenAI-compatible endpoint including Ollama local models
 - **Supported Channels:** WhatsApp, Slack, Discord, Google Chat, Signal, iMessage, BlueBubbles, Microsoft Teams, Matrix, Zalo, WebChat, macOS app, iOS/Android nodes
+- **Native Features Used in This Project:** Cron scheduling, session tools (sessions_spawn/send/list/history), memory-core, heartbeats, exec approvals — all built into the Gateway, no external orchestration (n8n) needed for control plane functions
 
 ## Core Architecture
 
@@ -59,6 +60,12 @@ Routing rules that map inbound messages to specific agents based on channel type
 
 ### Heartbeat
 A periodic check-in (default every 30 minutes) where the agent reads `HEARTBEAT.md` and decides whether any action is needed. This enables proactive, unprompted behavior.
+
+### Cron
+Native scheduled task engine built into the Gateway. Uses standard crontab syntax for precise timing. Cron jobs fire messages to specific agents at exact times — used for governance audits, cost reports, and scheduled maintenance.
+
+### Memory-Core
+Built-in persistent memory system. Agents can store and retrieve observations, decisions, and context across sessions. Replaces external memory solutions for most use cases.
 
 ### Context Compaction
 When conversation history exceeds the model's context window, OpenClaw automatically compacts older messages while preserving key context. This is critical for long-running autonomous sessions.

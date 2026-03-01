@@ -47,40 +47,39 @@ All Phase 1 work is complete. Agents defined, configured, deployed, and online.
 
 ---
 
-## Phase 2 — n8n Core Systems Architecture (HIGH)
+## Phase 2 — Native OpenClaw Integration (HIGH)
 
-n8n becomes the universal control plane. Static YAML/JSON configs are state snapshots; n8n workflows are the living, enforceable, debuggable truth.
+Core agent coordination uses native OpenClaw features (sessions, heartbeats, `/usage`, cron). n8n retains a reduced scope for external integrations only (Discord polling, webhooks, RAG health).
 
-### Phase 2A — Laws Enforcement via n8n
-- [x] HIGH: Project ID validator (polls #task-dispatch, validates PROJ-XXX)
-- [x] HIGH: Charter approval gate check (validates charter in PROJECT-REGISTRY.md)
-- [x] HIGH: Severity routing automation (routes from #review-verdicts per notification matrix)
-- [ ] HIGH: Conflict registry watchdog
-- [ ] HIGH: Token cost monitor with kill switch
+### Phase 2A — Laws Enforcement (Hybrid: n8n + Native)
+- [x] HIGH: Project ID validator (n8n polls #task-dispatch, validates PROJ-XXX)
+- [x] HIGH: Charter approval gate check (n8n validates charter in PROJECT-REGISTRY.md)
+- [x] HIGH: Severity routing automation (n8n routes from #review-verdicts per notification matrix)
+- [ ] HIGH: Conflict detection via native OpenClaw session tools (replaces conflict-registry.json)
+- [ ] HIGH: Token cost monitoring via native `/usage` endpoint + cron job
 - [ ] NORMAL: Anti-pattern repeat detection
-- [ ] NORMAL: Heartbeat dead man's switch
+- [ ] NORMAL: Heartbeat dead man's switch via native heartbeat system + per-agent cron intervals
 
-### Phase 2B — Memory Orchestration via n8n
-- [ ] HIGH: Integrate existing OpenClaw Memory API (localhost:8002) into n8n workflows
-- [ ] HIGH: Design per-agent namespaced memory contexts
-- [ ] NORMAL: n8n workflow for memory lifecycle (create, prune, archive)
+### Phase 2B — Native Session & Memory Migration
+- [ ] HIGH: Migrate from file-based coordination (task-board.json, active-locks.json, conflict-registry.json) to native OpenClaw session tools
+- [ ] HIGH: Integrate OpenClaw Memory API (localhost:8002) with native session lifecycle
+- [ ] NORMAL: Per-agent namespaced memory contexts using native session scoping
 - [ ] NORMAL: Cross-agent knowledge sharing rules (what's shared vs private)
 
-### Phase 2C — Agent File Structure Management via n8n
-- [ ] HIGH: n8n workflow to manage agent workspace directories
+### Phase 2C — Agent Workspace Management
+- [ ] HIGH: Agent workspace directory management via native OpenClaw workspace mounts
 - [ ] NORMAL: Automated project folder creation on PROJ-XXX registration
-- [ ] NORMAL: Lock file management and collision prevention
-- [ ] NICE: File structure health checks and cleanup automation
+- [ ] NORMAL: Lock management via native session tools (replaces active-locks.json)
+- [ ] NICE: Workspace health checks and cleanup automation
 
-### Phase 2D — Responsibility & Config Evolution via n8n
-- [ ] HIGH: n8n workflow for agent config changes (model swaps, tool grants, scope changes)
-- [ ] NORMAL: Config drift detection (live state vs declared state)
+### Phase 2D — Config Evolution & Drift Detection
+- [ ] HIGH: Config change tracking (model swaps, tool grants, scope changes)
+- [ ] NORMAL: Config drift detection (live gateway state vs declared openclaw.json5)
 - [ ] NORMAL: Role evolution tracking (when agents gain/lose responsibilities)
 - [ ] NICE: Automated changelog generation from config diffs
 
-### Phase 2E — Discord Channel & Category Redesign
-- [ ] HIGH: Map channel structure to n8n-managed routing rules
-- [ ] HIGH: Set up Discord channel permissions matching access control matrix
+### Phase 2E — Discord Channel Optimization
+- [ ] HIGH: Channel permissions audit against CORE-CHARTER access control matrix
 - [ ] NORMAL: Category redesign informed by 2A-2D decisions
 - [ ] NORMAL: Channel archival and lifecycle management
 
@@ -103,7 +102,7 @@ Context window bloat is a first-class architectural concern. This phase audits, 
 ### Phase 3C — Context Window Strategy
 - [ ] NORMAL: Define per-agent context budget (what goes in, what stays out)
 - [ ] NORMAL: Design progressive disclosure for agent system prompts
-- [ ] NORMAL: Implement context window health metrics in n8n
+- [ ] NORMAL: Implement context window health metrics via native OpenClaw tooling
 
 ### Phase 3D — Research Proposal
 - [ ] NORMAL: Write formal research proposal for token/context optimization
@@ -114,13 +113,13 @@ Context window bloat is a first-class architectural concern. This phase audits, 
 
 ## Phase 4 — Research: LangChain / LangFlow / LangGraph (NICE)
 
-Evaluate whether LangChain, LangFlow, or LangGraph adds meaningful scalability and capability to the n8n-based orchestration pipeline. This is exploratory, not committed.
+Evaluate whether LangChain, LangFlow, or LangGraph adds meaningful capability beyond native OpenClaw features. n8n remains for external integrations; this evaluates whether additional frameworks are needed. Exploratory, not committed.
 
-- [ ] NICE: Research LangChain integration points with n8n
-- [ ] NICE: Evaluate LangFlow as visual workflow layer alongside n8n
-- [ ] NICE: Assess LangGraph for multi-agent state machine orchestration
-- [ ] NICE: Pros/cons analysis with recommendation (augment n8n, replace, or skip)
-- [ ] NICE: Decision criteria: does it optimize end-use goals more effectively than n8n alone?
+- [ ] NICE: Research LangChain integration points with native OpenClaw and n8n
+- [ ] NICE: Evaluate LangFlow as visual workflow layer for external integrations
+- [ ] NICE: Assess LangGraph for multi-agent state machine orchestration vs native OpenClaw sessions
+- [ ] NICE: Pros/cons analysis with recommendation (augment, replace, or skip)
+- [ ] NICE: Decision criteria: does it optimize end-use goals more effectively than native OpenClaw?
 
 ---
 
@@ -151,10 +150,10 @@ Evaluate whether LangChain, LangFlow, or LangGraph adds meaningful scalability a
 ## Current Status
 
 **Phase 1:** DONE
-**Phase 2:** HIGH — Next up
+**Phase 2:** HIGH — Native OpenClaw integration in progress
 **Phase 3:** NORMAL — After Phase 2 foundations
-**Phase 4:** NICE — Research track
+**Phase 4:** NICE — Research track (evaluate against native OpenClaw capabilities)
 
 **Blockers:** None
 
-**Next Milestone:** Build Phase 2A Laws enforcement workflows in n8n
+**Next Milestone:** Phase 2A/2B — Native session migration and cost tracking via `/usage` + cron

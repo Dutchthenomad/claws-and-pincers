@@ -1,5 +1,5 @@
 # OpenClaw Cost Registry
-# Updated: 2026-02-26 — Reflects OpenRouter-first model stack
+# Updated: 2026-03-01 — Native OpenClaw cost tracking, OpenRouter-first model stack
 
 paid_services:
   llm_apis:
@@ -50,4 +50,26 @@ tracking:
   database: timescaledb
   table: openclaw.cost_events
   retention_days: 90
-  notes: Token cost monitoring planned as n8n workflow (Phase 2A)
+  method: Native OpenClaw /usage endpoint + cron job
+  notes: Cost data polled hourly via Groq llama-3.3-70b-versatile (free tier), stored in TimescaleDB
+
+# Heartbeat cost estimates (Groq free tier — $0.00 per call)
+heartbeat_costs:
+  model: groq/llama-3.3-70b-versatile
+  cost_per_call_usd: 0.00
+  agents:
+    sysadmin:
+      interval_minutes: 15
+      daily_calls: 96
+    researcher:
+      interval_minutes: 30
+      daily_calls: 48
+    developer:
+      interval_minutes: 30
+      daily_calls: 48
+    reviewer:
+      interval_minutes: 60
+      daily_calls: 24
+  total_daily_calls: 216
+  total_daily_cost_usd: 0.00
+  notes: All heartbeats use Groq free tier to eliminate recurring cost

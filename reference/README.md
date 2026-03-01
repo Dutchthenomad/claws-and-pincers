@@ -66,6 +66,18 @@ This documentation folder contains comprehensive research and architectural plan
 
 When ingesting these docs, start with `01-OPENCLAW-OVERVIEW.md` for context, then `08-CONFIGURATION-REFERENCE.md` and `07-SERVER-ARCHITECTURE.md` for the build spec. The other docs provide deep-dive context on individual subsystems.
 
+## Migration Notes
+
+As of 2026-03-01, this project uses **native OpenClaw features** for all control plane functions:
+- **Cron** (native) replaces n8n-based scheduling for governance audits and cost reports
+- **Session tools** (sessions_spawn, sessions_send, sessions_list, sessions_history) replace file-based coordination
+- **Memory-core** (native) provides persistent agent memory within the Gateway
+- **Heartbeats** (native) provide periodic agent check-ins
+
+The following config files have been archived (no longer referenced):
+- `config/capability-timeline.yaml` — archived
+- `config/permission-tiers.yaml` — archived
+
 ## Last Updated
 
-2026-02-16 — Based on OpenClaw version 2026.2.16 (latest as of this date)
+2026-03-01 — Based on OpenClaw version 2026.2.26

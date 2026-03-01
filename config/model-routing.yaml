@@ -108,6 +108,37 @@ rate_limits:
   anthropic: 60
   groq: 30
 
+# Heartbeat model overrides (lightweight, cost-sensitive)
+# Uses Groq free tier to minimize cost on frequent periodic calls
+heartbeat_overrides:
+  sysadmin:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 15
+    purpose: infrastructure health check
+  researcher:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 30
+    purpose: source freshness check
+  developer:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 30
+    purpose: workspace and build status
+  reviewer:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 60
+    purpose: pending review queue check
+
+# Cron job model overrides (scheduled tasks, cost-sensitive)
+cron_overrides:
+  cost_usage_check:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 60
+    purpose: Native OpenClaw /usage endpoint polling
+  config_drift_check:
+    model: groq/llama-3.3-70b-versatile
+    interval_minutes: 120
+    purpose: Live gateway state vs declared config comparison
+
 # Cost thresholds for alerts (USD)
 cost_alerts:
   per_request_warn: 0.50

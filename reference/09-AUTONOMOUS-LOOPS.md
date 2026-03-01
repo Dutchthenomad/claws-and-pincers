@@ -57,7 +57,19 @@ HEARTBEAT_OK
 
 ## Cron Jobs
 
-For precise scheduling (vs. heartbeat's periodic check-in).
+For precise scheduling (vs. heartbeat's periodic check-in). Cron is a native OpenClaw feature — no external scheduler (n8n, systemd timers) needed.
+
+### Heartbeat vs Cron: When to Use Each
+
+| Concern | Heartbeat | Cron |
+|---------|-----------|------|
+| Timing | Periodic interval (30/60 min) | Precise schedule (crontab syntax) |
+| Trigger | Gateway daemon wakes agent | Gateway fires at exact time |
+| Logic | Agent reads HEARTBEAT.md, decides if action needed | Message sent directly — agent always acts |
+| Best for | Opportunistic checks, "is anything wrong?" | Scheduled reports, audits, governance enforcement |
+| Session key | Agent's existing session | `cron:<job.id>` (isolated) |
+
+**Rule of thumb:** Use heartbeats for reactive monitoring. Use cron for scheduled governance and reporting.
 
 ### Cron Configuration
 ```json5
@@ -88,6 +100,40 @@ For precise scheduling (vs. heartbeat's periodic check-in).
 }
 ```
 
+### Governance Cron Jobs
+
+These cron jobs enforce the 4 Absolute Laws and operational governance:
+
+```json5
+{
+  cron: {
+    jobs: [
+      // Law 1 Audit: No Project ID, No Work Allowed
+      {
+        id: "law1-audit",
+        schedule: "0 */6 * * *",  // Every 6 hours
+        agent: "reviewer",
+        message: "Run Law 1 audit: Check all active sessions and recent #task-dispatch messages. Flag any task that lacks a PROJ-XXX identifier. Post violations to #human-oversight with severity CRITICAL.",
+      },
+      // Law 2 Audit: No Charter, No Code
+      {
+        id: "law2-audit",
+        schedule: "0 8,20 * * *",  // 8 AM and 8 PM
+        agent: "reviewer",
+        message: "Run Law 2 audit: For each active PROJ-XXX, verify a charter exists and was approved before any implementation began. Check git history timestamps vs charter approval timestamps. Post violations to #human-oversight.",
+      },
+      // Daily Cost Report
+      {
+        id: "cost-daily",
+        schedule: "0 23 * * *",  // 11 PM daily
+        agent: "orchestrator",
+        message: "Generate daily cost report: aggregate token usage across all agents via OpenRouter billing. Compare against budget thresholds. Post to #cost-tracking. If any agent exceeded $2 today, flag in #human-oversight.",
+      },
+    ]
+  }
+}
+```
+
 ### Cron via CLI
 ```bash
 # Send a message to a channel on schedule
@@ -96,6 +142,41 @@ For precise scheduling (vs. heartbeat's periodic check-in).
 
 ### Cron Session Keys
 Cron jobs use session key format: `cron:<job.id>`
+
+## Delegation via sessions_spawn
+
+`sessions_spawn` is the primary mechanism for delegating work to other agents. It creates an isolated session, sends a message, and returns the result.
+
+### sessions_spawn for Delegation Loops
+
+```json5
+// Orchestrator spawning a research task
+{
+  tool: "sessions_spawn",
+  args: {
+    agent: "researcher",
+    message: "Research current best practices for WebSocket reconnection. Include at least 3 sources.",
+    timeoutSeconds: 300,  // 5 min max
+    // thread: true,       // Optional: isolate in Discord thread
+  }
+}
+
+// Orchestrator spawning implementation after research completes
+{
+  tool: "sessions_spawn",
+  args: {
+    agent: "developer",
+    message: "Implement WebSocket reconnection based on this research: [research output]. Follow spec PROJ-042.",
+    timeoutSeconds: 600,
+  }
+}
+```
+
+### Key sessions_spawn Behaviors
+- Creates an **isolated session** — the spawned agent gets a clean context
+- Returns the agent's response when complete (or on timeout)
+- Use `sessions_send` to message an **existing** session; use `sessions_spawn` for **new** isolated tasks
+- Combine with `sessions_list` and `sessions_history` for monitoring
 
 ## Recursive Feedback Loop Implementation
 
@@ -115,20 +196,20 @@ Orchestrator: Analyze & Decompose
     │       ▼
     ├─ Orchestrator evaluates quality
     │       │
-    │       ├─ PASS → sessions_send → Coder
+    │       ├─ PASS → sessions_spawn → Developer (with research output)
     │       │           │
     │       │           ▼
     │       │       Implementation completes
     │       │           │
     │       │           ▼
-    │       │       sessions_send → Reviewer
+    │       │       sessions_spawn → Reviewer (with implementation)
     │       │           │
     │       │           ▼
     │       │       Review result
     │       │           │
     │       │           ├─ APPROVED → Post to #completed
     │       │           │
-    │       │           └─ NEEDS_REVISION → Loop back to Coder
+    │       │           └─ NEEDS_REVISION → sessions_spawn → Developer (with feedback)
     │       │                   (max 3 iterations)
     │       │
     │       └─ FAIL → sessions_spawn → Researcher (with feedback)

@@ -58,19 +58,34 @@ pkill -f "openclaw gateway"
 
 ## Sandboxing
 
+### Sandbox Modes
+
+| Mode | Behavior | Use Case |
+|------|----------|----------|
+| `"off"` | No sandboxing, full host access | Orchestrator, trusted agents |
+| `"all"` | Always sandboxed in Docker | Untrusted agents, code execution |
+| `"developer"` | Lenient sandbox — more tools allowed, relaxed restrictions | Developer/Coder agents during active implementation |
+
 ### Per-Agent Sandboxing
 ```json5
 {
   agents: {
     list: [
       {
-        id: "coder",
+        id: "developer",
         sandbox: {
-          mode: "all",        // Always sandboxed
+          mode: "developer",  // Lenient: allows more tools than "all"
           scope: "agent",     // One Docker container per agent
           docker: {
-            setupCommand: "apt-get update && apt-get install -y git curl python3",
+            setupCommand: "apt-get update && apt-get install -y git curl python3 nodejs npm",
           }
+        }
+      },
+      {
+        id: "reviewer",
+        sandbox: {
+          mode: "all",        // Strict: read-only tools mostly
+          scope: "agent",
         }
       }
     ]
@@ -82,11 +97,12 @@ pkill -f "openclaw gateway"
 When sandboxed, these tools are **allowed**: bash, process, read, write, edit, sessions_list, sessions_history, sessions_send, sessions_spawn.
 **Denied**: browser, canvas, nodes, cron, discord, gateway.
 
-Override per-agent as needed.
+In `"developer"` mode, additional tools are allowed by default (e.g., broader file system access, package managers). Override per-agent as needed.
 
-### Recommendation
-- **Orchestrator:** `sandbox.mode: "off"` (needs full access to coordinate)
-- **All other agents:** `sandbox.mode: "all", scope: "agent"` (isolated Docker containers)
+### Recommendation for This Project
+- **Orchestrator (Rick):** `sandbox.mode: "off"` — needs full access to coordinate, use session tools, and manage Discord
+- **Developer (Morty):** `sandbox.mode: "developer"` — lenient sandbox for code execution with broader tool access
+- **Researcher (Beth), Sysadmin (Summer), Reviewer (Jerry):** `sandbox.mode: "off"` — these agents need system/Discord access; restrict via tool policies instead
 
 ## Tool Restrictions
 
@@ -166,15 +182,119 @@ In each agent's SOUL.md:
 
 ## Exec Approval System
 
-For high-risk operations, OpenClaw supports exec approvals:
+For high-risk operations, OpenClaw supports exec approvals via Discord interactive buttons.
+
+### Configuration
 ```json5
 {
-  // Configurable approval requirements for shell commands
-  // When enabled, agent must get human approval before executing certain commands
+  agents: {
+    list: [
+      {
+        id: "sysadmin",
+        exec: {
+          approval: {
+            enabled: true,
+            // Commands matching these patterns require human approval
+            patterns: [
+              "rm -rf *",
+              "docker rm",
+              "docker stop",
+              "systemctl stop",
+              "reboot",
+              "shutdown",
+              "apt remove",
+              "apt purge",
+            ],
+            // Discord channel where approval buttons appear
+            channel: "HUMAN_OVERSIGHT_CHANNEL_ID",
+            // Discord user IDs who can approve/decline
+            approvers: ["DEVIN_USER_ID"],
+            // Timeout before auto-decline (seconds)
+            timeoutSeconds: 300,
+          }
+        }
+      }
+    ]
+  }
 }
 ```
 
-When configured, approval prompts appear in Discord with Approve/Decline buttons. Only configured approvers can use the buttons.
+### How It Works
+1. Agent attempts to execute a command matching an approval pattern
+2. Gateway intercepts and posts an approval request to the configured Discord channel
+3. The message includes **Approve** and **Decline** buttons (Discord Components v2)
+4. Only users in the `approvers` list can click the buttons
+5. If approved: command executes and result returns to agent
+6. If declined or timed out: agent receives a denial message and must find an alternative
+
+### Discord Approval Button Example
+```
+[EXEC APPROVAL REQUIRED]
+Agent: sysadmin (Summer)
+Command: docker stop openclaw-gateway
+Reason: Gateway restart requested for config reload
+
+[Approve] [Decline]
+```
+
+## Tool Policy Enforcement (Hub-and-Spoke)
+
+In a hub-and-spoke `agentToAgent` model, the Orchestrator controls which tools each agent can access. This is enforced at the gateway level — agents cannot bypass their tool policies.
+
+### Per-Agent Tool Policies
+```json5
+{
+  agents: {
+    list: [
+      {
+        id: "orchestrator",
+        tools: {
+          // Orchestrator gets coordination tools, no code execution
+          allow: ["sessions_spawn", "sessions_send", "sessions_list", "sessions_history", "discord", "cron", "memory"],
+          deny: ["exec", "write", "edit", "browser"],
+        }
+      },
+      {
+        id: "developer",
+        tools: {
+          // Developer gets code tools, no coordination or Discord
+          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_send"],
+          deny: ["sessions_spawn", "cron", "gateway", "browser", "discord"],
+        }
+      },
+      {
+        id: "reviewer",
+        tools: {
+          // Reviewer is read-only — cannot modify code or spawn sessions
+          allow: ["read", "sessions_list", "sessions_history", "sessions_send", "discord"],
+          deny: ["exec", "write", "edit", "sessions_spawn", "cron", "gateway", "browser"],
+        }
+      },
+      {
+        id: "researcher",
+        tools: {
+          // Researcher gets search and read tools
+          allow: ["read", "browser", "web_search", "sessions_send", "discord"],
+          deny: ["exec", "write", "edit", "sessions_spawn", "cron", "gateway"],
+        }
+      },
+      {
+        id: "sysadmin",
+        tools: {
+          // Sysadmin gets system tools, restricted by exec approval
+          allow: ["exec", "read", "write", "sessions_send", "discord"],
+          deny: ["sessions_spawn", "cron", "gateway", "browser"],
+        }
+      },
+    ]
+  }
+}
+```
+
+### Enforcement Model
+- **Hub-and-spoke**: Only the Orchestrator (hub) can `sessions_spawn`. Specialist agents (spokes) can only `sessions_send` back to existing sessions.
+- **Principle of least privilege**: Each agent gets the minimum tools needed for its role.
+- **Gateway-level enforcement**: Tool policies are checked by the gateway before tool invocation. Agents cannot override their own policies.
 
 ## VPS Deployment Security
 

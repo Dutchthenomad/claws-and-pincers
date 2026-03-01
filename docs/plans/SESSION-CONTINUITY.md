@@ -95,46 +95,46 @@ All 5 bot tokens stored at `/opt/openclaw/secrets/discord-bots.env`:
 
 3. **Remove legacy Discord bots** — Still pending. Old bot accounts from the Telegram era need cleanup in the Discord server (manual action)
 
-### Phase 2 — n8n Core Systems (HIGH Priority)
+### Phase 2 — Native OpenClaw Integration (HIGH Priority)
 
-n8n becomes the universal control plane. Currently has 2 workflows (RAG Health Check, Knowledge Curator). Phase 2 adds governance enforcement.
+Core agent coordination now uses native OpenClaw features (sessions, heartbeats, `/usage` endpoint, cron jobs) instead of n8n as a control plane. n8n retains a reduced scope for external integrations (Discord polling, webhook pipelines, RAG health).
 
 **n8n access**: Port 5678, accessible via Tailscale at `http://100.113.138.27:5678`
 
-#### Phase 2A — Laws Enforcement via n8n
-- [x] Project ID validator (polls `#task-dispatch` every 30s, validates PROJ-XXX against registry)
-- [x] Charter approval gate check (validates charter approval status before allowing work)
-- [x] Severity routing automation (routes WARN/BLOCKED/CRITICAL from `#review-verdicts` to correct channels)
-- [ ] Conflict registry watchdog
-- [ ] Token cost monitor with kill switch
+#### Phase 2A — Laws Enforcement (Hybrid: n8n + Native)
+- [x] Project ID validator (n8n polls `#task-dispatch` every 30s, validates PROJ-XXX against registry)
+- [x] Charter approval gate check (n8n validates charter approval status before allowing work)
+- [x] Severity routing automation (n8n routes WARN/BLOCKED/CRITICAL from `#review-verdicts` to correct channels)
+- [ ] Conflict detection via native OpenClaw session tools (replaces file-based conflict-registry.json)
+- [ ] Token cost monitoring via native OpenClaw `/usage` endpoint + cron job (replaces planned n8n workflow)
 - [ ] Anti-pattern repeat detection
-- [ ] Heartbeat dead man's switch
+- [ ] Heartbeat dead man's switch via native OpenClaw heartbeat system + per-agent cron intervals
 
-#### Phase 2B — Memory Orchestration via n8n
-- [ ] Integrate OpenClaw Memory API (`localhost:8002`) into n8n workflows
-- [ ] Design per-agent namespaced memory contexts
-- [ ] Memory lifecycle workflow (create, prune, archive)
-- [ ] Cross-agent knowledge sharing rules
+#### Phase 2B — Native Session & Memory Integration
+- [ ] Migrate from file-based coordination (task-board.json, active-locks.json, conflict-registry.json) to native OpenClaw session tools
+- [ ] Integrate OpenClaw Memory API (`localhost:8002`) with native session lifecycle
+- [ ] Design per-agent namespaced memory contexts using native session scoping
+- [ ] Cross-agent knowledge sharing rules (what's shared vs private)
 
-#### Phase 2C — Agent File Structure Management via n8n
-- [ ] Workflow for agent workspace directory management
+#### Phase 2C — Agent Workspace Management
+- [ ] Agent workspace directory management (native OpenClaw workspace mounts)
 - [ ] Automated project folder creation on PROJ-XXX registration
-- [ ] Lock file management and collision prevention
+- [ ] Lock management via native session tools (replaces active-locks.json)
 
-#### Phase 2D — Config Evolution via n8n
-- [ ] Config change workflows (model swaps, tool grants, scope changes)
-- [ ] Config drift detection (live state vs declared state)
-- [ ] Role evolution tracking
+#### Phase 2D — Config Evolution & Drift Detection
+- [ ] Config change tracking (model swaps, tool grants, scope changes)
+- [ ] Config drift detection (live gateway state vs declared openclaw.json5)
+- [ ] Role evolution tracking (when agents gain/lose responsibilities)
 
-#### Phase 2E — Discord Channel & Category Redesign
-- [ ] Map channel structure to n8n-managed routing rules
-- [ ] Set up Discord channel permissions matching access control matrix
+#### Phase 2E — Discord Channel Optimization
+- [ ] Channel permissions audit against CORE-CHARTER access control matrix
 - [ ] Category redesign informed by 2A-2D decisions
+- [ ] Channel archival and lifecycle management
 
 ### Later Phases
 
 - **Phase 3** — Context & token optimization (audit cache settings, skills inventory, context budgets)
-- **Phase 4** — Research LangChain/LangFlow/LangGraph integration
+- **Phase 4** — Research LangChain/LangFlow/LangGraph integration (evaluate against native OpenClaw capabilities)
 - **Phase 5+** — Additional specialists, on-demand spawning, self-optimizing governance
 
 ---
@@ -155,7 +155,7 @@ n8n becomes the universal control plane. Currently has 2 workflows (RAG Health C
 | timescaledb | 127.0.0.1:5433 | same |
 | rabbitmq | 127.0.0.1:5672, 15672 | varies |
 | grafana | 127.0.0.1:3000 | `/docker/grafana/docker-compose.yml` |
-| open-webui (+ ollama) | 127.0.0.1:3000 | varies |
+| ollama | 127.0.0.1:11434 | `/docker/ollama-zlwk/docker-compose.yml` |
 | uptime-kuma | 127.0.0.1:3001 | `/docker/uptime-kuma/docker-compose.yml` |
 | metabase | 127.0.0.1:3002 | `/docker/metabase/docker-compose.yml` |
 | dozzle | 127.0.0.1:8080 | `/docker/dozzle/docker-compose.yml` |

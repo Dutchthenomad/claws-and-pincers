@@ -29,7 +29,7 @@ All 5 Discord agents are online and running on the VPS.
 - **OpenClaw Runtime:** v2026.2.26
 - **LLM Provider:** OpenRouter (primary), Anthropic (fallback), Groq (fallback)
 - **Memory:** OpenClaw Memory API at localhost:8002 (SQLite + FTS5, MCP-integrated)
-- **Orchestration:** n8n at port 5678 (Phase 2 will expand this significantly)
+- **Orchestration:** Native OpenClaw sessions + heartbeats (primary); n8n at port 5678 (external integrations only)
 - **Vector DB:** Qdrant at port 6333
 - **Secrets:** All in `.env` file (not hardcoded in config)
 
@@ -68,15 +68,15 @@ All 5 agents have SOUL.md, AGENTS.md, and HEARTBEAT.md in `agents/{agent-name}/`
 
 ## What's Next
 
-### Phase 2 — n8n Core Systems Architecture (HIGH)
+### Phase 2 — Native OpenClaw Integration (HIGH)
 
-n8n becomes the universal control plane. Static configs are state snapshots; n8n workflows are the living, enforceable truth.
+Core agent coordination uses native OpenClaw features (sessions, heartbeats, `/usage`, cron jobs). n8n retains a reduced scope for external integrations only (Discord polling, webhooks, RAG health).
 
-- **2A:** Laws enforcement workflows (Project ID validation, charter gates, conflict watchdog, cost kill switch)
-- **2B:** Memory orchestration (integrate OpenClaw Memory, per-agent namespaces, lifecycle management)
-- **2C:** Agent file structure management (workspace creation, lock management, cleanup)
-- **2D:** Responsibility and config evolution (drift detection, role tracking, changelog)
-- **2E:** Discord channel/category redesign (informed by 2A-2D)
+- **2A:** Laws enforcement (hybrid n8n + native) — conflict detection via sessions, cost tracking via `/usage` + cron, heartbeat dead man's switch
+- **2B:** Native session & memory migration — replace file-based coordination (task-board.json, active-locks.json) with native session tools
+- **2C:** Agent workspace management — native workspace mounts, lock management via sessions
+- **2D:** Config evolution & drift detection — live gateway state vs declared config
+- **2E:** Discord channel optimization — permissions audit, category redesign
 
 ### Phase 3 — Context & Token Optimization (NORMAL)
 
@@ -87,7 +87,7 @@ n8n becomes the universal control plane. Static configs are state snapshots; n8n
 
 ### Phase 4 — Research: LangChain / LangFlow / LangGraph (NICE)
 
-Evaluate whether these frameworks add meaningful capability to n8n-based orchestration. Exploratory only.
+Evaluate whether these frameworks add meaningful capability beyond native OpenClaw features. Exploratory only.
 
 ### Phase 5+ — Expansion
 
@@ -128,7 +128,7 @@ claws-and-pincers/
 +-- governance/              # Operating system
 |   +-- operations/          # CORE-CHARTER, PROJECT-REGISTRY
 |   +-- templates/           # Charter, task, conflict templates
-|   +-- shared/              # Task board, locks, registry (JSON)
+|   +-- shared/              # Legacy JSON files (migrating to native OpenClaw sessions)
 +-- reference/               # OpenClaw platform reference docs
 +-- config/                  # Model routing, cost registry
 +-- visuals/                 # Dashboard HTML + diagrams
@@ -144,10 +144,10 @@ claws-and-pincers/
 ## Status Summary
 
 **Phase 1 (Foundation):** DONE
-**Phase 2 (n8n Core Systems):** HIGH — Next up
+**Phase 2 (Native OpenClaw Integration):** HIGH — In progress
 **Phase 3 (Context Optimization):** NORMAL — After Phase 2
 **Phase 4 (LangChain Research):** NICE — Exploratory
 
 **Blockers:** None
 
-**Next Milestone:** Build Phase 2A Laws enforcement workflows in n8n
+**Next Milestone:** Phase 2A/2B — Native session migration and cost tracking via `/usage` + cron

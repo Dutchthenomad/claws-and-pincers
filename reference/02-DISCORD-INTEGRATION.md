@@ -216,6 +216,41 @@ The `discord` tool is exposed automatically when the current channel is Discord.
 
 Interaction results route back to the agent as normal inbound messages.
 
+## Discord Threads for Project Isolation
+
+Use `sessions_spawn` with `thread: true` to create isolated Discord threads per project or task. This keeps the main channel clean while giving each project its own conversation context.
+
+```json5
+// Orchestrator spawning a task in an isolated Discord thread
+{
+  tool: "sessions_spawn",
+  args: {
+    agent: "developer",
+    message: "Implement PROJ-042: WebSocket reconnection handler per charter spec.",
+    thread: true,  // Creates a Discord thread for this session
+    timeoutSeconds: 600,
+  }
+}
+```
+
+### Thread Benefits
+- Each PROJ-XXX gets its own thread — clean audit trail
+- Thread sessions are isolated from the parent channel session
+- Agents can be spawned into threads without polluting shared channels
+- Human can follow along in the thread without interfering with the agent's work
+
+### Thread Session Keys
+Thread sessions use the format: `agent:<agentId>:discord:thread:<guildId>:<threadId>`
+
+## Discord Components v2
+
+OpenClaw supports Discord Components v2 for interactive UI elements (buttons, select menus, action rows). These are used for:
+- **Exec approval buttons** (Approve/Decline for dangerous commands)
+- **Task status polls** (agents can create polls for human decision-making)
+- **Interactive reports** (agents can post reports with action buttons)
+
+Components v2 is an evolving Discord feature. Current support covers buttons and basic action rows. Select menus and modals are potential future additions as Discord expands the API.
+
 ## Key Behaviors
 
 - **Routing is deterministic:** replies always go back to the channel they arrived on
