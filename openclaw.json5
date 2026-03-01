@@ -229,8 +229,24 @@
   },
 
   // Native features enabled (O-01, O-06, O-08, O-09)
-  hooks: { enabled: true },
-  cron: { enabled: true },
+  hooks: {
+    enabled: true,
+    webhooks: {
+      "governance-alert": {
+        url: "http://127.0.0.1:5678/webhook/openclaw-governance",
+        events: ["cron.complete", "session.error", "heartbeat.alert"],
+      },
+    },
+  },
+  cron: {
+    enabled: true,
+    // Governance cron jobs (replacing n8n polling workflows)
+    // These are illustrative — actual jobs added via `openclaw cron add` CLI.
+    // See CORE-CHARTER v2.0 Section 9.2 for job descriptions:
+    //   law1-audit: */5 * * * * — Check #task-dispatch for untagged messages
+    //   law2-audit: */15 * * * * — Check for unapproved charters
+    //   cost-daily: 0 0 * * * — Daily cost summary via /usage
+  },
 
   plugins: {
     entries: {

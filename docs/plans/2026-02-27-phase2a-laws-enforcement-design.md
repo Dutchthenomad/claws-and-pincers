@@ -49,3 +49,25 @@ Each workflow follows the same pattern:
 - Token cost monitor with kill switch
 - Anti-pattern repeat detection
 - Heartbeat dead man's switch
+
+---
+
+## Deprecation Notice (2026-03-01)
+
+**The three n8n governance workflows above are deprecated in favor of native OpenClaw enforcement.**
+
+Per the [OpenClaw Compliance Audit](OPENCLAW-COMPLIANCE-AUDIT.md) and [Implementation Plan](IMPLEMENTATION-PLAN-NATIVE-OPENCLAW.md), governance enforcement has been migrated to:
+
+| n8n Workflow | Native Replacement |
+|---|---|
+| Law 1: Project ID Validator | Orchestrator's `AGENTS.md` enforces on every message + `law1-audit` cron job (every 5 min) |
+| Law 2: Charter Approval Gate | Orchestrator's `AGENTS.md` enforces before dispatch + `law2-audit` cron job (every 15 min) |
+| Severity Routing | Orchestrator uses `sessions_send` + Discord tools for routing per severity matrix |
+
+**Remaining Phase 2A items are also handled natively:**
+- Conflict detection: `sessions_list` + hub-and-spoke `agentToAgent` config
+- Token cost: `/usage` slash command + `cost-daily` cron job
+- Anti-pattern detection: Embedded in Reviewer's `AGENTS.md` and workspace memory
+- Heartbeat monitoring: Native OpenClaw heartbeats with per-agent intervals
+
+The n8n workflows remain deployed but inactive. Their JSON exports are preserved in `n8n/` for reference.
