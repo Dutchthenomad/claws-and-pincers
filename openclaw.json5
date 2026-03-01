@@ -125,7 +125,7 @@
 
   tools: {
     allow: ["exec", "process", "read", "write", "edit"],
-    deny: ["browser"],
+    // browser access controlled per-agent (orchestrator + researcher: allow; others: deny)
     agentToAgent: {
       enabled: true,
       allow: ["orchestrator", "researcher", "developer", "sysadmin", "reviewer"],
