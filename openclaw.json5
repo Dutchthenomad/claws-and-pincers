@@ -36,8 +36,7 @@
         "openrouter/moonshotai/kimi-k2.5": { alias: "kimi" },
         "openrouter/google/gemini-3-flash-preview": { alias: "gemini" },
         "anthropic/claude-sonnet-4-5": { alias: "sonnet", params: { cacheControlTtl: "1h" } },
-        "groq/llama-3.3-70b-versatile": { alias: "groq" },
-        "groq/llama-3.1-8b-instant": { alias: "groq-fast" },
+        // groq models removed — all routing through OpenRouter only
       },
       workspace: "/home/agent-main",
       userTimezone: "America/New_York",
@@ -83,7 +82,7 @@
         identity: { name: "Researcher", emoji: "🔬" },
         groupChat: { mentionPatterns: ["@researcher", "@research", "@Researcher"] },
         sandbox: { mode: "off" },
-        heartbeat: { every: "2h", model: "groq/llama-3.3-70b-versatile" },
+        heartbeat: { every: "2h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Researcher: no exec (C-09), no sessions_spawn (only Orchestrator spawns).
           allow: ["read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "browser", "discord"],
@@ -101,7 +100,7 @@
         identity: { name: "Developer", emoji: "💻" },
         groupChat: { mentionPatterns: ["@developer", "@dev", "@Developer"] },
         sandbox: { mode: "lenient" },
-        heartbeat: { every: "2h", model: "groq/llama-3.3-70b-versatile" },
+        heartbeat: { every: "2h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Developer: exec allowed (needs to run code), web_search added (C-09). No sessions_spawn.
           allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "web_search", "discord"],
@@ -119,7 +118,7 @@
         identity: { name: "Sysadmin", emoji: "🖥️" },
         groupChat: { mentionPatterns: ["@sysadmin", "@sys", "@Sysadmin"] },
         sandbox: { mode: "off" },
-        heartbeat: { every: "30m", model: "groq/llama-3.3-70b-versatile" },
+        heartbeat: { every: "30m", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Sysadmin: full host access for infrastructure. No sessions_spawn.
           allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "discord"],
@@ -137,7 +136,7 @@
         identity: { name: "Reviewer", emoji: "🔍" },
         groupChat: { mentionPatterns: ["@reviewer", "@review", "@Reviewer"] },
         sandbox: { mode: "off" },
-        heartbeat: { every: "4h", model: "groq/llama-3.3-70b-versatile" },
+        heartbeat: { every: "4h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Reviewer: read-only. No exec, write, edit, apply_patch, or sessions_spawn.
           allow: ["read", "sessions_list", "sessions_history", "sessions_send", "discord"],
