@@ -175,7 +175,20 @@
   },
 
   tools: {
-    allow: ["exec", "process", "read", "write", "edit"],
+    // Global ceiling — must include every tool any agent may use.
+    // Per-agent tools.allow/deny narrows from here.
+    allow: [
+      "read", "write", "edit", "apply_patch",
+      "exec", "process",
+      "sessions_list", "sessions_history", "sessions_send", "sessions_spawn",
+      "subagents", "session_status",
+      "message",
+      "web_search", "web_fetch",
+      "browser",
+      "memory_search", "memory_get",
+      "cron", "gateway",
+      "agents_list",
+    ],
     // agentToAgent: hub-and-spoke routing enforced per-agent above (C-05)
     agentToAgent: {
       enabled: true,
