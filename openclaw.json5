@@ -49,6 +49,33 @@
       maxConcurrent: 2,
       subagents: { maxConcurrent: 8 },
       sandbox: { mode: "off" },
+
+      // Memory search with vector embeddings via OpenRouter (OpenAI-compatible)
+      memorySearch: {
+        enabled: true,
+        provider: "openai",
+        model: "openai/text-embedding-3-small",
+        remote: {
+          baseUrl: "https://openrouter.ai/api/v1/",
+          apiKey: "${OPENROUTER_API_KEY}",
+        },
+        fallback: "none",
+        store: {
+          driver: "sqlite",
+          vector: {
+            enabled: true,
+            extensionPath: "/app/node_modules/.pnpm/sqlite-vec-linux-x64@0.1.7-alpha.2/node_modules/sqlite-vec-linux-x64/vec0.so",
+          },
+        },
+        chunking: { tokens: 512, overlap: 64 },
+        query: {
+          maxResults: 10,
+          minScore: 0.3,
+          hybrid: { enabled: true, vectorWeight: 0.7, textWeight: 0.3 },
+        },
+        sync: { onSessionStart: true, onSearch: false, watch: true },
+        cache: { enabled: true, maxEntries: 50000 },
+      },
     },
 
     list: [
