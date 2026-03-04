@@ -93,8 +93,8 @@
         heartbeat: { every: "15m" },
         tools: {
           profile: "full",
-          // Orchestrator: coordinator only — no exec (C-09). Full session + cron tools.
-          allow: ["read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "discord", "web_search", "browser", "cron"],
+          // Orchestrator: coordinator only — no exec (C-09). Full session + automation tools.
+          allow: ["read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "sessions_spawn", "session_status", "subagents", "agents_list", "message", "web_search", "web_fetch", "browser", "cron", "gateway", "memory_search", "memory_get"],
           deny: ["exec", "apply_patch"],
           agentToAgent: { enabled: true, allow: ["*"] },
         },
@@ -112,7 +112,7 @@
         heartbeat: { every: "2h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Researcher: no exec (C-09), no sessions_spawn (only Orchestrator spawns).
-          allow: ["read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "browser", "discord"],
+          allow: ["read", "write", "sessions_list", "sessions_history", "sessions_send", "web_search", "web_fetch", "browser", "message", "memory_search", "memory_get"],
           deny: ["exec", "edit", "apply_patch", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
           agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
@@ -130,7 +130,7 @@
         heartbeat: { every: "2h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Developer: exec allowed (needs to run code), web_search added (C-09). No sessions_spawn.
-          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "web_search", "discord"],
+          allow: ["exec", "read", "write", "edit", "apply_patch", "sessions_list", "sessions_history", "sessions_send", "web_search", "web_fetch", "message", "memory_search", "memory_get"],
           deny: ["browser", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
           agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
@@ -148,8 +148,8 @@
         heartbeat: { every: "30m", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Sysadmin: full host access for infrastructure. No sessions_spawn.
-          allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "discord"],
-          deny: ["browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
+          allow: ["exec", "read", "write", "edit", "sessions_list", "sessions_history", "sessions_send", "message", "memory_search", "memory_get", "gateway"],
+          deny: ["browser", "web_search", "cron", "nodes", "canvas", "sessions_spawn"],
           agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },
       },
@@ -166,7 +166,7 @@
         heartbeat: { every: "4h", model: "openrouter/google/gemini-3-flash-preview" },
         tools: {
           // Reviewer: read-only. No exec, write, edit, apply_patch, or sessions_spawn.
-          allow: ["read", "sessions_list", "sessions_history", "sessions_send", "discord"],
+          allow: ["read", "sessions_list", "sessions_history", "sessions_send", "message", "memory_search", "memory_get"],
           deny: ["exec", "write", "edit", "apply_patch", "browser", "web_search", "cron", "gateway", "nodes", "canvas", "sessions_spawn"],
           agentToAgent: { enabled: true, allow: ["orchestrator"] },
         },

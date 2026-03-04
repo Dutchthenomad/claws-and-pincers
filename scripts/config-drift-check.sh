@@ -18,53 +18,12 @@ if [[ ! -f "$LIVE_JSON" ]]; then
   exit 2
 fi
 
-# Convert json5 to normalized JSON (strip comments, fix bare keys, remove trailing commas)
+# Convert json5 to normalized JSON
 python3 -c "
-import re, json, sys
+import json, json5, sys
 
 with open('$REPO_JSON5') as f:
-    raw = f.read()
-
-# Strip // comments
-lines = raw.split('\n')
-cleaned = []
-for line in lines:
-    result = []
-    in_string = False
-    escape = False
-    i = 0
-    while i < len(line):
-        c = line[i]
-        if escape:
-            result.append(c)
-            escape = False
-            i += 1
-            continue
-        if c == '\\\\' and in_string:
-            result.append(c)
-            escape = True
-            i += 1
-            continue
-        if c == '\"':
-            in_string = not in_string
-            result.append(c)
-            i += 1
-            continue
-        if not in_string and c == '/' and i+1 < len(line) and line[i+1] == '/':
-            break
-        result.append(c)
-        i += 1
-    cleaned.append(''.join(result))
-
-text = '\n'.join(cleaned)
-text = re.sub(r'(?<=[{,\n])\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*:', r' \"\1\":', text)
-text = re.sub(r',\s*([}\]])', r' \1', text)
-
-try:
-    data = json.loads(text)
-except json.JSONDecodeError as e:
-    print(f'ERROR: Failed to parse json5: {e}', file=sys.stderr)
-    sys.exit(2)
+    data = json5.load(f)
 
 # Remove keys that the gateway manages (meta, wizard) for comparison
 for k in ['meta', 'wizard']:
@@ -73,14 +32,20 @@ for k in ['meta', 'wizard']:
 # Remove keys known to be unsupported by current gateway version
 # (these are in json5 as aspirational but get stripped before deploy)
 for agent in data.get('agents', {}).get('list', []):
-    if 'agentToAgent' in agent.get('tools', {}):
-        del agent['tools']['agentToAgent']
-if 'webhooks' in data.get('hooks', {}):
-    del data['hooks']['webhooks']
-if data.get('hooks') == {'enabled': True}:
+    tools = agent.get('tools', {})
+    if 'agentToAgent' in tools:
+        del tools['agentToAgent']
+    if 'profile' in tools:
+        del tools['profile']
+
+# Remove hooks section (requires token not yet configured)
+if 'hooks' in data:
     del data['hooks']
+
+# Remove gateway.openaiApi (not yet supported)
 if 'openaiApi' in data.get('gateway', {}):
     del data['gateway']['openaiApi']
+
 # Normalize developer sandbox to 'off' (lenient not supported)
 for agent in data.get('agents', {}).get('list', []):
     if agent.get('id') == 'developer' and agent.get('sandbox', {}).get('mode') == 'lenient':
