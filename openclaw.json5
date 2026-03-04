@@ -42,7 +42,7 @@
       userTimezone: "America/New_York",
       contextPruning: { mode: "cache-ttl", ttl: "1h" },
       compaction: { mode: "safeguard" },
-      thinkingDefault: "low",
+      thinkingDefault: "adaptive",
       timeoutSeconds: 600,
       // NOTE: Per-agent heartbeats defined below. When any agent has a heartbeat block,
       // only those agents run heartbeats (per OpenClaw docs).
@@ -225,10 +225,8 @@
   channels: {
     discord: {
       enabled: true,
-      allowBots: true,
+      allowBots: "mentions",
       groupPolicy: "allowlist",
-      dmPolicy: "pairing",
-      allowFrom: ["13362138764"],
       streaming: "off",
       execApprovals: {
         enabled: true,
@@ -237,6 +235,7 @@
       guilds: {
         "1472374974340665477": {
           requireMention: true,
+          ignoreOtherMentions: true,
         },
       },
       accounts: {
@@ -245,6 +244,7 @@
         developer: { token: "${DISCORD_DEVELOPER_TOKEN}", groupPolicy: "allowlist", streaming: "off" },
         sysadmin: { token: "${DISCORD_SYSADMIN_TOKEN}", groupPolicy: "allowlist", streaming: "off" },
         reviewer: { token: "${DISCORD_REVIEWER_TOKEN}", groupPolicy: "allowlist", streaming: "off" },
+        default: { groupPolicy: "allowlist", dmPolicy: "pairing", allowFrom: ["13362138764"], streaming: "off" },
       },
       actions: {
         reactions: true, messages: true, threads: true, pins: true,
@@ -279,15 +279,12 @@
   },
   cron: {
     enabled: true,
-    // Governance cron jobs (replacing n8n polling workflows)
-    // These are illustrative — actual jobs added via `openclaw cron add` CLI.
-    // See CORE-CHARTER v2.0 Section 9.2 for job descriptions:
-    //   law1-audit: */5 * * * * — Check #task-dispatch for untagged messages
-    //   law2-audit: */15 * * * * — Check for unapproved charters
-    //   cost-daily: 0 0 * * * — Daily cost summary via /usage
+    // Governance cron jobs — actual jobs added via `openclaw cron add` CLI.
+    failureAlert: { enabled: true, after: 3, cooldownMs: 300000 },
   },
 
   plugins: {
+    allow: ["discord", "cli-offload", "memory-core"],
     entries: {
       discord: { enabled: true },
       "cli-offload": { enabled: true },
